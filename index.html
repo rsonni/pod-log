@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="slate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pod log — commander stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --serif:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+/* Colour schemes. Change data-theme on <html> to set the default. */
+[data-theme="slate"]{
+  --felt:#15181c; --felt-2:#101317; --felt-3:#1e2329;
+  --ivory:#f3f1ed; --dim:#c4c9cf; --muted:#98a0a8;
+  --gold:#e2b64a; --on-gold:#171307;
+  --edge:rgba(243,241,237,.35); --rule:rgba(243,241,237,.26); --rule-2:rgba(243,241,237,.14);
+  --chip:rgba(243,241,237,.06); --glow:rgba(226,182,74,.08); --shade:rgba(0,0,0,.55);
+  --c1:#f6e9b2; --c2:#a5daf6; --c3:#71bd57; --c4:#ec7f62; --c5:#a37fdb; --c6:#2b9d92;
+}
+[data-theme="paper"]{
+  --felt:#f1eee6; --felt-2:#e7e3d8; --felt-3:#fbf9f4;
+  --ivory:#191714; --dim:#4c4842; --muted:#605c55;
+  --gold:#7c5612; --on-gold:#fdfbf6;
+  --edge:rgba(25,23,20,.46); --rule:rgba(25,23,20,.35); --rule-2:rgba(25,23,20,.19);
+  --chip:rgba(25,23,20,.05); --glow:rgba(138,95,20,.06); --shade:rgba(0,0,0,.22);
+  --c1:#7d5f0e; --c2:#1a6ea8; --c3:#2b7a3f; --c4:#b03a17; --c5:#4f3487; --c6:#0d6a7c;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--felt);color:var(--ivory);font-family:var(--sans);font-size:15px;line-height:1.6;
+  background-image:radial-gradient(ellipse at 50% -10%,var(--glow),transparent 60%)}
+.wrap{max-width:1120px;margin:0 auto;padding:clamp(24px,5vw,56px) clamp(18px,4vw,40px) 80px}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}
+.topbar .eyebrow{margin:0}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(38px,7vw,64px);line-height:.98;margin:0 0 18px;letter-spacing:-.015em}
+h1 em{font-style:italic;font-weight:400;color:var(--gold)}
+.lede{max-width:56ch;color:var(--dim);margin:0 0 30px}
+
+.meta{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:2px 0}
+.meta div{flex:1 1 130px;padding:14px 20px;position:relative}
+.meta div:first-child{padding-left:0}
+.meta div:last-child{padding-right:0}
+.meta div+div::before{content:"";position:absolute;left:0;top:16%;bottom:16%;width:1px;background:var(--rule-2)}
+.meta dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+.meta dd{font-family:var(--mono);font-size:22px;margin:2px 0 0;font-weight:500}
+
+.pods{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 10px}
+.meta{margin-bottom:38px}
+.pod{background:transparent;border:1px solid var(--edge);color:var(--dim);border-radius:3px;
+  padding:9px 15px;font-family:var(--mono);font-size:12.5px;cursor:pointer;
+  transition:border-color .15s,color .15s,background .15s;
+  display:flex;align-items:baseline;gap:8px}
+.pod:hover:not(:disabled){border-color:var(--gold);color:var(--ivory);background:var(--chip)}
+.pod:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pod[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:500}
+.pod:disabled{opacity:.75;cursor:not-allowed;border-style:dashed;color:var(--muted)}
+.pod b{font-weight:400;opacity:.6;font-size:11px}
+.pod[aria-pressed=true] b{opacity:.65}
+.caution{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 22px}
+
+.grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:26px;align-items:start}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px;margin-top:26px}
+.duo.solo{grid-template-columns:minmax(0,1fr)}
+
+.panel{background:var(--felt-3);border:1px solid var(--rule);border-radius:4px;
+  padding:22px 24px 24px}
+
+.phead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 4px}
+h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+.n{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.sub{font-size:12.5px;color:var(--muted);margin:0 0 18px;line-height:1.5}
+.ringnote{margin:14px 0 0}
+.ringnote:empty{display:none}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  text-align:right;font-weight:400;padding:0 0 9px;border-bottom:1px solid var(--rule);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:10px 0;border-bottom:1px solid var(--rule-2);text-align:right;font-family:var(--mono);
+  font-size:13px;white-space:nowrap;vertical-align:middle}
+td:first-child,th:first-child{text-align:left;white-space:normal;width:99%}
+th+th,td+td{padding-left:18px}
+.lean td:first-child,.lean th:first-child{width:24%}
+.solo td:first-child,.solo th:first-child{width:46%}
+.lean th+th,.lean td+td{padding-left:12px}
+td:first-child{font-family:var(--sans);font-size:14px;line-height:1.45}
+tbody tr:last-child td{border-bottom:0}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:9px;vertical-align:1px}
+.up{color:var(--gold)}
+.down{color:var(--muted)}
+.zero{color:var(--c4)}
+.scroll{overflow-x:auto}
+
+.legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:0 0 14px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.legend span{display:flex;align-items:center;gap:6px}
+.canvasbox{position:relative;width:100%;height:230px}
+.canvasbox.tall{height:272px}
+
+.routes{margin:0;padding:0;list-style:none}
+.routes li{margin-bottom:15px}
+.routes li:last-child{margin-bottom:0}
+.rlabel{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.rlabel b{font-weight:400}
+.rlabel span{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.bar{height:7px;background:var(--rule-2);border-radius:1px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:1px}
+
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:20px}
+.person{background:var(--felt-2);border:1px solid var(--rule);border-radius:4px;padding:19px 21px 20px;
+  border-left:3px solid var(--gold)}
+.ptop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:2px}
+.pname{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em}
+.prate{font-family:var(--mono);font-size:19px}
+.pline{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.02em}
+.psay{font-size:13.5px;line-height:1.62;color:var(--dim);margin:0 0 15px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:var(--mono);font-size:10.5px;color:var(--dim);background:var(--chip);
+  border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
+.chip b{color:var(--ivory);font-weight:400}
+.pips{display:inline-flex;gap:3px;margin-left:2px;vertical-align:-1px}
+.pips i{width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 1px var(--edge)}
+.empty{text-align:center;padding:52px 20px;color:var(--muted);font-size:14px}
+.empty b{display:block;font-family:var(--serif);font-size:19px;color:var(--dim);font-weight:400;margin-bottom:8px}
+.empty code{display:inline-block;background:var(--felt-2);border:1px solid var(--rule);border-radius:2px;
+  padding:9px 13px;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--dim);text-align:left;max-width:100%;overflow-x:auto}
+
+.toggle{display:flex;border:1px solid var(--edge);border-radius:3px;overflow:hidden;flex:0 0 auto}
+.tg{background:transparent;border:0;color:var(--muted);font-family:var(--mono);font-size:11px;
+  padding:6px 12px;cursor:pointer;transition:color .15s,background .15s}
+.tg+.tg{border-left:1px solid var(--edge)}
+.tg:hover{color:var(--ivory)}
+.tg[aria-pressed=true]{background:var(--gold);color:var(--on-gold)}
+.tg:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.tg.sw{padding:5px 7px;display:flex;align-items:center}
+.tg.sw:hover{background:var(--chip)}
+.tg.sw[aria-pressed=true]{background:var(--chip)}
+.tg.sw[aria-pressed=true] .chip-sw{box-shadow:0 0 0 2px var(--gold)}
+.chip-sw{display:block;width:30px;height:18px;border-radius:3px;position:relative;
+  box-shadow:0 0 0 1px var(--edge);transition:box-shadow .15s}
+.chip-sw i{position:absolute;top:5px;width:8px;height:8px;border-radius:50%}
+.chip-sw .a{left:5px} .chip-sw .b{right:5px}
+.s-slate{background:#15181c} .s-slate .a{background:#e2b64a} .s-slate .b{background:#a5daf6}
+.s-paper{background:#f1eee6} .s-paper .a{background:#7c5612} .s-paper .b{background:#1a6ea8}
+
+.split{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:30px;align-items:start}
+.strip{margin:0;padding:0;list-style:none}
+.striphead{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  padding-bottom:9px;border-bottom:1px solid var(--rule);margin-bottom:14px}
+.strip li{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-family:var(--mono);font-size:11.5px}
+.strip li:last-child{margin-bottom:0}
+.strip .lab{color:var(--dim);width:46px;flex:0 0 auto}
+.strip .bar{flex:1}
+.strip .val{color:var(--muted);width:34px;text-align:right;flex:0 0 auto}
+@media (max-width:700px){.split{grid-template-columns:1fr;gap:26px}}
+
+.editor{margin-top:52px;border-top:1px solid var(--rule);padding-top:32px}
+textarea{width:100%;min-height:190px;background:var(--felt-2);color:var(--ivory);border:1px solid var(--edge);
+  border-radius:4px;padding:15px;font-family:var(--mono);font-size:12.5px;line-height:1.75;resize:vertical}
+textarea:focus{outline:2px solid var(--gold);outline-offset:-1px;border-color:transparent}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+button.act{background:var(--gold);color:var(--on-gold);border:0;border-radius:2px;padding:10px 20px;
+  font-family:var(--mono);font-size:12.5px;font-weight:500;cursor:pointer}
+button.ghost{background:transparent;color:var(--dim);border:1px solid var(--edge)}
+button.act:focus-visible,button.ghost:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.status{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.status.bad{color:var(--c4)}
+.status.good{color:var(--gold)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a.card{color:var(--ivory);text-decoration:none;border-bottom:1px solid var(--rule);transition:color .12s,border-color .12s}
+a.card:hover{color:var(--gold);border-bottom-color:var(--gold)}
+a.card:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:1px}
+a.card.loose{color:var(--dim);border-bottom-style:dotted}
+.flag{color:var(--gold);margin-left:4px;font-weight:700}
+.amp{color:var(--muted);font-size:12px}
+.preview{position:fixed;z-index:99;pointer-events:none;opacity:0;transform:translateY(4px);
+  transition:opacity .13s ease,transform .13s ease;filter:drop-shadow(0 14px 28px var(--shade))}
+.preview.on{opacity:1;transform:translateY(0)}
+.preview img{width:244px;border-radius:11px;display:block}
+.credit{margin-top:40px;padding-top:22px;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8}
+.credit a{color:var(--dim)}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+@media (hover:none){.preview{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <p class="eyebrow">Commander pod log</p>
+  <div class="toggle" id="themes" role="group" aria-label="Colour scheme">
+    <button class="tg sw" data-theme="slate" aria-pressed="true" aria-label="Slate colour scheme" title="Slate"><span class="chip-sw s-slate"><i class="a"></i><i class="b"></i></span></button><button class="tg sw" data-theme="paper" aria-pressed="false" aria-label="Paper colour scheme" title="Paper"><span class="chip-sw s-paper"><i class="a"></i><i class="b"></i></span></button>
+  </div>
+</div>
+<h1>Four players,<br>one <em>table</em>.</h1>
+<p class="lede">Every game we've logged, split by pod size — because a seat at a three-player table is worth a third of the wins, and a seat at a five-player table is worth a fifth. Comparing them without splitting them hides more than it shows.</p>
+
+<div class="pods" id="pods" role="group" aria-label="Filter by pod size"></div>
+<p class="caution" id="caution"></p>
+
+<dl class="meta" id="meta"></dl>
+
+<div id="view">
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-table">
+      <div class="phead"><h2 id="h-table">The table</h2><span class="n" id="n-table"></span></div>
+      <p class="sub">Share of the wins taken by each seat, reading clockwise from the player who goes first. Gold means the seat is taking more than chance would hand it. Hover a seat for its own win rate.</p>
+      <div id="ring"></div>
+      <p class="sub ringnote" id="ring-note"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="h-standings">
+      <div class="phead"><h2 id="h-standings">Standings</h2><span class="n" id="n-standings"></span></div>
+      <p class="sub">Expected is how many wins pure chance owed them: a third of each three-player game, a quarter of each four-player one, added up. Gap is actual wins minus that, in wins. Avg seat is where in turn order they tended to sit, and roll win % is how often that was seat one.</p>
+      <div class="scroll"><table class="lean">
+        <thead><tr><th>Player</th><th>W–L</th><th>Rate</th><th>Avg seat</th><th>Roll win %</th><th>Expected</th><th>Gap</th></tr></thead>
+        <tbody id="standings"></tbody>
+      </table></div>
+    </section>
+  </div>
+
+  <div class="duo">
+    <section class="panel" aria-labelledby="h-share">
+      <div class="phead"><h2 id="h-share">Who's winning</h2><span class="n" id="n-share"></span></div>
+      <p class="sub">Share of all wins in this pod size, labelled on the chart. Slices are portions of the wins, not win rates — those are in the standings.</p>
+      <div class="canvasbox tall"><canvas id="c-share" role="img" aria-label="Doughnut chart showing each player's share of wins">Share of wins by player.</canvas></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-routes">
+      <div class="phead"><h2 id="h-routes">How games end</h2><span class="n" id="n-routes"></span></div>
+      <p class="sub">Sorted from your table's most common closing line to its rarest.</p>
+      <ul class="routes" id="routes"></ul>
+    </section>
+
+  </div>
+
+  <section class="panel" aria-labelledby="h-people" style="margin-top:26px">
+    <div class="phead"><h2 id="h-people">The players</h2><span class="n" id="n-people"></span></div>
+    <p class="sub" id="people-sub">Written from the numbers on this page, and rewritten every time you add a game.</p>
+    <div class="people" id="people"></div>
+  </section>
+
+  <div class="duo solo">
+    <section class="panel" aria-labelledby="h-decks">
+      <div class="phead"><h2 id="h-decks">Deck records</h2><span class="n" id="n-decks"></span></div>
+      <p class="sub">Sorted by win rate, then by games played.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Commander</th><th>Pilot</th><th>W–L</th><th>Rate</th></tr></thead>
+        <tbody id="decks"></tbody>
+      </table></div>
+    </section>
+
+  </div>
+
+  <section class="panel" aria-labelledby="h-form" style="margin-top:26px">
+    <div class="phead"><h2 id="h-form">Form over time</h2>
+      <span class="toggle" role="group" aria-label="Timeline mode">
+        <button class="tg" data-mode="wins" aria-pressed="true">Wins</button><button class="tg" data-mode="gap" aria-pressed="false">Vs. expected</button>
+      </span></div>
+    <p class="sub" id="sub-form"></p>
+    <div class="legend" id="leg-form"></div>
+    <div class="canvasbox" style="height:270px"><canvas id="c-form" role="img" aria-label="Line chart of each player's running total across games in chronological order">Running totals per player across the season.</canvas></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-threat" style="margin-top:26px">
+    <div class="phead"><h2 id="h-threat">Who gets shot first</h2><span class="n" id="n-threat"></span></div>
+    <p class="sub">Winning is one number, surviving is another — a deck the table kills on sight can be strong and still never close a game.</p>
+    <div id="threat"></div>
+  </section>
+</div>
+
+<section class="editor" aria-labelledby="h-log">
+  <div class="phead"><h2 id="h-log">The log</h2><span class="n">one game per line</span></div>
+  <p class="sub" style="max-width:66ch">Nothing on this page talks to the internet on its own. Refresh card data looks the commanders up on Scryfall once, on demand. Save updated copy then writes a fresh file with those results and your current log baked in, so the copy you share never calls out at all.</p>
+  <p class="sub" style="max-width:66ch">Format is <code>date | deck(seat) vs deck(seat) … | winner | how it ended | knocked out, in order</code>. The last field is optional and unlocks the survival numbers — list the losers first-out first and leave the winner off. Add a line, press update, and every number on this page moves. Pods of any size work; a fifth name makes it a five-player table on its own.</p>
+  <label class="sr-only" for="log">Game log</label>
+  <textarea id="log" spellcheck="false"></textarea>
+  <div class="actions">
+    <button class="act" id="update">Update the page</button>
+    <button class="act ghost" id="copy">Copy log</button>
+    <button class="act ghost" id="refresh">Refresh card data</button>
+    <button class="act ghost" id="save">Save updated copy</button>
+    <span class="status" id="status"></span>
+  </div>
+</section>
+
+</div>
+
+<p class="credit">Commander names link to <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>, which also supplies the card images on hover. A dotted underline with a dot beside it means the shorthand matched more than one card and the link falls back to a search &mdash; pin the exact name in <code>CARD_OVERRIDES</code> to fix it. Card images and Magic: The Gathering are property of Wizards of the Coast; this page is unofficial and unaffiliated.</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── The decks ─────────────────────────────────────────────────────────
+   shorthand : [ pilot, commander as printed ]
+   The shorthand is whatever you type in the log. The second field is the
+   card name, checked against Scryfall so a near-miss still links right.
+   Partners go in one string joined by " & ". */
+const DECKS = {
+  "amalia":       ["Ryan","Amalia Benavides Aguirre"],
+  "dragonhawk":   ["Ryan","Dragonhawk, Fate's Tempest"],
+  "ognis":        ["Ryan","Ognis, the Dragon's Lash"],
+  "katilda":      ["Ryan","Katilda, Dawnhart Prime"],
+  "mirko":        ["Ryan","Mirko, Obsessive Theorist"],
+  "kenessos":     ["Ryan","Kenessos, Priest of Thassa"],
+  "raffine":      ["Ryan","Raffine, Scheming Seer"],
+  "loot":         ["Ryan","Loot, the Key to Everything"],
+  "niko":         ["Ryan","Niko, Light of Hope"],
+  "mycotyrant":   ["Ryan","The Mycotyrant"],
+  "rokiric":      ["Ryan","General Ferrous Rokiric"],
+  "agatha":       ["Ryan","Agatha of the Vile Cauldron"],
+
+  "kenrith":      ["Ricardo","Kenrith, the Returned King"],
+  "pantlaza":     ["Ricardo","Pantlaza, Sun's Favored"],
+  "mindskinner":  ["Ricardo","The Mindskinner"],
+  "jin sakai":    ["Ricardo","Jin Sakai, Ghost of Tsushima"],
+  "obeka":        ["Ricardo","Obeka, Splitter of Seconds"],
+  "massacre girl":["Ricardo","Massacre Girl, Known Killer"],
+  "jasmine boreal":["Ricardo","Jasmine Boreal of the Seven"],
+  "purphoros":    ["Ricardo","Purphoros, God of the Forge"],
+  "zur":          ["Ricardo","Zur, Eternal Schemer"],
+
+  "camellia":     ["Rudy","Camellia, the Seedmiser"],
+  "giada":        ["Rudy","Giada, Font of Hope"],
+  "eshki":        ["Rudy","Eshki, Temur's Roar"],
+  "kuja":         ["Rudy","Kuja, Genome Sorcerer"],
+  "aloy":         ["Rudy","Aloy, Savior of Meridian"],
+  "tidus":        ["Rudy","Tidus, Yuna's Guardian"],
+
+  "sonic":        ["Stephen","Sonic the Hedgehog"],
+  "toph":         ["Stephen","Toph, the First Metalbender"],
+  "valgavoth":    ["Stephen","Valgavoth, Harrower of Souls"],
+  "dihada":       ["Stephen","Dihada, Binder of Wills"],
+  "eriette":      ["Stephen","Eriette of the Charmed Apple"],
+  "vial smasher and sakashima":["Stephen","Vial Smasher the Fierce & Sakashima of a Thousand Faces"]
+};
+const OWNERS={}, SEEDS={};
+Object.keys(DECKS).forEach(k=>{ OWNERS[k]=DECKS[k][0]; SEEDS[k]=DECKS[k][1]; });
+
+const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amalia | inkshield victory
+2026-06-11 | ognis(1) vs pantlaza(2) vs giada(3) | ognis | mazirek counters
+2026-06-11 | katilda(2) vs pantlaza(3) vs eshki(1) | eshki | burn
+2026-06-11 | niko(3) vs mindskinner(1) vs kuja(2) | kuja | combo off
+2026-07-25 | sonic(1) vs raffine(2) vs camellia(3) vs obeka(4) | raffine | flyers
+2026-07-25 | jin sakai(1) vs toph(2) vs mirko(3) vs aloy(4) | toph | creature swarm off urza's saga
+2026-07-25 | ognis(2) vs valgavoth(1) vs pantlaza(4) vs kuja(3) | ognis | swarm of X 1/1 tokens
+2026-07-25 | kenrith(2) vs dihada(3) vs dragonhawk(4) vs giada(1) | dihada | rise of the dark realms
+2026-07-25 | loot(3) vs eriette(2) vs massacre girl(1) vs eshki(4) | eshki | burn damage and creatures
+2026-07-25 | vial smasher and sakashima(2) vs kenessos(3) vs tidus(4) vs jasmine boreal(1) | vial smasher and sakashima | burn damage to all
+2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin plus mass bounce snipe
+2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills final two`;
+
+let PALETTE=[], SEAT_TINTS=[], GOLD, DIMC, RULE, SUNK, PANEL, INK, LAST_GS=null;
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function syncTheme(){
+  GOLD=cssv("--gold"); DIMC=cssv("--muted"); RULE=cssv("--rule");
+  SUNK=cssv("--felt-2"); PANEL=cssv("--felt-3"); INK=cssv("--ivory");
+  PALETTE=["--c1","--c2","--c3","--c4","--c5","--c6"].map(cssv);
+  SEAT_TINTS=["--c2","--c4","--c3","--c5","--c6","--c1"].map(cssv);
+}
+syncTheme();
+
+let GAMES=[], FILTER="all", FORMMODE="wins", charts={};
+const VIEW_HTML=document.getElementById("view").innerHTML;
+function teardown(){
+  Object.keys(charts).forEach(k=>{ try{charts[k].destroy();}catch(e){} delete charts[k]; });
+}
+
+/* ── Parsing ─────────────────────────────────────────────────────────── */
+function parseLog(txt){
+  const games=[], errors=[];
+  txt.split("\n").map(s=>s.trim()).filter(Boolean).forEach((line,i)=>{
+    const p=line.split("|").map(s=>s.trim());
+    if(p.length<3){ errors.push("Line "+(i+1)+" needs at least date | matchup | winner."); return; }
+    const [date,matchup,winnerRaw,how="",outRaw=""]=p;
+    const seats=[];
+    matchup.split(/\s+v[sa]\.?\s+/i).forEach(chunk=>{
+      const m=chunk.trim().match(/^(.*?)\s*\((\d+)\)$/);
+      if(m) seats.push({deck:m[1].trim().toLowerCase(), seat:+m[2]});
+    });
+    let w=winnerRaw.toLowerCase().replace(/\s+wins?$/,"").trim();
+    if(w.indexOf("via ")===0) w="vial "+w.slice(4);
+    if(seats.length<2){ errors.push("Line "+(i+1)+" needs at least two decks written as name(seat)."); return; }
+    if(!seats.some(s=>s.deck===w)){ errors.push("Line "+(i+1)+": winner \u201c"+w+"\u201d isn't one of the decks in that game."); return; }
+
+    let order=null;
+    const cleaned=outRaw.replace(/^out:\s*/i,"").trim();
+    if(cleaned){
+      const names=cleaned.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+      const pool=seats.map(s=>s.deck), bad=names.filter(nm=>pool.indexOf(nm)<0);
+      if(bad.length) errors.push("Line "+(i+1)+": \u201c"+bad[0]+"\u201d was knocked out of a game it wasn't in \u2014 finishes ignored.");
+      else if(names.indexOf(w)>=0) errors.push("Line "+(i+1)+": the winner can't also be knocked out \u2014 finishes ignored.");
+      else if(new Set(names).size!==names.length) errors.push("Line "+(i+1)+": a deck is listed out twice \u2014 finishes ignored.");
+      else if(names.length!==seats.length-1) errors.push("Line "+(i+1)+": needs "+(seats.length-1)+" decks in knock-out order, got "+names.length+" \u2014 finishes ignored.");
+      else order=names;
+    }
+    games.push({date,seats,winner:w,how,size:seats.length,order:order});
+  });
+  return {games,errors};
+}
+
+function route(how){
+  const h=(how||"").toLowerCase();
+  if(/combo|infinite|loop/.test(h)) return "Combo";
+  if(/burn|damage|drain|ping/.test(h)) return "Burn and direct damage";
+  if(/token|swarm|creature|flyer|flier|counter|attack|combat|realms|inkshield|army/.test(h)) return "Board and combat";
+  return "Something else";
+}
+
+/* ── Stats ───────────────────────────────────────────────────────────── */
+function compute(gs){
+  const seat={}, players={}, decks={}, routes={};
+  const finish={players:{},decks:{},seatOut:{},seatN:{},n:0};
+  gs.forEach(g=>{
+    g.seats.forEach(s=>{
+      seat[s.seat]=seat[s.seat]||{w:0,n:0,exp:0};
+      seat[s.seat].n++; seat[s.seat].exp+=1/g.size;
+      const o=OWNERS[s.deck]||"Unassigned";
+      players[o]=players[o]||{w:0,n:0,exp:0,seatSum:0,seats:{},bySize:{}};
+      players[o].n++; players[o].exp+=1/g.size;
+      players[o].seatSum+=s.seat;
+      players[o].bySize[g.size]=(players[o].bySize[g.size]||0)+1;
+      players[o].seats[s.seat]=(players[o].seats[s.seat]||0)+1;
+      decks[s.deck]=decks[s.deck]||{w:0,n:0};
+      decks[s.deck].n++;
+    });
+    const ws=g.seats.find(s=>s.deck===g.winner);
+    seat[ws.seat].w++;
+    (players[OWNERS[g.winner]||"Unassigned"]).w++;
+    decks[g.winner].w++;
+    const r=route(g.how); routes[r]=(routes[r]||0)+1;
+
+    if(g.order){
+      finish.n++;
+      const place={}; place[g.winner]=1;
+      g.order.forEach((deck,i)=>{ place[deck]=g.size-i; });
+      const firstOut=g.order[0];
+      g.seats.forEach(s=>{
+        const o=OWNERS[s.deck]||"Unassigned", P=place[s.deck];
+        const score=(g.size-P)/(g.size-1);
+        const f=finish.players[o]=finish.players[o]||{n:0,score:0,first:0,final2:0};
+        f.n++; f.score+=score; if(P<=2) f.final2++;
+        const fd=finish.decks[s.deck]=finish.decks[s.deck]||{n:0,score:0,first:0};
+        fd.n++; fd.score+=score;
+        finish.seatN[s.seat]=(finish.seatN[s.seat]||0)+1;
+        if(s.deck===firstOut){ f.first++; fd.first++; finish.seatOut[s.seat]=(finish.seatOut[s.seat]||0)+1; }
+      });
+    }
+  });
+  return {seat,players,decks,routes,finish,n:gs.length};
+}
+
+const pct=(a,b)=>b?(a/b*100):0;
+const fmt=v=>(Math.round(v*10)/10).toFixed(1)+"%";
+
+/* ── Signature: the table ring ───────────────────────────────────────── */
+function drawRing(st, size){
+  const seats=Object.keys(st.seat).map(Number).sort((a,b)=>a-b);
+  if(!seats.length) return '<p class="empty">No seats to draw yet.</p>';
+  /* Share of the wins in view, so the circle always adds to a whole.
+     Largest remainder at one decimal keeps the printed figures exact. */
+  const exact=seats.map(k=>pct(st.seat[k].w,st.n));
+  const tenths=exact.map(v=>v*10), fl=tenths.map(Math.floor);
+  let left=Math.round(tenths.reduce((a,b)=>a+b,0))-fl.reduce((a,b)=>a+b,0);
+  const ord=tenths.map((v,i)=>({i:i,r:v-fl[i]})).sort((a,b)=>b.r-a.r);
+  for(let j=0;j<ord.length&&left>0;j++,left--) fl[ord[j].i]++;
+  const vals=fl.map(v=>v/10), whole=vals.every(v=>v===Math.round(v));
+  const shown={}; seats.forEach((k,i)=>shown[k]=whole?vals[i].toFixed(0):vals[i].toFixed(1));
+  const shareOf={}; seats.forEach((k,i)=>shareOf[k]=exact[i]);
+  const n=seats.length, C=200, R=118, nodeR=n>=6?46:(n>=5?49:53), circ=2*Math.PI*nodeR;
+  let s='<svg viewBox="0 0 400 400" width="100%" role="img" aria-label="Round table diagram of win rate by seat position">';
+  s+='<title>Win rate by seat</title>';
+  s+='<circle cx="200" cy="200" r="'+R+'" fill="none" stroke="'+RULE+'" stroke-width="1" stroke-dasharray="3 7"/>';
+  for(let a=0;a<360;a+=45){
+    const rad=(a-90)*Math.PI/180, x=C+Math.cos(rad)*R, y=C+Math.sin(rad)*R;
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.6" fill="'+RULE+'"/>';
+  }
+  s+='<text x="200" y="190" text-anchor="middle" font-family="Spectral,serif" font-size="25" fill="'+INK+'">'+(size==="all"?"All pods":size+"-player")+'</text>';
+  s+='<text x="200" y="213" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="13" fill="'+DIMC+'">'+st.n+(st.n===1?" game":" games")+'</text>';
+  s+='<text x="200" y="234" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" letter-spacing="1.8" fill="'+DIMC+'">TURN ORDER \u21bb</text>';
+
+  seats.forEach((k,i)=>{
+    const d=st.seat[k], rate=shareOf[k], base=pct(d.exp,st.n), delta=rate-base;
+    const ownRate=pct(d.w,d.n);
+    const rad=(i*360/n-90)*Math.PI/180, x=C+Math.cos(rad)*R, y=C+Math.sin(rad)*R;
+    const good=delta>=0, col=good?GOLD:DIMC;
+    const dash=(Math.max(rate,0)/100*circ).toFixed(1)+" "+circ.toFixed(1);
+    s+='<g><title>Seat '+k+' took '+d.w+' of the '+st.n+' win'+(st.n===1?"":"s")+
+      ' \u2014 '+rate.toFixed(1)+'%, against '+base.toFixed(1)+'% from chance alone. '+
+      'It sat in '+d.n+' game'+(d.n===1?"":"s")+', winning '+ownRate.toFixed(1)+'% of them.</title>';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+nodeR+'" fill="'+SUNK+'" stroke="'+RULE+'"/>';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+nodeR+'" fill="none" stroke="'+col+'" stroke-width="5" stroke-linecap="butt" stroke-dasharray="'+dash+'" transform="rotate(-90 '+x.toFixed(1)+' '+y.toFixed(1)+')"/>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+(y-16).toFixed(1)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" letter-spacing="1.3" fill="'+DIMC+'">SEAT '+k+'</text>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+(y+6).toFixed(1)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="'+(n>=5?18:21)+'" fill="'+INK+'">'+shown[k]+'%</text>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+(y+23).toFixed(1)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="'+DIMC+'">'+d.w+' of '+st.n+'</text>';
+    s+='</g>';
+  });
+  s+='</svg>';
+  return s;
+}
+
+/* ── Doughnuts ───────────────────────────────────────────────────────── */
+const callouts = {
+  id:"callouts",
+  afterDatasetsDraw(chart){
+    const ctx=chart.ctx, ds=chart.data.datasets[0], meta=chart.getDatasetMeta(0);
+    const total=ds.data.reduce((a,b)=>a+b,0);
+    if(!total) return;
+    const o=(chart.options.plugins&&chart.options.plugins.callouts)||{};
+    const ink=o.ink||"#fff", mute=o.mute||"#999", mono=o.mono||"monospace", unit=o.unit||"win";
+    const W=chart.width, H=chart.height, COL=o.col||74;
+    const sides={l:[],r:[]};
+    meta.data.forEach((arc,i)=>{
+      const v=ds.data[i]; if(!v) return;
+      const p=arc.getProps(["x","y","startAngle","endAngle","outerRadius"],true);
+      const mid=(p.startAngle+p.endAngle)/2, cos=Math.cos(mid), sin=Math.sin(mid);
+      const side=cos>=0?"r":"l";
+      sides[side].push({
+        ax:p.x+cos*(p.outerRadius-1), ay:p.y+sin*(p.outerRadius-1),
+        ex:p.x+cos*(p.outerRadius+14), ey:p.y+sin*(p.outerRadius+14),
+        color:ds.backgroundColor[i], label:chart.data.labels[i], v:v,
+        pct:Math.round(v/total*100)
+      });
+    });
+    const GAP=30, TOP=16, BOT=H-19;
+    ["l","r"].forEach(s=>{
+      const a=sides[s].sort((x,y)=>x.ey-y.ey);
+      if(!a.length) return;
+      a.forEach(it=>{ it.ey=Math.max(TOP,Math.min(BOT,it.ey)); });
+      for(let i=1;i<a.length;i++) if(a[i].ey-a[i-1].ey<GAP) a[i].ey=a[i-1].ey+GAP;
+      if(a[a.length-1].ey>BOT){
+        a[a.length-1].ey=BOT;
+        for(let i=a.length-2;i>=0;i--) if(a[i+1].ey-a[i].ey<GAP) a[i].ey=a[i+1].ey-GAP;
+      }
+      a.forEach(it=>{
+        const endX = s==="r" ? W-COL : COL;
+        ctx.save();
+        ctx.strokeStyle=it.color; ctx.lineWidth=1.25; ctx.globalAlpha=.9;
+        ctx.beginPath(); ctx.moveTo(it.ax,it.ay); ctx.lineTo(it.ex,it.ey); ctx.lineTo(endX,it.ey); ctx.stroke();
+        ctx.globalAlpha=1;
+        ctx.beginPath(); ctx.arc(endX,it.ey,2.4,0,Math.PI*2); ctx.fillStyle=it.color; ctx.fill();
+        ctx.textAlign = s==="r" ? "left" : "right";
+        const tx = s==="r" ? endX+8 : endX-8;
+        ctx.fillStyle=ink; ctx.font="500 12px "+mono; ctx.textBaseline="alphabetic";
+        ctx.fillText(it.label, tx, it.ey-1);
+        ctx.fillStyle=mute; ctx.font="10.5px "+mono;
+        ctx.fillText(it.v+" \u00b7 "+it.pct+"%", tx, it.ey+12);
+        ctx.restore();
+      });
+    });
+  }
+};
+
+function doughnut(id,labels,data,colors,unit){
+  if(charts[id]) charts[id].destroy();
+  const el=document.getElementById(id);
+  const keep=data.map((v,i)=>i).filter(i=>data[i]>0);
+  if(!keep.length){ el.getContext("2d").clearRect(0,0,el.width,el.height); return; }
+  charts[id]=new Chart(el,{
+    type:"doughnut",
+    plugins:[callouts],
+    data:{labels:keep.map(i=>labels[i]),
+      datasets:[{data:keep.map(i=>data[i]),backgroundColor:keep.map(i=>colors[i]),
+        borderColor:PANEL,borderWidth:2,hoverOffset:5}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"56%",
+      layout:{padding:{left:82,right:82,top:14,bottom:14}},
+      plugins:{legend:{display:false},
+        callouts:{ink:INK,mute:DIMC,mono:'"IBM Plex Mono",monospace',unit:unit||"win",col:74},
+        tooltip:{callbacks:{label:c=>{
+          const t=c.dataset.data.reduce((a,b)=>a+b,0);
+          return c.label+": "+c.parsed+(c.parsed===1?" win":" wins")+" ("+Math.round(c.parsed/t*100)+"%)";
+        }}}}}
+  });
+}
+/* ── Card data ────────────────────────────────────────────────────────
+   Static on purpose: nothing here is fetched when the page loads, so it
+   opens instantly and works with no connection at all. Press "Refresh
+   card data" under the log to look the commanders up, then paste the
+   generated block over this one to make it permanent. */
+const CARD_DATA = {
+  // "amalia": {name:"Amalia Benavides Aguirre", ci:"WB", mv:3, tag:"gaining life", img:"https://..."},
+  // partners share one entry; img becomes a list, one per name, in the same order:
+  // "vial smasher and sakashima": {name:"Vial Smasher the Fierce & Sakashima of a Thousand Faces",
+  //   ci:"UBR", mv:3.5, tag:null, img:["https://...", "https://..."]},
+};
+
+/* Hosting: point this at a text file sitting next to the page and the log
+   is read from there instead, so updating the site means editing one small
+   file rather than this one. Same-origin, so it costs one quick request.
+   Leave it "" and the page stays a single self-contained file. */
+const LOG_URL = "";
+
+/* Look up anything missing from CARD_DATA when the page opens. Once you've
+   pressed Save updated copy there is nothing missing, so this does nothing
+   and costs no requests. Set to false to only ever look up on the button. */
+const AUTO_LOOKUP = true;
+
+const TAGS=[
+  [/\+1\/\+1 counter/i,"piling on counters"],
+  [/create .*token|\btokens?\b/i,"going wide with tokens"],
+  [/\btreasure\b/i,"making treasure"],
+  [/sacrifice (a|another|one)|whenever .* dies/i,"trading its own creatures in"],
+  [/counter target spell/i,"holding up answers"],
+  [/from (your|a) graveyard|return .* from your graveyard/i,"working out of the graveyard"],
+  [/deals? \w* ?damage to (each|any|target) (opponent|player)/i,"pointing damage at faces"],
+  [/gains? \d+ life|lifelink/i,"gaining life"],
+  [/whenever .* attacks/i,"turning creatures sideways"],
+  [/draws? (a|\w+) cards?/i,"drawing extra cards"]
+];
+function tagOf(t){ for(let i=0;i<TAGS.length;i++) if(TAGS[i][0].test(t||"")) return TAGS[i][1]; return null; }
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const lower=n=>n.toLowerCase();
+const searchURL=q=>"https://scryfall.com/search?q="+encodeURIComponent(q+" is:commander");
+const exactURL=n=>"https://scryfall.com/search?q="+encodeURIComponent('!"'+n+'"');
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const titleCase=s=>s.replace(/\b\w/g,c=>c.toUpperCase());
+
+/* what the log knows: the printed name from DECKS, split for partners */
+function seedNames(short){
+  const raw=SEEDS[short]||"";
+  return raw?raw.split(/\s+&\s+/).map(x=>x.trim()):[];
+}
+/* what has actually been looked up */
+function cardOf(short){ return CARD_DATA[short]||null; }
+function deckFacts(short){
+  const c=cardOf(short); if(!c) return null;
+  return {ci:(c.ci||"").split("").filter(Boolean), cmc:typeof c.mv==="number"?c.mv:null, tag:c.tag||null};
+}
+function cardNames(short){
+  const c=cardOf(short);
+  if(c&&c.name) return String(c.name).split(/\s*&\s*/);
+  return [];
+}
+
+function cardCell(short){
+  const names=cardNames(short), seeds=seedNames(short);
+  if(names.length)
+    return '<span class="cardcell" data-short="'+esc(short)+'">'+names.map(n=>
+      '<a class="card" href="'+esc(exactURL(n))+'" target="_blank" rel="noopener" data-card="'+esc(n)+
+      '">'+esc(n)+'</a>').join('<span class="amp"> + </span>')+'</span>';
+  const shown=seeds.length?seeds:[titleCase(short)];
+  const tip=seeds.length?"Not looked up yet \u2014 opens a commander search. Press Refresh card data under the log."
+                        :"No printed name on file for \u201c"+short+"\u201d. Add it to DECKS.";
+  return '<span class="cardcell" data-short="'+esc(short)+'">'+shown.map(n=>
+    '<a class="card loose" href="'+esc(searchURL(n))+'" target="_blank" rel="noopener" title="'+esc(tip)+
+    '">'+esc(n)+'</a>').join('<span class="amp"> + </span>')+'</span>';
+}
+function repaintCards(){
+  document.querySelectorAll(".cardcell").forEach(el=>{ el.outerHTML=cardCell(el.dataset.short); });
+}
+
+/* ── Lookup, only when the button is pressed ────────────────────────── */
+async function collection(names){
+  const hit={}, missed=[];
+  for(let i=0;i<names.length;i+=70){
+    const batch=names.slice(i,i+70);
+    try{
+      const r=await fetch("https://api.scryfall.com/cards/collection",{
+        method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({identifiers:batch.map(n=>({name:n}))})});
+      const j=await r.json();
+      (j.data||[]).forEach(c=>{
+        hit[lower(c.name)]=c;
+        if(c.card_faces&&c.card_faces[0]) hit[lower(c.card_faces[0].name)]=c;
+      });
+      batch.forEach(n=>{ if(!hit[lower(n)]) missed.push(n); });
+    }catch(e){ batch.forEach(n=>missed.push(n)); }
+    if(i+70<names.length) await sleep(110);
+  }
+  return {hit:hit,missed:missed};
+}
+async function namedExact(n){
+  try{
+    const r=await fetch("https://api.scryfall.com/cards/named?exact="+encodeURIComponent(n),
+      {headers:{"Accept":"application/json"}});
+    if(!r.ok) return null;
+    const j=await r.json();
+    return j&&j.name?j:null;
+  }catch(e){ return null; }
+}
+async function askName(q){
+  try{
+    const r=await fetch("https://api.scryfall.com/cards/autocomplete?q="+encodeURIComponent(q),
+      {headers:{"Accept":"application/json"}});
+    return (await r.json()).data||[];
+  }catch(e){ return []; }
+}
+const nrm=x=>x.toLowerCase().replace(/[^a-z0-9]/g,"");
+function dice(a,b){
+  a=nrm(a); b=nrm(b);
+  if(a===b) return 1;
+  if(a.length<2||b.length<2) return 0;
+  const m={}; let hit=0;
+  for(let i=0;i<a.length-1;i++){const g=a.slice(i,i+2); m[g]=(m[g]||0)+1;}
+  for(let i=0;i<b.length-1;i++){const g=b.slice(i,i+2); if(m[g]>0){m[g]--; hit++;}}
+  return 2*hit/(a.length+b.length-2);
+}
+function pack(c){
+  const face=(c.card_faces&&c.card_faces[0])||c;
+  const img=(c.image_uris&&c.image_uris.normal)||(face.image_uris&&face.image_uris.normal)||null;
+  return {ci:(c.color_identity||[]).join(""), mv:typeof c.cmc==="number"?c.cmc:null,
+    tag:tagOf((face.oracle_text||"")+" "+(c.oracle_text||"")), img:img};
+}
+let looking=false;
+function missingCards(){ return Object.keys(DECKS).filter(sh=>!CARD_DATA[sh]); }
+async function refreshCards(report,only){
+  if(looking) return;
+  looking=true;
+  const shorts=only&&only.length?only:Object.keys(DECKS);
+  const want={}; shorts.forEach(sh=>seedNames(sh).forEach(n=>want[n]=1));
+  const names=Object.keys(want);
+  report("Looking up "+names.length+" commanders\u2026");
+
+  let found={}, missed=names.slice(), viaGet=false;
+  const bulk=await collection(names);
+  if(Object.keys(bulk.hit).length){ found=bulk.hit; missed=bulk.missed; }
+  else {
+    /* POST needs a CORS preflight, which a file:// page doesn't get.
+       Fall back to one plain GET per commander \u2014 slower, always allowed. */
+    viaGet=true; missed=[];
+    let dead=0;
+    for(let i=0;i<names.length;i++){
+      report("Looking up commanders one at a time \u2014 "+(i+1)+" of "+names.length+"\u2026");
+      const c=await namedExact(names[i]);
+      if(c){ found[lower(c.name)]=c; dead=0; }
+      else { missed.push(names[i]); dead++; }
+      /* three straight misses with nothing found at all means we're offline;
+         don't grind through the rest just to fail 30 more times */
+      if(dead>=3&&!Object.keys(found).length){
+        for(let j=i+1;j<names.length;j++) missed.push(names[j]);
+        break;
+      }
+      await sleep(110);
+    }
+  }
+
+  /* nothing came back at all: no point grinding through near-miss retries */
+  if(!Object.keys(found).length){
+    report("Couldn't reach Scryfall \u2014 nothing was updated. Check the connection and try again.");
+    looking=false; return;
+  }
+
+  /* only the near-misses need the slower per-name lookup */
+  const stuck=missed.slice();
+  for(let i=0;i<stuck.length;i++){
+    const seed=stuck[i];
+    let cands=await askName(seed); await sleep(110);
+    if(!cands.length){ cands=await askName(seed.split(/[,\s]/)[0]); await sleep(110); }
+    if(!cands.length) continue;
+    const scored=cands.map(n=>({n:n,s:dice(seed,n)})).sort((a,b)=>b.s-a.s);
+    if(scored[0].s>=.55&&(!scored[1]||scored[0].s-scored[1].s>=.06)){
+      const c2=viaGet?await namedExact(scored[0].n):null;
+      if(c2){ found[lower(seed)]=c2; }
+      else { const r2=await collection([scored[0].n]);
+             Object.keys(r2.hit).forEach(k=>found[lower(seed)]=r2.hit[k]); }
+    }
+  }
+
+  let ok=0, miss=[];
+  shorts.forEach(sh=>{
+    const seeds=seedNames(sh);
+    if(!seeds.length){ miss.push(sh); return; }
+    const cards=seeds.map(n=>found[lower(n)]).filter(Boolean);
+    if(cards.length!==seeds.length){ miss.push(sh); return; }
+    const parts=cards.map(pack);
+    const ci={}; parts.forEach(p2=>p2.ci.split("").forEach(c=>ci[c]=1));
+    const mvs=parts.map(p2=>p2.mv).filter(v=>v!==null);
+    CARD_DATA[sh]={name:cards.map(c=>c.name).join(" & "),
+      ci:["W","U","B","R","G"].filter(c=>ci[c]).join(""),
+      mv:mvs.length?Math.round(mvs.reduce((a,b)=>a+b,0)/mvs.length*10)/10:null,
+      tag:(parts.find(p2=>p2.tag)||{}).tag||null,
+      img:parts.length>1?parts.map(p2=>p2.img||null):(parts[0].img||null)};
+    ok++;
+  });
+  repaintCards(); render();
+  if(!ok) report("Couldn't reach Scryfall \u2014 nothing was updated. Check the connection and try again.");
+  else report(ok+" of "+shorts.length+" commanders resolved"+
+    (miss.length?" \u2014 no match for "+miss.join(", "):"")+
+    ". Press Save updated copy to keep it.");
+  looking=false;
+}
+/* Rebuild this page's own source with the looked-up data and the current
+   log baked in, so a refreshed copy needs no copy-and-paste. */
+function bakedHTML(){
+  const doc=document.documentElement.cloneNode(true);
+  const v=doc.querySelector("#view"); if(v) v.innerHTML=VIEW_HTML;
+  ["meta","pods","standings","decks","routes","people","threat","ring","leg-form","ring-note"]
+    .forEach(id=>{ const el=doc.querySelector("#"+id); if(el) el.innerHTML=""; });
+  ["caution","status"].forEach(id=>{ const el=doc.querySelector("#"+id); if(el) el.textContent=""; });
+  const pv=doc.querySelector(".preview"); if(pv) pv.remove();
+  const ta=doc.querySelector("#log"); if(ta) ta.textContent="";
+  const log=document.getElementById("log").value.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,"\\${");
+  doc.querySelectorAll("script").forEach(sc=>{
+    if(sc.textContent.indexOf("const CARD_DATA")<0) return;
+    let t=sc.textContent;
+    t=t.replace(/const CARD_DATA = \{[\s\S]*?\n\};/, cardDataBlock());
+    t=t.replace(/const DEFAULT_LOG = `[\s\S]*?`;/, "const DEFAULT_LOG = `"+log+"`;");
+    sc.textContent=t;
+  });
+  return "<!DOCTYPE html>\n"+doc.outerHTML;
+}
+function cardDataBlock(){
+  const keys=Object.keys(CARD_DATA).sort();
+  if(!keys.length) return "const CARD_DATA = {};";
+  return "const CARD_DATA = {\n"+keys.map(k=>{
+    const c=CARD_DATA[k];
+    return '  '+JSON.stringify(k)+': {name:'+JSON.stringify(c.name)+', ci:'+JSON.stringify(c.ci)+
+      ', mv:'+(c.mv===null?"null":c.mv)+', tag:'+JSON.stringify(c.tag)+', img:'+JSON.stringify(c.img)+'}';
+  }).join(",\n")+"\n};";
+}
+
+
+/* Card image on hover — uses the URL baked into CARD_DATA, no request */
+const preview=document.createElement("div");
+preview.className="preview"; preview.setAttribute("aria-hidden","true");
+document.body.appendChild(preview);
+function showCard(name,x,y){
+  let url=null;
+  Object.keys(CARD_DATA).forEach(k=>{
+    const c=CARD_DATA[k]; if(!c||!c.img||url) return;
+    const i=String(c.name).split(/\s*&\s*/).indexOf(name);
+    if(i<0) return;
+    url=Array.isArray(c.img)?(c.img[i]||null):c.img;
+  });
+  if(!url) return;
+  preview.innerHTML='<img src="'+esc(url)+'" alt="'+esc(name)+'">';
+  place(x,y); preview.classList.add("on");
+}
+function place(x,y){
+  const w=244,h=340,pad=14;
+  preview.style.left=Math.min(x+18,window.innerWidth-w-pad)+"px";
+  preview.style.top=Math.max(pad,Math.min(y-h/2,window.innerHeight-h-pad))+"px";
+}
+document.addEventListener("mouseover",e=>{
+  const a=e.target.closest?e.target.closest("a.card[data-card]"):null;
+  if(a) showCard(a.dataset.card,e.clientX,e.clientY);
+});
+document.addEventListener("mousemove",e=>{ if(preview.classList.contains("on")) place(e.clientX,e.clientY); });
+document.addEventListener("mouseout",e=>{
+  const a=e.target.closest?e.target.closest("a.card[data-card]"):null;
+  if(a) preview.classList.remove("on");
+});
+document.addEventListener("scroll",()=>preview.classList.remove("on"),{passive:true});
+
+/* ── The players ──────────────────────────────────────────────────────
+   Summaries are assembled from the same numbers shown everywhere else.
+   Nothing here is fixed text about a person — change the log and the
+   sentences change with it. Kind framing, honest figures. */
+function profiles(gs){
+  const P={};
+  const ordered=gs.map((g,i)=>({g:g,i:i})).sort((a,b)=>
+    a.g.date<b.g.date?-1:a.g.date>b.g.date?1:a.i-b.i).map(x=>x.g);
+  ordered.forEach(g=>{
+    g.seats.forEach(s=>{
+      const o=OWNERS[s.deck]||"Unassigned";
+      const p=P[o]=P[o]||{w:0,n:0,exp:0,noWin:1,decks:{},routes:{},seq:[],
+        seats:{},seatSum:0,surv:0,survN:0,first:0,final2:0};
+      p.n++; p.exp+=1/g.size; p.noWin*=(1-1/g.size);
+      p.seats[s.seat]=(p.seats[s.seat]||0)+1;
+      p.seatSum+=s.seat;
+      const d=p.decks[s.deck]=p.decks[s.deck]||{w:0,n:0}; d.n++;
+      const won=s.deck===g.winner;
+      if(won){ p.w++; d.w++; const r=route(g.how); p.routes[r]=(p.routes[r]||0)+1; }
+      p.seq.push(won?1:0);
+      if(g.order){
+        const place=won?1:g.size-g.order.indexOf(s.deck);
+        p.survN++; p.surv+=(g.size-place)/(g.size-1);
+        if(g.order[0]===s.deck) p.first++;
+        if(place<=2) p.final2++;
+      }
+    });
+  });
+  Object.keys(P).forEach(name=>{
+    const p=P[name], ci={}, cmcs=[], tags={};
+    let known=0;
+    Object.keys(p.decks).forEach(sh=>{
+      const f=deckFacts(sh); if(!f) return;
+      known++;
+      f.ci.forEach(c=>ci[c]=(ci[c]||0)+1);
+      if(f.cmc!==null) cmcs.push(f.cmc);
+      if(f.tag) tags[f.tag]=(tags[f.tag]||0)+1;
+    });
+    p.known=known;
+    p.ci=ci;
+    p.avgCmc=cmcs.length?cmcs.reduce((a,b)=>a+b,0)/cmcs.length:null;
+    let colSum=0; Object.keys(p.decks).forEach(sh=>{const f=deckFacts(sh); if(f) colSum+=f.ci.length;});
+    p.avgColors=known?colSum/known:null;
+    p.tags=tags;
+    p.colourless=Object.keys(p.decks).length&&known?
+      Object.keys(p.decks).filter(sh=>{const f=deckFacts(sh);return f&&!f.ci.length;}).length:0;
+  });
+  return P;
+}
+const deckName=k=>{const n=cardNames(k); return n.length?n[0]:(SEEDS[k]||titleCase(k));};
+function topDeck(decks){
+  const e=Object.entries(decks).filter(x=>x[1].w>0);
+  if(!e.length) return null;
+  e.sort((a,b)=>b[1].w-a[1].w||pct(b[1].w,b[1].n)-pct(a[1].w,a[1].n)||b[1].n-a[1].n);
+  return e[0];
+}
+function mostPlayed(decks){
+  const e=Object.entries(decks).sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0]));
+  return e.length?e[0]:null;
+}
+function topKey(obj){
+  const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
+  return e.length?e[0][0]:null;
+}
+/* stable per-person phrasing so two people never read identically */
+function vary(list,key){
+  let h=0; for(let i=0;i<key.length;i++) h=(h*31+key.charCodeAt(i))>>>0;
+  return list[h%list.length];
+}
+function summarize(name,p,sup){
+  const gap=p.w-p.exp, L=p.n-p.w, W=p.w, rec=name+" is "+W+"\u2013"+L;
+  const got=pct(p.w,p.n), owed=pct(p.exp,p.n);
+  const best=topDeck(p.decks), most=mostPlayed(p.decks), kinds=Object.keys(p.decks).length;
+  const WUBRG={W:"white",U:"blue",B:"black",R:"red",G:"green"};
+  const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+  const list=a=>a.length<2?a[0]:a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+  const C=[];
+
+  /* 1. the record, as a rate against the rate the seats owed */
+  if(W===0&&p.n>=3){
+    const odds=p.noWin*100;
+    C.push(name+" has sat down "+p.n+" times without one falling their way, against the "+owed.toFixed(1)+
+      "% those seats owed them. A stretch that quiet turns up by chance about "+
+      (odds<1?"once in every "+Math.round(1/(p.noWin||1e-9))+" runs":Math.round(odds)+"% of the time")+
+      ", so it reads far more like the table owing them than anything about the decks.");
+  } else if(p.n<3){
+    C.push(rec+" so far \u2014 too few games to say anything the next session couldn't overturn.");
+  } else {
+    const band = gap>=1.2?0 : gap>=.4?1 : gap>=-.6?2 : 3;
+    const tail=[(sup.top?" \u2014 the best conversion at the table":""),", a shade ahead of par",
+      ", which is par to within a rounding error"," \u2014 short by less than a game's worth of luck"][band];
+    C.push(vary([
+      rec+", winning "+got.toFixed(1)+"% where their seats owed "+owed.toFixed(1)+"%"+tail+".",
+      rec+" \u2014 a "+got.toFixed(1)+"% clip against the "+owed.toFixed(1)+"% a fair draw hands them"+tail+"."
+    ],name+"r"));
+  }
+
+  /* 2. survival \u2014 only exists once knock-out orders are logged */
+  if(p.survN>=3){
+    const sv=p.surv/p.survN, fo=pct(p.first,p.survN), f2=pct(p.final2,p.survN);
+    if(fo>=45) C.push("The table reads them as the threat \u2014 first out in "+Math.round(fo)+
+      "% of the games with finishes recorded, which is its own kind of compliment.");
+    else if(f2>=60) C.push(gap>=.4
+      ? "They reach the final two "+Math.round(f2)+"% of the time and convert often enough that the endgame clearly suits them."
+      : "They reach the final two "+Math.round(f2)+"% of the time, so closing speed is the piece to work on rather than staying alive.");
+    else if(sv>=.6) C.push("They're hard to shift, surviving well past the middle of the table most nights.");
+    else if(fo<=15&&p.survN>=4) C.push("Almost never the first one out, which is a quieter skill than winning and a real one.");
+  }
+
+  /* 3. colour identity */
+  if(p.known>=3){
+    const ranked=Object.keys(p.ci).sort((a,b)=>p.ci[b]-p.ci[a]);
+    const never=["W","U","B","R","G"].filter(c=>!p.ci[c]);
+    const top=ranked[0], lead=ranked.filter(c=>p.ci[c]===p.ci[top]);
+    const D=p.known, hue=top?WUBRG[top]:"", cnt=top?p.ci[top]:0;
+    if(top&&never.length>=3&&ranked.length<=2){
+      C.push(vary([
+        "They live in a narrow lane \u2014 "+list(ranked.map(c=>WUBRG[c]))+", and nothing else across "+D+" decks.",
+        "Across "+D+" decks they've never strayed past "+list(ranked.map(c=>WUBRG[c]))+"."
+      ],name+"c"));
+    } else if(never.length>=1){
+      C.push(vary([
+        "No "+list(never.map(c=>WUBRG[c]))+" anywhere in their "+D+" decks, which quietly limits what they can answer.",
+        list(never.map(c=>WUBRG[c])).replace(/^./,m=>m.toUpperCase())+" never make the cut \u2014 absent from all "+D+" of their decks.",
+        "Their "+D+" decks skip "+list(never.map(c=>WUBRG[c]))+" entirely, so some answers simply aren't available."
+      ],name+"c"));
+    } else if(top&&lead.length>1){
+      const two=list(lead.map(c=>WUBRG[c]));
+      C.push(vary([
+        "Their "+D+" decks cover the whole colour wheel, with "+two+" tied at "+cnt+" apiece.",
+        "No colour is off-limits across "+D+" decks, though "+two+" share the lead at "+cnt+" each.",
+        "All five colours show up in their "+D+" decks, "+two+" most of all at "+cnt+" apiece."
+      ],name+"c"));
+    } else if(top){
+      C.push(vary([
+        "Their "+D+" decks cover the whole colour wheel, "+hue+" most of all at "+cnt+" of them.",
+        "No colour is off-limits here \u2014 all five across "+D+" decks, with "+hue+" in "+cnt+".",
+        "They've sleeved every colour at some point; "+hue+" leads, running through "+cnt+" of "+D+" decks.",
+        hue.replace(/^./,m=>m.toUpperCase())+" is their most-played colour, in "+cnt+" of "+D+" decks, though none are off the table."
+      ],name+"c"));
+    }
+  }
+
+  /* 4. what the commanders are actually built to do */
+  const tagTop=topKey(p.tags||{});
+  if(tagTop&&p.tags[tagTop]>=2){
+    const nw=numWord(p.tags[tagTop]).toLowerCase();
+    C.push(vary([
+      numWord(p.tags[tagTop])+" of their commanders are built around "+tagTop+".",
+      cap(tagTop)+" is the throughline \u2014 "+nw+" of their commanders want it.",
+      "There's a habit here: "+nw+" of the decks they bring are about "+tagTop+".",
+      cap(tagTop)+" turns up in "+nw+" of their commanders."
+    ],name+"t"));
+  }
+
+  /* 5. mana value and colour greed */
+  if(p.avgCmc!==null&&p.known>=3){
+    if(sup.heaviest) C.push("Their commanders are the priciest here at an average "+p.avgCmc.toFixed(1)+
+      " mana, so they pay for their effects up front.");
+    else if(sup.cheapest) C.push("They run the cheapest commanders at the table, averaging "+p.avgCmc.toFixed(1)+
+      " mana \u2014 on the board while everyone else is still ramping.");
+    else if(sup.widestId) C.push("Their decks average "+p.avgColors.toFixed(1)+
+      " colours, the greediest mana bases in the pod.");
+    else if(sup.tightestId) C.push("At "+p.avgColors.toFixed(1)+
+      " colours a deck, their mana is the most forgiving here.");
+  }
+
+  /* 6. the deck, then whatever room is left */
+  if(best&&best[1].n>1) C.push(vary([
+    "Their steadiest deck is "+deckName(best[0])+" at "+best[1].w+"\u2013"+(best[1].n-best[1].w)+".",
+    deckName(best[0])+" is the one that keeps delivering, at "+best[1].w+"\u2013"+(best[1].n-best[1].w)+"."],name+"d"));
+  else if(best) C.push("The one that landed was "+deckName(best[0])+".");
+  else if(most&&most[1].n>1) C.push(deckName(most[0])+" has had the most reps at "+most[1].n+" games.");
+
+  const r=topKey(p.routes);
+  if(r&&W>=2) C.push(vary(["When they close, it's usually through "+r.toLowerCase()+".",
+    "Their wins have mostly come through "+r.toLowerCase()+"."],name+"s"));
+
+  if(p.seq.length>=6){
+    const last=p.seq.slice(-5), lw=last.reduce((a,b)=>a+b,0);
+    if(lw>=3) C.push("Form is good too \u2014 "+lw+" of their last "+last.length+".");
+    else if(lw===0&&W>0) C.push("The last "+last.length+" haven't gone their way, though the season as a whole says dip rather than direction.");
+  }
+  if(sup.widest&&kinds>=5) C.push("Nobody rotates wider, either: "+kinds+" commanders in play.");
+  else if(kinds===1&&p.n>=4) C.push("They've stayed loyal to a single commander the whole way.");
+
+  return C.slice(0,(W===0&&p.n>=3)?3:4).join(" ");
+}
+function numWord(n){return ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"][n]||String(n);}
+
+function drawPeople(gs){
+  LAST_GS=gs;
+  const sub=document.getElementById("people-sub");
+  if(sub) sub.textContent="Written from the numbers on this page, and rewritten every time you add a game."+
+    (Object.keys(CARD_DATA).length?"":" Press Refresh card data under the log to add colour, mana value and what each commander is built to do.");
+  const P=profiles(gs), box=document.getElementById("people");
+  const names=Object.keys(P).sort((a,b)=>(P[b].w-P[b].exp)-(P[a].w-P[a].exp));
+  document.getElementById("n-people").textContent=names.length+(names.length===1?" pilot":" pilots");
+  if(!names.length){ box.innerHTML='<p class="empty"><b>No players yet.</b>Add a game and they show up here.</p>'; return; }
+  const widest=names.slice().sort((a,b)=>Object.keys(P[b].decks).length-Object.keys(P[a].decks).length)[0];
+  const withMv=names.filter(n=>P[n].avgCmc!==null&&P[n].known>=3)
+    .sort((a,b)=>P[b].avgCmc-P[a].avgCmc);
+  const heaviest=withMv.length>1?withMv[0]:null, cheapest=withMv.length>1?withMv[withMv.length-1]:null;
+  const withCi=names.filter(n=>P[n].avgColors!==null&&P[n].known>=3).sort((a,b)=>P[b].avgColors-P[a].avgColors);
+  const widestId=withCi.length>1?withCi[0]:null, tightestId=withCi.length>1?withCi[withCi.length-1]:null;
+  const pcol={}; names.forEach((n,i)=>pcol[n]=PALETTE[i%PALETTE.length]);
+  box.innerHTML=names.map((n,i)=>{
+    const p=P[n], sup={top:i===0&&p.w-p.exp>0, widest:n===widest&&Object.keys(p.decks).length>=5,
+      heaviest:n===heaviest&&p.avgCmc>=4, cheapest:n===cheapest&&p.avgCmc<=3.6,
+      widestId:n===widestId&&p.avgColors>=2.2, tightestId:n===tightestId&&p.avgColors<=2};
+    const best=topDeck(p.decks), most=mostPlayed(p.decks);
+    const chips=[];
+    if(best) chips.push('<span class="chip">Best <b>'+esc(deckName(best[0]))+'</b> '+best[1].w+'\u2013'+(best[1].n-best[1].w)+'</span>');
+    else if(most) chips.push('<span class="chip">Most played <b>'+esc(deckName(most[0]))+'</b></span>');
+    const PIP={W:"#efe3c0",U:"#4a8dc4",B:"#5c5560",R:"#d0503c",G:"#4e9a51"};
+    const order=["W","U","B","R","G"].filter(c=>p.ci&&p.ci[c]);
+    if(order.length) chips.push('<span class="chip" title="'+
+      esc(order.map(c=>({W:"white",U:"blue",B:"black",R:"red",G:"green"})[c]+" in "+p.ci[c])
+        .join(", ")+" of "+p.known+" decks")+'">Colours <span class="pips">'+
+      order.map(c=>'<i style="background:'+PIP[c]+'"></i>').join("")+'</span></span>');
+    if(p.avgCmc!==null) chips.push('<span class="chip">Avg mana <b>'+p.avgCmc.toFixed(1)+'</b></span>');
+    if(p.survN>=3) chips.push('<span class="chip">Survival <b>'+(p.surv/p.survN).toFixed(2)+'</b></span>');
+    else chips.push('<span class="chip">Expected <b>'+p.exp.toFixed(1)+'</b> wins</span>');
+    chips.push('<span class="chip">Avg seat <b>'+(p.seatSum/p.n).toFixed(1)+'</b></span>');
+    return '<article class="person" style="border-left-color:'+pcol[n]+'">'+
+      '<div class="ptop"><span class="pname">'+esc(n)+'</span><span class="prate">'+fmt(pct(p.w,p.n))+'</span></div>'+
+      '<p class="pline">'+p.w+'\u2013'+(p.n-p.w)+' \u00b7 '+p.n+' games \u00b7 '+
+      ((p.w-p.exp)>=0?"+":"\u2212")+Math.abs(p.w-p.exp).toFixed(2)+' vs expected</p>'+
+      '<p class="psay">'+esc(summarize(n,p,sup))+'</p>'+
+      '<div class="chips">'+chips.join("")+'</div></article>';
+  }).join("");
+}
+
+function legend(id,items){
+  document.getElementById(id).innerHTML=items.map(it=>
+    '<span><span class="swatch" style="background:'+it.c+'"></span>'+it.l+' '+it.v+'</span>').join("");
+}
+
+/* ── Form over time ──────────────────────────────────────────────────── */
+function drawForm(gs,pcol){
+  const sorted=gs.map((g,i)=>({g:g,i:i})).sort((a,b)=>
+    a.g.date<b.g.date?-1:a.g.date>b.g.date?1:a.i-b.i).map(x=>x.g);
+  const names=Object.keys(pcol).filter(n=>sorted.some(g=>g.seats.some(s=>(OWNERS[s.deck]||"Unassigned")===n)));
+  const labels=["Start"].concat(sorted.map((g,i)=>String(i+1)));
+  const sets=names.map(name=>{
+    let run=0; const pts=[0];
+    sorted.forEach(g=>{
+      const inIt=g.seats.some(s=>(OWNERS[s.deck]||"Unassigned")===name);
+      if(inIt){
+        const won=(OWNERS[g.winner]||"Unassigned")===name;
+        run += FORMMODE==="wins" ? (won?1:0) : (won?1:0)-1/g.size;
+      }
+      pts.push(Math.round(run*100)/100);
+    });
+    return {label:name,data:pts,borderColor:pcol[name],backgroundColor:pcol[name],
+      borderWidth:2,pointRadius:2.5,pointHoverRadius:5,tension:.18,fill:false,
+      borderDash: FORMMODE==="wins"?[]:[]};
+  });
+  document.getElementById("sub-form").textContent = FORMMODE==="wins"
+    ? "Running win total in the order games were played. Flat stretches are droughts; a player's line only moves in games they sat down for."
+    : "Wins minus the share each seat was worth, running. Above zero is running hot, below is running cold, and it stays fair when people miss a night.";
+  legend("leg-form",names.map(n=>({c:pcol[n],l:n,v:""})));
+  if(charts["c-form"]) charts["c-form"].destroy();
+  charts["c-form"]=new Chart(document.getElementById("c-form"),{
+    type:"line",
+    data:{labels:labels,datasets:sets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:it=>it[0].label==="Start"?"Before the first game":("Game "+it[0].label+" \u00b7 "+sorted[+it[0].label-1].date),
+        label:c=>c.dataset.label+": "+(FORMMODE==="wins"?c.parsed.y+(c.parsed.y===1?" win":" wins")
+          :(c.parsed.y>0?"+":"")+c.parsed.y.toFixed(2))}}},
+      scales:{
+        y:{grid:{color:RULE},border:{color:RULE},ticks:{color:DIMC,font:{family:"IBM Plex Mono"}},
+           title:{display:true,text:FORMMODE==="wins"?"Cumulative wins":"Wins above expected",color:DIMC,font:{family:"IBM Plex Mono",size:10}}},
+        x:{grid:{display:false},border:{color:RULE},ticks:{color:DIMC,font:{family:"IBM Plex Mono",size:10},maxRotation:0,autoSkipPadding:14}}}}
+  });
+}
+
+/* ── Threat and survival ─────────────────────────────────────────────── */
+function drawThreat(st,pcol){
+  const f=st.finish, box=document.getElementById("threat");
+  document.getElementById("n-threat").textContent=f.n+" of "+st.n+" games have finishes";
+  if(!f.n){
+    box.innerHTML='<p class="empty"><b>No knock-out orders logged yet.</b>'+
+      'Add a fifth field to any line \u2014 the decks that died, in the order they died, winner left off.'+
+      '<code>2026-08-20 | amalia(1) vs eshki(2) vs toph(3) | eshki | burn | toph, amalia</code></p>';
+    return;
+  }
+  const pl=Object.entries(f.players).sort((a,b)=>(b[1].score/b[1].n)-(a[1].score/a[1].n));
+  let t='<div class="split"><div class="scroll"><table><thead><tr><th>Player</th><th>Games</th>'+
+    '<th>Survival</th><th>First out</th><th>Final two</th></tr></thead><tbody>';
+  pl.forEach(([name,d])=>{
+    const surv=d.score/d.n, fo=pct(d.first,d.n);
+    t+='<tr><td><span class="swatch" style="background:'+(pcol[name]||GOLD)+'"></span>'+name+'</td>'+
+       '<td class="down">'+d.n+'</td>'+
+       '<td class="'+(surv>=.5?"up":"down")+'">'+surv.toFixed(2)+'</td>'+
+       '<td class="'+(fo>40?"zero":"down")+'">'+Math.round(fo)+'%</td>'+
+       '<td>'+Math.round(pct(d.final2,d.n))+'%</td></tr>';
+  });
+  t+='</tbody></table><p class="sub" style="margin:16px 0 0">Survival runs 0 to 1: a 1.00 means never once knocked out, a 0.00 means always the first to go. Even play sits near 0.50.</p></div>';
+
+  const seats=Object.keys(f.seatN).map(Number).sort((a,b)=>a-b);
+  t+='<div><p class="striphead">First out, by seat</p><ul class="strip">';
+  seats.forEach((k,i)=>{
+    const r=pct(f.seatOut[k]||0,f.seatN[k]);
+    t+='<li><span class="lab">Seat '+k+'</span><span class="bar"><i style="width:'+r.toFixed(1)+
+       '%;background:'+SEAT_TINTS[i%SEAT_TINTS.length]+'"></i></span><span class="val">'+Math.round(r)+'%</span></li>';
+  });
+  t+='</ul><p class="sub" style="margin:16px 0 0">If one seat keeps drawing the table\u2019s attention, it shows up here before it shows up in the win rates.</p></div></div>';
+  box.innerHTML=t;
+}
+
+/* ── Render ──────────────────────────────────────────────────────────── */
+function render(){
+  const sizes={};
+  GAMES.forEach(g=>sizes[g.size]=(sizes[g.size]||0)+1);
+  const inView=FILTER==="all"?GAMES:GAMES.filter(g=>String(g.size)===FILTER);
+
+  const sessions=new Set(inView.map(g=>g.date)).size;
+  const decksSeen=new Set(); inView.forEach(g=>g.seats.forEach(s=>decksSeen.add(s.deck)));
+  const pilots=new Set(); decksSeen.forEach(d=>pilots.add(OWNERS[d]||"Unassigned"));
+  const sizesInView={}; inView.forEach(g=>sizesInView[g.size]=1);
+
+  document.getElementById("meta").innerHTML=
+    metaItem("Games logged",inView.length)+metaItem("Sessions",sessions)+
+    metaItem("Commanders",decksSeen.size)+metaItem("Pilots",pilots.size)+
+    metaItem("Pod sizes",Object.keys(sizesInView).sort().join(" \u00b7 ")||"\u2014");
+
+  document.getElementById("pods").innerHTML=
+    ['all',2,3,4,5].map(k=>{
+      const c=k==="all"?GAMES.length:(sizes[k]||0);
+      const label=k==="all"?"All pods":k+"-player";
+      return '<button class="pod" data-size="'+k+'" aria-pressed="'+(FILTER==String(k))+'"'+
+        (c?"":" disabled")+'>'+label+' <b>'+(c||"\u2014")+'</b></button>';
+    }).join("");
+  document.querySelectorAll(".pod").forEach(b=>b.onclick=()=>{FILTER=b.dataset.size;render();});
+
+  const gs=inView;
+  const label=FILTER==="all"?"across every pod size":"in "+FILTER+"-player pods";
+  document.getElementById("caution").textContent=
+    gs.length===0?"Nothing logged here yet."
+    :gs.length<30?"n = "+gs.length+" "+label+". Under about 30 games these are stories, not findings \u2014 read the gaps, not the decimals."
+    :"n = "+gs.length+" "+label+". Enough to start trusting the wide gaps.";
+
+  const view=document.getElementById("view");
+  if(!gs.length){
+    teardown();
+    view.innerHTML='<div class="panel"><p class="empty"><b>No '+(FILTER==="all"?"":FILTER+"-player ")+
+      'games logged yet.</b>Add them at the bottom of the page and this view fills itself in.</p></div>';
+    return;
+  }
+  if(!document.getElementById("ring")){ teardown(); view.innerHTML=VIEW_HTML; }
+
+  const st=compute(gs);
+  const setN=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
+
+  setN("n-table",gs.length+(gs.length===1?" game":" games"));
+  document.getElementById("ring").innerHTML=drawRing(st,FILTER);
+  const seatCounts=Object.keys(st.seat).map(k=>st.seat[k].n);
+  const mixed=Math.min.apply(null,seatCounts)!==Math.max.apply(null,seatCounts);
+  document.getElementById("ring-note").textContent = mixed
+    ? "Later seats only exist in bigger pods, so they sit in fewer games than the early ones. These are shares of the wins either way; hover a seat for the win rate behind it."
+    : "";
+
+  const pl=Object.entries(st.players).sort((a,b)=>(b[1].w-b[1].exp)-(a[1].w-a[1].exp));
+  const pcol={}; pl.forEach((p,i)=>pcol[p[0]]=PALETTE[i%PALETTE.length]);
+  setN("n-standings",pl.length+" pilots");
+  document.getElementById("standings").innerHTML=pl.map(([name,d])=>{
+    const gap=d.w-d.exp, cls=d.w===0?"zero":(gap>=0?"up":"down");
+    const avg=d.seatSum/d.n, first=d.seats[1]||0;
+    const seatTip=name+" drew "+Object.keys(d.seats).sort().map(k=>"seat "+k+" \u00d7"+d.seats[k]).join(", ")+".";
+    const share={2:"half",3:"a third",4:"a quarter",5:"a fifth",6:"a sixth"};
+    const expTip=name+" played "+Object.keys(d.bySize).sort().map(k=>
+      d.bySize[k]+" "+k+"-player game"+(d.bySize[k]===1?"":"s")+" worth "+(share[k]||"1/"+k)+" of a win each")
+      .join(", and ")+" \u2014 "+d.exp.toFixed(2)+" wins if every seat were equal.";
+    const gapTip=d.w+" actual wins minus "+d.exp.toFixed(2)+" expected = "+
+      ((d.w-d.exp)>=0?"+":"\u2212")+Math.abs(d.w-d.exp).toFixed(2)+
+      " wins. Over "+d.n+" games a gap of about a win either way is ordinary noise.";
+    return '<tr><td><span class="swatch" style="background:'+pcol[name]+'"></span>'+name+'</td>'+
+      '<td>'+d.w+'\u2013'+(d.n-d.w)+'</td><td>'+fmt(pct(d.w,d.n))+'</td>'+
+      '<td title="'+esc(seatTip)+'">'+avg.toFixed(1)+'</td>'+
+      '<td title="'+esc(name+" went first in "+first+" of their "+d.n+" games.")+'">'+
+      fmt(pct(first,d.n))+'</td>'+
+      '<td class="down" title="'+esc(expTip)+'">'+d.exp.toFixed(2)+'</td>'+
+      '<td class="'+cls+'" title="'+esc(gapTip)+'">'+(gap>=0?"+":"\u2212")+
+      Math.abs(gap).toFixed(2)+'</td></tr>';
+  }).join("");
+
+  const winners=pl.filter(p=>p[1].w>0).sort((a,b)=>b[1].w-a[1].w);
+  setN("n-share",st.n+" wins");
+  doughnut("c-share",winners.map(p=>p[0]),winners.map(p=>p[1].w),winners.map(p=>pcol[p[0]]));
+
+  const dk=Object.entries(st.decks).sort((a,b)=>
+    pct(b[1].w,b[1].n)-pct(a[1].w,a[1].n) || b[1].n-a[1].n || a[0].localeCompare(b[0]));
+  setN("n-decks",dk.length+" commanders");
+  document.getElementById("decks").innerHTML=dk.map(([d,v])=>{
+    const owner=OWNERS[d]||"\u2014", r=pct(v.w,v.n);
+    return '<tr><td>'+cardCell(d)+'</td>'+
+      '<td style="font-family:var(--sans);font-size:13px;color:var(--dim)">'+owner+'</td>'+
+      '<td>'+v.w+'\u2013'+(v.n-v.w)+'</td>'+
+      '<td class="'+(v.w===0?"down":"up")+'">'+fmt(r)+'</td></tr>';
+  }).join("");
+
+  const rt=Object.entries(st.routes).sort((a,b)=>b[1]-a[1]);
+  setN("n-routes",st.n+" finishes");
+  document.getElementById("routes").innerHTML=rt.map(([name,c])=>
+    '<li><div class="rlabel"><b>'+name+'</b><span>'+c+' of '+st.n+'</span></div>'+
+    '<div class="bar"><i style="width:'+pct(c,st.n).toFixed(1)+'%"></i></div></li>').join("");
+
+  drawPeople(gs);
+  drawForm(gs,pcol);
+  drawThreat(st,pcol);
+  document.querySelectorAll(".tg[data-mode]").forEach(b=>{
+    b.setAttribute("aria-pressed",String(b.dataset.mode===FORMMODE));
+    b.onclick=()=>{FORMMODE=b.dataset.mode;render();};
+  });
+}
+function metaItem(k,v){return '<div><dt>'+k+'</dt><dd>'+v+'</dd></div>';}
+
+/* ── Wiring ──────────────────────────────────────────────────────────── */
+const status=document.getElementById("status");
+function load(txt,announce){
+  const {games,errors}=parseLog(txt);
+  if(errors.length){
+    status.className="status bad";
+    status.textContent=errors.length+(errors.length===1?" line was skipped. ":" lines were skipped. ")+errors[0];
+  } else if(announce){
+    status.className="status good";
+    status.textContent="Updated \u2014 "+games.length+" games read.";
+  } else { status.className="status"; status.textContent=""; }
+  GAMES=games; FILTER="all"; render();
+}
+(function(){
+  const cur=document.documentElement.getAttribute("data-theme");
+  document.querySelectorAll("#themes .tg").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.theme===cur)));
+})();
+document.querySelectorAll("#themes .tg").forEach(b=>{
+  b.onclick=()=>{
+    document.documentElement.setAttribute("data-theme",b.dataset.theme);
+    document.querySelectorAll("#themes .tg").forEach(o=>o.setAttribute("aria-pressed",String(o===b)));
+    syncTheme(); render();
+  };
+});
+document.getElementById("log").value=DEFAULT_LOG;
+document.getElementById("update").onclick=()=>load(document.getElementById("log").value,true);
+document.getElementById("refresh").onclick=()=>refreshCards(m=>{
+  status.className="status"; status.textContent=m;
+});
+document.getElementById("save").onclick=()=>{
+  if(looking){
+    status.className="status bad";
+    status.textContent="Still looking commanders up \u2014 wait for that to finish so the copy is complete.";
+    return;
+  }
+  try{
+    const blob=new Blob([bakedHTML()],{type:"text/html"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="pod-log.html";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    status.className="status good";
+    status.textContent="Saved. That copy has the card data and your current log baked in \u2014 share it as is.";
+  }catch(e){ status.className="status bad"; status.textContent="Couldn't build the file: "+e.message; }
+};
+document.getElementById("copy").onclick=async()=>{
+  try{ await navigator.clipboard.writeText(document.getElementById("log").value);
+    status.className="status good"; status.textContent="Log copied.";
+  }catch(e){ status.className="status bad"; status.textContent="Couldn't reach the clipboard \u2014 select the text and copy it."; }
+};
+load(DEFAULT_LOG,false);
+
+let logError=false;
+if(LOG_URL){
+  fetch(LOG_URL+(LOG_URL.indexOf("?")<0?"?":"&")+"v="+Date.now(),{cache:"no-store"})
+    .then(r=>r.ok?r.text():Promise.reject(new Error("HTTP "+r.status)))
+    .then(txt=>{
+      if(!txt.trim()) return;
+      document.getElementById("log").value=txt.trim();
+      load(txt,false);
+    })
+    .catch(e=>{
+      logError=true;
+      status.className="status bad";
+      status.textContent="Couldn't read "+LOG_URL+" ("+e.message+") \u2014 showing the log built into this file.";
+    });
+}
+
+if(AUTO_LOOKUP){
+  const gaps=missingCards();
+  if(gaps.length){
+    const sub=document.getElementById("people-sub");
+    const base="Written from the numbers on this page, and rewritten every time you add a game.";
+    refreshCards(msg=>{
+      if(sub) sub.textContent=base+" "+(/resolved|Couldn't/.test(msg)?"":msg);
+      if(logError) return;
+      status.className="status"; status.textContent=msg;
+    },gaps).then(()=>{
+      if(!Object.keys(CARD_DATA).length&&sub)
+        sub.textContent=base+" Colour and mana detail needs a connection \u2014 press Refresh card data to try again.";
+      if(Object.keys(CARD_DATA).length&&!logError){
+        status.className="status good";
+        status.textContent="Card data loaded. Press Save updated copy to bake it in so this never has to run again.";
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>

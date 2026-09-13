@@ -22,6 +22,7 @@
   --chip:rgba(243,241,237,.06); --hover:rgba(243,241,237,.14); --ok:#2e9e55;
   --glow:rgba(226,182,74,.08); --shade:rgba(0,0,0,.55);
   --c1:#f6e9b2; --c2:#a5daf6; --c3:#71bd57; --c4:#ec7f62; --c5:#a37fdb; --c6:#2b9d92;
+  --rate-lo:#ec7f62; --rate-mid:#e2b64a; --rate-hi:#71bd57;
 }
 [data-theme="paper"]{
   --felt:#f1eee6; --felt-2:#e7e3d8; --felt-3:#fbf9f4;
@@ -31,14 +32,17 @@
   --chip:rgba(25,23,20,.05); --hover:rgba(25,23,20,.10); --ok:#1f8a49;
   --glow:rgba(138,95,20,.06); --shade:rgba(0,0,0,.22);
   --c1:#7d5f0e; --c2:#1a6ea8; --c3:#2b7a3f; --c4:#b03a17; --c5:#4f3487; --c6:#0d6a7c;
+  --rate-lo:#a33514; --rate-mid:#7c5612; --rate-hi:#256b37;
 }
 *{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden;overflow-x:clip}
+img,svg,table{max-width:100%}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--felt);color:var(--ivory);font-family:var(--sans);font-size:15px;line-height:1.6;
   background-image:radial-gradient(ellipse at 50% -10%,var(--glow),transparent 60%)}
 .wrap{max-width:1120px;margin:0 auto;padding:clamp(24px,5vw,56px) clamp(18px,4vw,40px) 80px}
 
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}
+.topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 16px;margin-bottom:14px}
 .topbar .eyebrow{margin:0}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
 h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,5vw,54px);line-height:1.04;
@@ -61,13 +65,26 @@ h1 em{font-style:italic;font-weight:400;color:var(--gold)}
   color:var(--muted);width:68px;flex:0 0 auto}
 .pods{display:flex;flex-wrap:wrap;gap:8px}
 .drop{position:relative}
-.drop-btn{min-width:200px;justify-content:space-between;padding-right:11px}
+.drop-btn{min-width:200px;max-width:100%;justify-content:space-between;padding-right:11px}
+.drop-btn>span:first-of-type{padding-right:16px}
+@media (max-width:620px){
+  .pod.drop-btn{min-width:0}
+  .ctl{display:block}
+  .ctl .flabel{display:block;width:auto;margin-bottom:8px}
+  .ctl .toggle{display:flex;flex-wrap:wrap;gap:6px;border:0;border-radius:0;
+    overflow:visible;max-width:100%}
+  .ctl .tg{flex:1 1 calc(50% - 3px);min-width:0;border:1px solid var(--edge);border-radius:3px;
+    padding:9px 8px;text-align:center}
+  .ctl .tg[aria-pressed=true]{background:var(--chip);box-shadow:inset 0 -2px 0 var(--ok)}
+}
 .drop-btn::before{display:none}
-.drop-btn b{margin-left:auto;padding-left:12px;font-size:15px;line-height:1;opacity:.95;
-  border-left:1px solid var(--rule);display:inline-block;transition:transform .15s}
-.drop-btn[aria-expanded="true"] b{transform:rotate(180deg)}
+.pod.drop-btn b{margin-left:auto;padding-left:12px;font-size:17px;line-height:1;opacity:1;
+  border-left:1px solid var(--rule);display:inline-flex;align-items:center;font-style:normal}
+.pod.drop-btn b i{font-style:normal;display:inline-block;transition:transform .15s}
+.pod.drop-btn[aria-expanded="true"] b i{transform:rotate(180deg)}
 .drop-btn[aria-expanded="true"]{border-color:var(--gold)}
-.drop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:250px;
+.drop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;
+  min-width:min(250px,calc(100vw - 44px));max-width:calc(100vw - 44px);
   background:var(--felt-3);border:1px solid var(--edge);border-radius:4px;padding:6px;
   box-shadow:0 10px 30px var(--shade)}
 .drop-menu button{display:flex;width:100%;align-items:center;gap:0;background:transparent;border:0;
@@ -108,13 +125,13 @@ h1 em{font-style:italic;font-weight:400;color:var(--gold)}
 .caution{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 22px}
 
 .grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:26px;align-items:start}
-.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px;margin-top:26px}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:26px;margin-top:26px}
 .duo.solo{grid-template-columns:minmax(0,1fr)}
 
 .panel{background:var(--felt-3);border:1px solid var(--rule);border-radius:4px;
   padding:22px 24px 24px}
 
-.phead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 4px}
+.phead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 12px;margin:0 0 4px}
 h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
 .n{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
 .n.warn{color:var(--c4)}
@@ -142,7 +159,16 @@ tbody tr:last-child td{border-bottom:0}
 .up{color:var(--gold)}
 .down{color:var(--muted)}
 .zero{color:var(--c4)}
-.scroll{overflow-x:auto}
+.grid>*,.duo>*,.people>*,.split>*,.split3>*,.frow>*,.ctl>*{min-width:0}
+.panel,.person,section{min-width:0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.scroll>table{min-width:520px}
+.scroll>table.matrix{min-width:440px}
+@media (max-width:620px){
+  .scroll{border-left:1px solid var(--rule-2);border-right:1px solid var(--rule-2);
+    background:linear-gradient(90deg,var(--chip),transparent 14px),
+               linear-gradient(270deg,var(--chip),transparent 14px)}
+}
 
 .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:0 0 14px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .legend span{display:flex;align-items:center;gap:6px}
@@ -157,9 +183,12 @@ tbody tr:last-child td{border-bottom:0}
 .bar{height:7px;background:var(--rule-2);border-radius:1px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--gold);border-radius:1px}
 
-.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:20px}
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(310px,100%),1fr));gap:20px}
 .person{background:var(--felt-2);border:1px solid var(--rule);border-radius:4px;padding:19px 21px 20px;
   border-left:3px solid var(--gold)}
+.person.absent{border-left-color:var(--rule);border-left-style:dashed}
+.person.absent .pname,.person.absent .prate{color:var(--muted)}
+.person.absent .psay{font-style:italic}
 .ptop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:2px}
 .pname{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em}
 .prate{font-family:var(--mono);font-size:19px}
@@ -176,12 +205,13 @@ tbody tr:last-child td{border-bottom:0}
 .pipn{display:inline-flex;align-items:center;gap:5px;color:var(--ivory)}
 .empty{text-align:center;padding:52px 20px;color:var(--muted);font-size:14px}
 .empty b{display:block;font-family:var(--serif);font-size:19px;color:var(--dim);font-weight:400;margin-bottom:8px}
-.empty code{display:inline-block;background:var(--felt-2);border:1px solid var(--rule);border-radius:2px;
+.empty code{display:inline-block;max-width:100%;overflow-wrap:anywhere;background:var(--felt-2);border:1px solid var(--rule);border-radius:2px;
   padding:9px 13px;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--dim);text-align:left;max-width:100%;overflow-x:auto}
 
 .ctl{display:flex;align-items:center;gap:12px;margin:0 0 16px;flex-wrap:wrap}
 .ctl .flabel{width:auto}
-.toggle{display:flex;border:1px solid var(--edge);border-radius:3px;overflow:hidden;flex:0 0 auto}
+.toggle{display:flex;flex-wrap:wrap;border:1px solid var(--edge);border-radius:3px;overflow:hidden;
+  flex:0 1 auto;max-width:100%}
 .tg{background:transparent;border:0;color:var(--muted);font-family:var(--mono);font-size:11px;
   padding:6px 12px;cursor:pointer;transition:color .15s,background .15s}
 .tg+.tg{border-left:1px solid var(--edge)}
@@ -190,18 +220,13 @@ tbody tr:last-child td{border-bottom:0}
 .tg[aria-pressed=true]{background:var(--chip);color:var(--ivory);font-weight:500;
   box-shadow:inset 0 -2px 0 var(--ok)}
 .tg:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
-.tg.sw{padding:5px 7px;display:flex;align-items:center}
-
-.tg.sw[aria-pressed=true]{background:var(--chip)}
-.tg.sw[aria-pressed=true] .chip-sw{box-shadow:0 0 0 2px var(--gold)}
-.chip-sw{display:block;width:30px;height:18px;border-radius:3px;position:relative;
-  box-shadow:0 0 0 1px var(--edge);transition:box-shadow .15s}
-.chip-sw i{position:absolute;top:5px;width:8px;height:8px;border-radius:50%}
-.chip-sw .a{left:5px} .chip-sw .b{right:5px}
-.s-slate{background:#15181c} .s-slate .a{background:#e2b64a} .s-slate .b{background:#a5daf6}
-.s-paper{background:#f1eee6} .s-paper .a{background:#7c5612} .s-paper .b{background:#1a6ea8}
 
 .split{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:30px;align-items:start}
+.split3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;align-items:start}
+.split3>div{min-width:0}
+.split3 .lab{width:74px}
+@media (max-width:900px){.split3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.split3{grid-template-columns:1fr}}
 .strip{margin:0;padding:0;list-style:none}
 .striphead{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
   padding-bottom:9px;border-bottom:1px solid var(--rule);margin-bottom:14px}
@@ -210,30 +235,27 @@ tbody tr:last-child td{border-bottom:0}
 .strip .lab{color:var(--dim);width:46px;flex:0 0 auto}
 .strip .bar{flex:1}
 .strip .val{color:var(--muted);width:34px;text-align:right;flex:0 0 auto}
-.hist{display:flex;align-items:flex-end;gap:6px;height:130px;margin:6px 0 10px}
+.hist{display:flex;align-items:flex-end;gap:6px;height:130px;margin:6px 0 10px;overflow-x:auto}
+.hist .col{min-width:22px}
 .hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
 .hist .stem{width:100%;max-width:34px;background:var(--gold);border-radius:2px 2px 0 0;min-height:2px}
 .hist .cap{font-family:var(--mono);font-size:11px;color:var(--dim)}
 .hist .tick{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.matrix{border-collapse:collapse;font-family:var(--mono);font-size:12px;width:100%}
+.matrix{border-collapse:collapse;font-family:var(--mono);font-size:12px;width:100%;table-layout:fixed}
+@media (max-width:620px){.matrix{table-layout:auto}}
 .matrix th,.matrix td{padding:9px 6px;font-size:12.5px;text-align:center;white-space:nowrap;border:0}
 .matrix thead th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
   border-bottom:1px solid var(--rule)}
 .matrix tbody th{text-align:left;font-family:var(--sans);font-size:13.5px;font-weight:400;color:var(--ivory);
   text-transform:none;letter-spacing:0;border-right:1px solid var(--rule);
-  width:22%;white-space:nowrap;padding-right:14px}
-.matrix thead th:first-child{width:22%;text-align:left;padding-right:14px}
-.matrix thead th+th,.matrix tbody td{width:auto}
+  width:26%;padding-right:14px}
+.matrix thead th:first-child{width:26%;text-align:left;padding-right:14px}
 .matrix td{border-bottom:1px solid var(--rule-2)}
 .cell{display:inline-flex;align-items:center;justify-content:center;width:30px;height:26px;border-radius:3px}
 .cell.z{color:var(--muted);opacity:.4}
 .fb{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule)}
-.fbline{font-family:var(--mono);font-size:13px;color:var(--dim);margin:0 0 10px}
-.fbpct{font-size:26px;color:var(--gold);vertical-align:-3px;margin:0 6px 0 2px}
-.fbpar{font-size:12.5px;color:var(--muted)}
 .note{font-family:var(--sans);font-size:13.5px;color:var(--dim);margin:16px 0 0;line-height:1.65}
 .note b{color:var(--ivory);font-weight:500}
-.miss{color:var(--c4)}
 @media (max-width:700px){.split{grid-template-columns:1fr;gap:26px}}
 
 .editor{margin-top:52px;border-top:1px solid var(--rule);padding-top:32px}
@@ -254,7 +276,6 @@ a.card{color:var(--ivory);text-decoration:none;border-bottom:1px solid var(--rul
 a.card:hover{color:var(--gold);border-bottom-color:var(--gold)}
 a.card:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:1px}
 a.card.loose{color:var(--dim);border-bottom-style:dotted}
-.flag{color:var(--gold);margin-left:4px;font-weight:700}
 .amp{color:var(--muted);font-size:12px}
 .preview{position:fixed;z-index:99;pointer-events:none;opacity:0;transform:translateY(4px);
   transition:opacity .13s ease,transform .13s ease;filter:drop-shadow(0 14px 28px var(--shade))}
@@ -289,7 +310,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
     <span class="flabel">Sessions</span>
     <div class="drop" id="dropwrap">
       <button class="pod drop-btn" id="dropbtn" type="button" aria-expanded="false" aria-haspopup="true">
-        <span id="droplabel">All sessions</span><b aria-hidden="true">&#9662;</b>
+        <span id="droplabel">All sessions</span><b aria-hidden="true"><i>&#9662;</i></b>
       </button>
       <div class="drop-menu" id="dates" role="group" aria-label="Session dates to include" hidden></div>
     </div>
@@ -366,7 +387,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
     <div class="ctl">
       <span class="flabel">Show</span>
       <span class="toggle" role="group" aria-label="Which kills to show">
-        <button class="tg" data-kills="stalled" aria-pressed="true">Didn't follow up</button><button class="tg" data-kills="finish" aria-pressed="false">Part of a finish</button><button class="tg" data-kills="wipe" aria-pressed="false">Wiped the table</button>
+        <button class="tg" data-kills="stalled" aria-pressed="true">Didn't follow up</button><button class="tg" data-kills="finish" aria-pressed="false">Part of a finish</button><button class="tg" data-kills="wipe" aria-pressed="false">Wiped the table</button><button class="tg" data-kills="all" aria-pressed="false">Overall</button>
       </span>
     </div>
     <div id="kills"></div>
@@ -399,8 +420,8 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
 <section class="editor" aria-labelledby="h-log" id="editor" hidden>
   <div class="phead"><h2 id="h-log">The log</h2><span class="n">one game per line</span></div>
   <p class="sub" style="max-width:66ch">Only you see this — the panel stays hidden unless the page is opened with <code>?edit</code> on the end of the address.
-  Nothing on this page talks to the internet on its own. Refresh card data looks the commanders up on Scryfall once, on demand. Save updated copy then writes a fresh file with those results and your current log baked in, so the copy you share never calls out at all.</p>
-  <p class="sub" style="max-width:66ch">Format is <code>date | deck(seat) vs deck(seat) … | winner | how it ended | knocked out, in order</code>. The last field is optional and unlocks the survival numbers — list the losers first-out first and leave the winner off. Add a line, press update, and every number on this page moves. Pods of any size work; a fifth name makes it a five-player table on its own.</p>
+  The only thing this page fetches is commander detail from Scryfall, and only for commanders it has no data for yet. Refresh card data does that lookup on demand; Save updated copy then writes a fresh file with the results and your current log baked in, after which it never needs to look anything up again.</p>
+  <p class="sub" style="max-width:66ch">Format is <code>date | deck(seat) vs deck(seat) … | winner | how it ended | what happened</code>. The last field is optional and unlocks the turn counts and kill stats — write it plainly, like <code>Ryan kills Rudy turn 7</code>, <code>Ricardo kills table turn 12</code>, <code>Ryan concedes turn 12</code> or <code>entire table died turn 8</code>. A bracketed label on the fourth field, like <code>(combat damage)</code>, sets how the win is categorized. Add a line, press update, and every number on this page moves. Pods of any size work; a fifth name makes it a five-player table on its own.</p>
   <label class="sr-only" for="log">Game log</label>
   <textarea id="log" spellcheck="false"></textarea>
   <div class="actions">
@@ -514,7 +535,7 @@ function syncTheme(){
 syncTheme();
 
 let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", charts={};
-let LOG_MODIFIED=null;
+let LOG_MODIFIED=null, parseError=false;
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
   Object.keys(charts).forEach(k=>{ try{charts[k].destroy();}catch(e){} delete charts[k]; });
@@ -737,6 +758,13 @@ function drawRing(st, size){
    opens instantly and works with no connection at all. Press "Refresh
    card data" under the log to look the commanders up, then paste the
    generated block over this one to make it permanent. */
+/* Pod members with nothing logged yet. They get a card of their own so the
+   roster stays honest about who is meant to be here. */
+const ABSENT = [
+  {name:"John", line:"Awaiting more data. He seems to be avoiding the pod."},
+  {name:"Tim",  line:"Awaiting more data. He seems to always be busy."}
+];
+
 const CARD_DATA = {
   // "amalia": {name:"Amalia Benavides Aguirre", ci:"WB", mv:3, tag:"gaining life", img:"https://..."},
   // partners share one entry; img becomes a list, one per name, in the same order:
@@ -800,7 +828,7 @@ function cardCell(short){
       '<a class="card" href="'+esc(exactURL(n))+'" target="_blank" rel="noopener" data-card="'+esc(n)+
       '">'+esc(n)+'</a>').join('<span class="amp"> + </span>')+'</span>';
   const shown=seeds.length?seeds:[titleCase(short)];
-  const tip=seeds.length?"Not looked up yet \u2014 opens a commander search. Press Refresh card data under the log."
+  const tip=seeds.length?"Not looked up on Scryfall yet \u2014 this opens a commander search instead."
                         :"No printed name on file for \u201c"+short+"\u201d. Add it to DECKS.";
   return '<span class="cardcell" data-short="'+esc(short)+'">'+shown.map(n=>
     '<a class="card loose" href="'+esc(searchURL(n))+'" target="_blank" rel="noopener" title="'+esc(tip)+
@@ -956,6 +984,11 @@ function bakedHTML(){
     .forEach(id=>{ const el=doc.querySelector("#"+id); if(el) el.innerHTML=""; });
   ["caution","status"].forEach(id=>{ const el=doc.querySelector("#"+id); if(el) el.textContent=""; });
   const pv=doc.querySelector(".preview"); if(pv) pv.remove();
+  /* the clone carries whatever state the page was in — reset anything a
+     visitor shouldn't inherit, above all the log panel we opened with ?edit */
+  const ed=doc.querySelector("#editor"); if(ed) ed.hidden=true;
+  const dm=doc.querySelector("#dates"); if(dm){ dm.hidden=true; dm.innerHTML=""; }
+  const db=doc.querySelector("#dropbtn"); if(db) db.setAttribute("aria-expanded","false");
   const ta=doc.querySelector("#log"); if(ta) ta.textContent="";
   const log=document.getElementById("log").value.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,"\\${");
   doc.querySelectorAll("script").forEach(sc=>{
@@ -1022,8 +1055,9 @@ function profiles(gs){
     g.seats.forEach(s=>{
       const o=OWNERS[s.deck]||"Unassigned";
       const p=P[o]=P[o]||{w:0,n:0,exp:0,noWin:1,decks:{},routes:{},seq:[],
-        seats:{},seatSum:0,surv:0,survN:0,first:0,final2:0,mkills:0,mkGames:0};
-      p.n++; p.exp+=1/g.size; p.noWin*=(1-1/g.size);
+        seats:{},seatSum:0,surv:0,survN:0,first:0,final2:0,mkills:0,mkGames:0,probs:[],winTurns:[]};
+      p.n++; p.exp+=1/g.size; p.noWin*=(1-1/g.size); p.probs.push(1/g.size);
+      if(g.turns&&s.deck===g.winner) p.winTurns.push(g.turns);
       p.seats[s.seat]=(p.seats[s.seat]||0)+1;
       p.seatSum+=s.seat;
       const d=p.decks[s.deck]=p.decks[s.deck]||{w:0,n:0}; d.n++;
@@ -1073,6 +1107,16 @@ function profiles(gs){
   return P;
 }
 const shortName=n=>String(n).split(/\s*\/\/\s*/)[0].trim();
+/* red at 0%, gold in the middle, green at 100% — the number carries the
+   meaning, this only reinforces it, so a color-blind reader loses nothing. */
+function rateColor(pctVal){
+  const hex=n=>{const v=cssv(n); return [1,3,5].map(i=>parseInt(v.slice(i,i+2),16));};
+  const lo=hex("--rate-lo"), mid=hex("--rate-mid"), hi=hex("--rate-hi");
+  const t=Math.max(0,Math.min(1,pctVal/100));
+  const a=t<=0.5?lo:mid, b=t<=0.5?mid:hi, u=t<=0.5?t/0.5:(t-0.5)/0.5;
+  const c=[0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*u));
+  return "rgb("+c.join(",")+")";
+}
 const deckName=k=>{const n=cardNames(k); return shortName(n.length?n[0]:(SEEDS[k]||titleCase(k)));};
 function topDeck(decks){
   const e=Object.entries(decks).filter(x=>x[1].w>0);
@@ -1084,125 +1128,129 @@ function mostPlayed(decks){
   const e=Object.entries(decks).sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0]));
   return e.length?e[0]:null;
 }
-function topKey(obj){
-  const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
-  return e.length?e[0][0]:null;
-}
 /* stable per-person phrasing so two people never read identically */
-function vary(list,key){
-  let h=0; for(let i=0;i<key.length;i++) h=(h*31+key.charCodeAt(i))>>>0;
-  return list[h%list.length];
+/* exact distribution of wins when every seat is equally likely */
+function poisBin(ps){
+  let d=[1];
+  ps.forEach(pr=>{ const nd=new Array(d.length+1).fill(0);
+    for(let i=0;i<d.length;i++){ nd[i]+=d[i]*(1-pr); nd[i+1]+=d[i]*pr; }
+    d=nd; });
+  return d;
 }
-function summarize(name,p,sup){
-  const gap=p.w-p.exp, L=p.n-p.w, W=p.w, rec=name+" is "+W+"\u2013"+L;
-  const got=pct(p.w,p.n), owed=pct(p.exp,p.n);
-  const best=topDeck(p.decks), most=mostPlayed(p.decks), kinds=Object.keys(p.decks).length;
+function tailProb(ps,w,up){
+  const d=poisBin(ps); let t=0;
+  if(up){ for(let i=w;i<d.length;i++) t+=d[i]; } else { for(let i=0;i<=w&&i<d.length;i++) t+=d[i]; }
+  return t;
+}
+function summarize(name,p,sup,dst){
+  const L=p.n-p.w, W=p.w, got=pct(p.w,p.n), owed=pct(p.exp,p.n);
   const WUBRG={W:"white",U:"blue",B:"black",R:"red",G:"green"};
   const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
   const list=a=>a.length<2?a[0]:a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+  const s=(dst&&dst.P[name])||{};
   const C=[];
 
-  /* 1. the record, as a rate against the rate the seats owed */
-  if(W===0&&p.n>=3){
-    const odds=p.noWin*100;
-    C.push(name+" has sat down "+p.n+" times without one falling their way, against the "+owed.toFixed(1)+
-      "% those seats owed them. A stretch that quiet turns up by chance about "+
-      (odds<1?"once in every "+Math.round(1/(p.noWin||1e-9))+" runs":Math.round(odds)+"% of the time")+
-      ", so it reads far more like the table owing them than anything about the decks.");
-  } else if(p.n<3){
-    C.push(rec+" so far \u2014 too few games to say anything the next session couldn't overturn.");
+  /* 1. the record, tested rather than asserted */
+  if(p.n<3){
+    C.push(name+" is "+W+"\u2013"+L+" so far \u2014 too few games to say anything the next session couldn't overturn.");
   } else {
-    const band = gap>=1.2?0 : gap>=.4?1 : gap>=-.6?2 : 3;
-    const tail=[(sup.top?" \u2014 the best conversion at the table":""),", a shade ahead of par",
-      ", which is par to within a rounding error"," \u2014 short by less than a game's worth of luck"][band];
-    C.push(vary([
-      rec+", winning "+got.toFixed(1)+"% where their seats owed "+owed.toFixed(1)+"%"+tail+".",
-      rec+" \u2014 a "+got.toFixed(1)+"% clip against the "+owed.toFixed(1)+"% a fair draw hands them"+tail+"."
-    ],name+"r"));
+    const hi=tailProb(p.probs,W,true), lo=tailProb(p.probs,W,false);
+    const odd=Math.min(hi,lo), notable=odd<=0.05&&p.n>=12;
+    let line=name+" is "+W+"\u2013"+L+", winning "+got.toFixed(1)+"% where his seats owed "+owed.toFixed(1)+"%";
+    if(W===0&&p.n>=3){
+      line=name+" has sat down "+p.n+" times without one falling his way, against the "+owed.toFixed(1)+
+        "% those seats owed him";
+    }
+    if(notable) line+=" \u2014 "+(W>p.exp?"the best conversion at the table, and far enough clear to mean something: a run this good"
+      :"a drought long enough to clear the noise bar: a run this quiet")+
+      " turns up by chance about "+Math.round(odd*100)+"% of the time.";
+    else line+=(Math.abs(W-p.exp)<0.5?", which is par to within a rounding error."
+      :W>p.exp?", a shade ahead of par, though on "+p.n+" games that gap is well inside noise."
+              :", a little under par, which over "+p.n+" games is ordinary noise rather than a slump.");
+    C.push(line);
   }
 
-  /* 2. survival \u2014 only exists once knock-out orders are logged */
-  if(p.survN>=3){
-    const sv=p.surv/p.survN, fo=pct(p.first,p.survN), f2=pct(p.final2,p.survN);
-    if(fo>=45) C.push("The table reads them as the threat \u2014 first out in "+Math.round(fo)+
-      "% of the games with finishes recorded, which is its own kind of compliment.");
-    else if(f2>=60) C.push(gap>=.4
-      ? "They reach the final two "+Math.round(f2)+"% of the time and convert often enough that the endgame clearly suits them."
-      : "They reach the final two "+Math.round(f2)+"% of the time, so closing speed is the piece to work on rather than staying alive.");
-    else if(sv>=.6) C.push("They're hard to shift, surviving well past the middle of the table most nights.");
-    else if(fo<=15&&p.survN>=4) C.push("Almost never the first one out, which is a quieter skill than winning and a real one.");
+  /* 2. the dice */
+  const rolls=p.seats[1]||0, rollExp=p.probs.reduce((a,b)=>a+b,0);
+  if(p.n>=10&&Math.abs(rolls-rollExp)>=2){
+    C.push(rolls>rollExp
+      ? "He has the best dice in the pod \u2014 "+rolls+" roll wins in "+p.n+" against about "+
+        rollExp.toFixed(0)+" expected \u2014 and "+(W<p.exp?"the least to show for it.":"has converted them.")
+      : "He does it on poor dice, winning the roll "+times(rolls)+" in "+p.n+" games"+
+        " and sitting at an average seat of "+(p.seatSum/p.n).toFixed(1)+".");
   }
 
-  /* 3. color identity */
-  if(p.known>=3){
-    const ranked=Object.keys(p.ci).sort((a,b)=>p.ci[b]-p.ci[a]);
-    const never=["W","U","B","R","G"].filter(c=>!p.ci[c]);
-    const top=ranked[0], lead=ranked.filter(c=>p.ci[c]===p.ci[top]);
-    const D=p.known, hue=top?WUBRG[top]:"", cnt=top?p.ci[top]:0;
-    if(top&&never.length>=3&&ranked.length<=2){
-      C.push(vary([
-        "They live in a narrow lane \u2014 "+list(ranked.map(c=>WUBRG[c]))+", and nothing else across "+D+" decks.",
-        "Across "+D+" decks they've never strayed past "+list(ranked.map(c=>WUBRG[c]))+"."
-      ],name+"c"));
-    } else if(never.length>=1){
-      C.push(vary([
-        "No "+list(never.map(c=>WUBRG[c]))+" anywhere in their "+D+" decks, which quietly limits what they can answer.",
-        list(never.map(c=>WUBRG[c])).replace(/^./,m=>m.toUpperCase())+" never make the cut \u2014 absent from all "+D+" of their decks.",
-        "Their "+D+" decks skip "+list(never.map(c=>WUBRG[c]))+" entirely, so some answers simply aren't available."
-      ],name+"c"));
-    } else if(top&&cnt/D>=0.6){
-      C.push(vary([
-        cap(WUBRG[top])+" is in "+cnt+" of their "+D+" decks, more than half of what they bring.",
-        "More than half their decks lean on "+WUBRG[top]+" \u2014 "+cnt+" of "+D+"."
-      ],name+"c"));
+  /* 3. what he brings */
+  const bits=[];
+  if(p.avgCmc!==null&&p.known>=3){
+    if(sup.cheapest) bits.push("the cheapest commanders here at "+p.avgCmc.toFixed(1)+" mana");
+    else if(sup.heaviest) bits.push("the priciest commanders here at "+p.avgCmc.toFixed(1)+" mana");
+  }
+  if(p.avgColors!==null&&p.known>=3){
+    if(sup.tightestId) bits.push("the tightest color identities at "+p.avgColors.toFixed(1)+" a deck");
+    else if(sup.widestId) bits.push("the greediest mana at "+p.avgColors.toFixed(1)+" colors a deck");
+  }
+  if(sup.widest) bits.push("the widest rotation at "+Object.keys(p.decks).length+" decks");
+  const ranked=Object.keys(p.ci||{}).sort((a,b)=>p.ci[b]-p.ci[a]);
+  const lead=ranked.filter(c=>p.ci[c]===p.ci[ranked[0]]);
+  if(ranked.length&&p.ci[ranked[0]]/p.known>=0.55)
+    bits.push(list(lead.map(c=>WUBRG[c]))+" in "+p.ci[ranked[0]]+" of his "+p.known+" decks");
+  if(bits.length) C.push("He runs "+list(bits)+".");
+
+  /* 4. how the wins arrive */
+  const rt=Object.keys(p.routes||{}).sort((a,b)=>p.routes[b]-p.routes[a]);
+  if(W>=2&&rt.length){
+    const top=rt[0], n=p.routes[top];
+    const wt=p.winTurns.length?p.winTurns.reduce((a,b)=>a+b,0)/p.winTurns.length:null;
+    if(n<2&&rt.length>1){
+      /* one win each way names no favorite \u2014 say so instead of picking one */
+      C.push("His "+numWord(W).toLowerCase()+" wins came one apiece through "+
+        list(rt.map(r=>r.toLowerCase()))+
+        (wt?", on turn "+wt.toFixed(1)+" on average":"")+".");
+    } else {
+      let line=(n/W>=0.6? n+" of his "+W+" wins came through "+top.toLowerCase()
+               : "His wins spread across "+rt.length+" different routes, most often "+top.toLowerCase());
+      if(wt) line+=", on turn "+wt.toFixed(1)+" on average";
+      C.push(line+".");
+      if(top==="Combo"&&n>=2&&sup.onlyCombo)
+        C.push("He is the only player to have won by combo, and has done it "+
+          times(n)+".");
     }
   }
 
-  /* 4. what the commanders are actually built to do */
-  const tagTop=topKey(p.tags||{});
-  if(tagTop&&p.tags[tagTop]>=2){
-    const nw=numWord(p.tags[tagTop]).toLowerCase();
-    C.push(vary([
-      numWord(p.tags[tagTop])+" of their commanders are built around "+tagTop+".",
-      cap(tagTop)+" is the throughline \u2014 "+nw+" of their commanders want it.",
-      "There's a habit here: "+nw+" of the decks they bring are about "+tagTop+".",
-      cap(tagTop)+" turns up in "+nw+" of their commanders."
-    ],name+"t"));
+  /* 5. how he treats the rest of the table */
+  const fin=Object.keys(s.finished||{}).reduce((a,v)=>a+s.finished[v],0);
+  const wip=Object.keys(s.wiped||{}).reduce((a,v)=>a+s.wiped[v],0);
+  const mid=Object.keys(s.targeted||{}).reduce((a,v)=>a+s.targeted[v],0);
+  if(fin+wip+mid>0){
+    if(wip>0&&fin===0&&mid===0)
+      C.push("Every one of his credited kills is a table wipe \u2014 "+wip+
+        " of them, no finishes, no mid-game removals. He wins by removing everyone at once or not at all.");
+    else if(mid===0&&fin+wip>=4)
+      C.push("He has never taken a player out mid-game: all "+(fin+wip)+
+        " of his credited kills were finishes or wipes.");
+    else if(mid>0&&sup.topMid&&sup.midTotal>=3)
+      C.push("He is the pod's most active remover while a game is still live \u2014 "+mid+
+        " of the "+sup.midTotal+" kills that left play going are his"+
+        (sup.midVictim?", "+(mid>1?"both ":"")+"on "+sup.midVictim:"")+".");
   }
 
-  /* 5. mana value and color greed */
-  if(p.avgCmc!==null&&p.known>=3){
-    if(sup.heaviest) C.push("Their commanders are the priciest here at an average "+p.avgCmc.toFixed(1)+
-      " mana, so they pay for their effects up front.");
-    else if(sup.cheapest) C.push("They run the cheapest commanders at the table, averaging "+p.avgCmc.toFixed(1)+
-      " mana \u2014 on the board while everyone else is still ramping.");
-    else if(sup.widestId) C.push("Their decks average "+p.avgColors.toFixed(1)+
-      " colors, the greediest mana bases in the pod.");
-    else if(sup.tightestId) C.push("At "+p.avgColors.toFixed(1)+
-      " colors a deck, their mana is the most forgiving here.");
+
+  /* 6. how he goes out */
+  if(s.foGames>=3&&s.first>0&&pct(s.first,s.foGames)>=45)
+    C.push("He is also the most targeted, going out first in "+Math.round(pct(s.first,s.foGames))+
+      "% of the games that had a clear first casualty"+
+      (sup.takenBy?", and "+sup.takenBy+" has taken him out mid-game "+times(sup.takenByN):"")+".");
+  else if(s.foGames>=3&&s.first===0&&(s.turns||[]).length){
+    const avg=s.turns.reduce((a,b)=>a+b,0)/s.turns.length;
+    if(sup.earliestDeath)
+      C.push("His average death turn of "+avg.toFixed(1)+
+        " is the earliest at the table, so he tends to go down in the short games and survive deep into the long ones.");
   }
-
-  /* 6. the deck, then whatever room is left */
-  if(best&&best[1].n>1) C.push(vary([
-    "Their steadiest deck is "+deckName(best[0])+" at "+best[1].w+"\u2013"+(best[1].n-best[1].w)+".",
-    deckName(best[0])+" is the one that keeps delivering, at "+best[1].w+"\u2013"+(best[1].n-best[1].w)+"."],name+"d"));
-  else if(best) C.push("The one that landed was "+deckName(best[0])+".");
-  else if(most&&most[1].n>1) C.push(deckName(most[0])+" has had the most reps at "+most[1].n+" games.");
-
-  const r=topKey(p.routes);
-  if(r&&W>=2) C.push(vary(["When they close, it's usually through "+r.toLowerCase()+".",
-    "Their wins have mostly come through "+r.toLowerCase()+"."],name+"s"));
-
-  if(p.seq.length>=6){
-    const last=p.seq.slice(-5), lw=last.reduce((a,b)=>a+b,0);
-    if(lw>=3) C.push("Form is good too \u2014 "+lw+" of their last "+last.length+".");
-    else if(lw===0&&W>0) C.push("The last "+last.length+" haven't gone their way, though the season as a whole says dip rather than direction.");
-  }
-  if(sup.widest&&kinds>=5) C.push("Nobody rotates wider, either: "+kinds+" commanders in play.");
-  else if(kinds===1&&p.n>=4) C.push("They've stayed loyal to a single commander the whole way.");
-
-  return C.slice(0,(W===0&&p.n>=3)?3:4).join(" ");
+  return C.slice(0,6).join(" ");
 }
+
+function times(n){ return n===1?"once":n===2?"twice":n+" times"; }
 function numWord(n){return ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"][n]||String(n);}
 
 function drawPeople(gs){
@@ -1212,23 +1260,52 @@ function drawPeople(gs){
     (Object.keys(CARD_DATA).length?"":" Press Refresh card data under the log to add color, mana value and what each commander is built to do.");
   const P=profiles(gs), box=document.getElementById("people");
   const names=Object.keys(P).sort((a,b)=>(P[b].w-P[b].exp)-(P[a].w-P[a].exp));
-  document.getElementById("n-people").textContent=names.length+(names.length===1?" pilot":" pilots");
+  const shown=names.length+ABSENT.length;
+  document.getElementById("n-people").textContent=shown+(shown===1?" pilot":" pilots")+
+    (ABSENT.length?", "+ABSENT.length+" yet to appear":"");
   if(!names.length){ box.innerHTML='<p class="empty"><b>No players yet.</b>Add a game and they show up here.</p>'; return; }
-  const widest=names.slice().sort((a,b)=>Object.keys(P[b].decks).length-Object.keys(P[a].decks).length)[0];
+  const byDecks=names.slice().sort((a,b)=>Object.keys(P[b].decks).length-Object.keys(P[a].decks).length);
+  const widest=(byDecks.length>1&&Object.keys(P[byDecks[0]].decks).length>Object.keys(P[byDecks[1]].decks).length)
+    ?byDecks[0]:null;
   const withMv=names.filter(n=>P[n].avgCmc!==null&&P[n].known>=3)
     .sort((a,b)=>P[b].avgCmc-P[a].avgCmc);
   const heaviest=withMv.length>1?withMv[0]:null, cheapest=withMv.length>1?withMv[withMv.length-1]:null;
   const withCi=names.filter(n=>P[n].avgColors!==null&&P[n].known>=3).sort((a,b)=>P[b].avgColors-P[a].avgColors);
   const widestId=withCi.length>1?withCi[0]:null, tightestId=withCi.length>1?withCi[withCi.length-1]:null;
+  const dst=deathStats(gs);
+  const midOf=n=>Object.keys((dst.P[n]||{}).targeted||{}).reduce((a,v)=>a+dst.P[n].targeted[v],0);
+  const midTotal=names.reduce((a,n)=>a+midOf(n),0);
+  const topMidName=names.slice().sort((a,b)=>midOf(b)-midOf(a))[0];
+  const comboWins=n=>((P[n].routes||{})["Combo"]||0);
+  const comboOwners=names.filter(n=>comboWins(n)>0);
+  const deathAvg=n=>{const t=(dst.P[n]||{}).turns||[]; return t.length?t.reduce((a,b)=>a+b,0)/t.length:99;};
+  const earliest=names.slice().sort((a,b)=>deathAvg(a)-deathAvg(b))[0];
   const pcol={}; names.forEach((n,i)=>pcol[n]=PALETTE[i%PALETTE.length]);
   box.innerHTML=names.map((n,i)=>{
     const p=P[n], sup={top:i===0&&p.w-p.exp>0, widest:n===widest&&Object.keys(p.decks).length>=5,
       heaviest:n===heaviest&&p.avgCmc>=4, cheapest:n===cheapest&&p.avgCmc<=3.6,
-      widestId:n===widestId&&p.avgColors>=2.2, tightestId:n===tightestId&&p.avgColors<=2};
+      widestId:n===widestId&&p.avgColors>=2.2, tightestId:n===tightestId&&p.avgColors<=2,
+      onlyCombo:comboOwners.length===1&&comboOwners[0]===n,
+      topMid:n===topMidName&&midOf(n)>0, midTotal:midTotal,
+      midVictim:(function(){
+        const t=(dst.P[n]||{}).targeted||{};
+        const k=Object.keys(t).sort((a,b)=>t[b]-t[a]);
+        return k.length&&t[k[0]]>=2?k[0]:null; })(),
+      earliestDeath:n===earliest,
+      takenBy:(function(){
+        const t=(dst.P[n]||{}).takenBy||{};
+        const k=Object.keys(t).sort((a,b)=>t[b]-t[a]);
+        return k.length&&t[k[0]]>=2?k[0]:null; })(),
+      takenByN:(function(){
+        const t=(dst.P[n]||{}).takenBy||{};
+        const k=Object.keys(t).sort((a,b)=>t[b]-t[a]);
+        return k.length?t[k[0]]:0; })()};
     const best=topDeck(p.decks), most=mostPlayed(p.decks);
     const chips=[];
-    if(best) chips.push('<span class="chip">Best <b>'+esc(deckName(best[0]))+'</b> '+best[1].w+'\u2013'+(best[1].n-best[1].w)+'</span>');
-    else if(most) chips.push('<span class="chip">Most played <b>'+esc(deckName(most[0]))+'</b></span>');
+    if(best) chips.push('<span class="chip" title="'+esc("Their best record of any deck in this selection")+
+      '">Best <b>'+esc(deckName(best[0]))+'</b> '+best[1].w+'\u2013'+(best[1].n-best[1].w)+'</span>');
+    if(most) chips.push('<span class="chip" title="'+esc("The deck they have brought most often in this selection")+
+      '">Most played <b>'+esc(deckName(most[0]))+'</b> '+most[1].n+'\u00d7</span>');
     const PIP={W:"#efe3c0",U:"#4a8dc4",B:"#5c5560",R:"#d0503c",G:"#4e9a51"};
     const NAME={W:"white",U:"blue",B:"black",R:"red",G:"green"};
     const order=["W","U","B","R","G"].filter(c=>p.ci&&p.ci[c]);
@@ -1240,10 +1317,7 @@ function drawPeople(gs){
     if(p.avgCmc!==null) chips.push('<span class="chip" title="'+
       esc("Average mana value of the commanders they've played \u2014 the cost of the card in the command zone, not the deck")+
       '">Avg cmdr mana <b>'+p.avgCmc.toFixed(1)+'</b></span>');
-    if(p.mkGames>=3) chips.push('<span class="chip" title="'+
-      esc("Players they knocked out while the game was still live, across "+p.mkGames+
-          " games with kill notes. The blow that ends a game isn't counted.")+
-      '">Mid-game kills <b>'+p.mkills+'</b></span>');
+
     else chips.push('<span class="chip" title="'+esc("Wins pure chance owed them across these games")+
       '">Expected <b>'+p.exp.toFixed(1)+'</b> wins</span>');
     chips.push('<span class="chip" title="'+esc("Average spot in turn order they rolled into; lower means winning more rolls")+
@@ -1252,9 +1326,14 @@ function drawPeople(gs){
       '<div class="ptop"><span class="pname">'+esc(n)+'</span><span class="prate">'+fmt(pct(p.w,p.n))+'</span></div>'+
       '<p class="pline">'+p.w+'\u2013'+(p.n-p.w)+' \u00b7 '+p.n+' games \u00b7 '+
       ((p.w-p.exp)>=0?"+":"\u2212")+Math.abs(p.w-p.exp).toFixed(2)+' vs expected</p>'+
-      '<p class="psay">'+esc(summarize(n,p,sup))+'</p>'+
+      '<p class="psay">'+esc(summarize(n,p,sup,dst))+'</p>'+
       '<div class="chips">'+chips.join("")+'</div></article>';
-  }).join("");
+  }).join("")+ABSENT.map(a=>
+    '<article class="person absent">'+
+      '<div class="ptop"><span class="pname">'+esc(a.name)+'</span><span class="prate">\u2014</span></div>'+
+      '<p class="pline">no games logged</p>'+
+      '<p class="psay">'+esc(a.line)+'</p>'+
+    '</article>').join("");
 }
 
 function legend(id,items){
@@ -1325,8 +1404,10 @@ function drawWins(gs){
         'Color and mana value come from Scryfall \u2014 press Refresh card data under the log.</p>';
     return;
   }
-  const col={}, mv={};
-  const bucket=v=>v<=2?"2 or less":(v<=3?"3":(v<=4?"4":(v<=5?"5":"6 or more")));
+  const col={}, mv={}, cc={};
+  /* the exact printed cost, never a range — a bucket with too few seats just drops out */
+  const bucket=v=>String(Math.round(v*10)/10);
+  const CCNAME=["Colorless","Mono","Two","Three","Four","Five"];
   gs.forEach(g=>g.seats.forEach(s2=>{
     const c=cardOf(s2.deck); if(!c) return;
     const won=s2.deck===g.winner?1:0;
@@ -1336,6 +1417,8 @@ function drawWins(gs){
     if(typeof c.mv==="number"){
       const b=bucket(c.mv); mv[b]=mv[b]||{n:0,w:0}; mv[b].n++; mv[b].w+=won;
     }
+    const nc=CCNAME[(c.ci||"").length]||"Five";
+    cc[nc]=cc[nc]||{n:0,w:0}; cc[nc].n++; cc[nc].w+=won;
   }));
   const par=gs.length?gs.reduce((a,g)=>a+1/g.size,0)/gs.length*100:25;
   const bar=(label,d,color,tip)=>{
@@ -1346,14 +1429,20 @@ function drawWins(gs){
       '<span class="val" style="width:76px">'+r.toFixed(0)+'% of '+d.n+'</span></li>';
   };
   const order=["W","U","B","R","G"].filter(k=>col[k]&&col[k].n>=3);
-  let h='<div class="split"><div><p class="striphead">By color in the identity</p><ul class="strip">'+
+  let h='<div class="split3"><div><p class="striphead">By color</p><ul class="strip">'+
     order.sort((a,b)=>pct(col[b].w,col[b].n)-pct(col[a].w,col[a].n)).map(k=>
       bar(WUBRG_NAME[k],col[k],PIPHEX[k],
         WUBRG_NAME[k]+" appears in "+col[k].n+" seats and won "+col[k].w)).join("")+
     '</ul></div>';
-  const mk=["2 or less","3","4","5","6 or more"].filter(k=>mv[k]&&mv[k].n>=3);
-  h+='<div><p class="striphead">By commander mana value</p><ul class="strip">'+
-    mk.map(k=>bar(k,mv[k],"var(--gold)",k+" mana: "+mv[k].n+" seats, "+mv[k].w+" wins")).join("")+
+  const mk=Object.keys(mv).filter(k=>mv[k].n>=3).sort((a,b)=>parseFloat(a)-parseFloat(b));
+  h+='<div><p class="striphead">By mana value</p><ul class="strip">'+
+    mk.map(k=>bar(k+" mana",mv[k],"var(--gold)",
+      "Commanders costing "+k+": "+mv[k].n+" seats, "+mv[k].w+" wins")).join("")+
+    '</ul></div>';
+  const ck=CCNAME.filter(k=>cc[k]&&cc[k].n>=3);
+  h+='<div><p class="striphead">By number of colors</p><ul class="strip">'+
+    ck.map(k=>bar(k,cc[k],"var(--c5)",k+(k==="Mono"?"-color":k==="Colorless"?"":"-color")+
+      " commanders: "+cc[k].n+" seats, "+cc[k].w+" wins")).join("")+
     '</ul></div></div>';
   const lines=["An even draw is worth "+par.toFixed(0)+"% here, so that is the line each bar is trying to beat."];
   if(order.length){
@@ -1370,6 +1459,16 @@ function drawWins(gs){
     lines.push("On cost, <b>"+sorted[0]+"</b> mana commanders lead at "+pct(mv[sorted[0]].w,mv[sorted[0]].n).toFixed(0)+
       "%, against "+pct(mv[sorted[sorted.length-1]].w,mv[sorted[sorted.length-1]].n).toFixed(0)+
       "% for "+sorted[sorted.length-1]+".");
+  }
+  if(ck.length>1){
+    const cs=ck.slice().sort((a,b)=>pct(cc[b].w,cc[b].n)-pct(cc[a].w,cc[a].n));
+    const hi=cs[0], lo=cs[cs.length-1];
+    lines.push("Counting the colors rather than naming them, <b>"+hi.toLowerCase()+"-color</b> commanders win "+
+      pct(cc[hi].w,cc[hi].n).toFixed(0)+"% of their "+cc[hi].n+" seats against "+
+      pct(cc[lo].w,cc[lo].n).toFixed(0)+"% for "+lo.toLowerCase()+"-color \u2014 "+
+      (pct(cc[hi].w,cc[hi].n)>=pct(cc[lo].w,cc[lo].n)*2
+        ? "a wide enough spread to be worth watching, though greedier mana is also what the stronger decks tend to want."
+        : "not far enough apart to read much into yet.")+"");
   }
   lines.push("Colors overlap, so these rows are not independent of each other \u2014 a Jund commander pulls on black, red and green at once.");
   h+='<p class="note">'+lines.join(" ")+'</p>';
@@ -1553,7 +1652,7 @@ function drawDeaths(gs,pcol){
         :"Never knocked out in these games")+'">'+(avg?avg.toFixed(1):"\u2014")+'</td>'+
       '<td class="down" title="'+esc(p+" drew the first non-ending kill in "+(d.firstBlood||0)+" of the "+
         st.fbGames+" games that had one")+'">'+(d.firstBlood||0)+'</td>'+
-      '<td class="'+((d.fbWin||0)&&(d.fbWin||0)===(d.firstBlood||0)?"up":"")+'" title="'+
+      '<td title="'+
         esc((d.firstBlood||0)?p+" went on to win "+(d.fbWin||0)+" of those "+d.firstBlood
           :"Never drew first blood in these games")+'">'+
       ((d.firstBlood||0)?(d.fbWin||0):"\u2013")+'</td></tr>';
@@ -1578,9 +1677,9 @@ function drawDeaths(gs,pcol){
   const byFirst=names.slice().sort((a,b)=>pct(st.P[b].first,st.P[b].foGames||1)-pct(st.P[a].first,st.P[a].foGames||1));
   const fo=st.P[byFirst[0]];
   if(fo.first>0&&fo.foGames)
-    lines.push("<b>"+byFirst[0]+"</b> goes out first most often, "+fo.first+" of the "+fo.foGames+
-      " games with a lone first casualty"+(pct(fo.first,fo.foGames)>=45?
-        " \u2014 often enough to look like the table picking a target."
+    lines.push("<b>"+byFirst[0]+"</b> is the first casualty more often than anyone else, in "+
+      Math.round(pct(fo.first,fo.foGames))+"% of the games that had a clear one"+
+      (pct(fo.first,fo.foGames)>=45?" \u2014 often enough to look like the table picking a target."
         :", which is close to an even share at this table."));
   const deep=names.filter(p2=>st.P[p2].share.length)
     .sort((a,b)=>shareOf(b)-shareOf(a));
@@ -1596,10 +1695,11 @@ function drawDeaths(gs,pcol){
     .filter(x=>x.by&&x.n>=2).sort((a,b)=>b.n-a.n);
   if(removed.length)
     lines.push("<b>"+removed[0].by+"</b> is the one taking <b>"+removed[0].p+"</b> out mid-game most often ("+
-      removed[0].n+" times) \u2014 the matrix below has the rest.");
+      times(removed[0].n)+") \u2014 the matrix below has the rest.");
   if(st.n>=4){
     const r=Math.round(pct(st.soloWipe,st.n));
-    lines.push("In the other "+st.soloWipe+", nobody went out until the game was already being ended \u2014 "+
+    lines.push("In "+st.soloWipe+" of the "+st.n+" games with notes, nobody went out until the game "+
+      "was already being ended \u2014 "+
       "a full table, then over inside a turn or two. "+
       (r>=40?"That is the shape of a pod where damage spreads thin and nobody commits until they can finish."
             :"So games here are not purely a race to set up one big turn."));
@@ -1616,9 +1716,16 @@ function drawDeaths(gs,pcol){
 function drawKills(gs,pcol){
   const box=document.getElementById("kills"), st=deathStats(gs);
   const MODE={stalled:{f:"targeted",p:st.tpair},finish:{f:"finished",p:st.fpair},
-              wipe:{f:"wiped",p:st.wpair}}[KILLMODE]||{f:"targeted",p:st.tpair};
-  const field=MODE.f, pairs=MODE.p, finish=KILLMODE==="finish", wipeMode=KILLMODE==="wipe";
-  document.getElementById("n-kills").textContent=st.n+" of "+st.total+" games have kill notes";
+              wipe:{f:"wiped",p:st.wpair},all:{f:null,p:st.pair}}[KILLMODE]||{f:"targeted",p:st.tpair};
+  const field=MODE.f, pairs=MODE.p;
+  const finish=KILLMODE==="finish", wipeMode=KILLMODE==="wipe", allMode=KILLMODE==="all";
+  const cell=(k,v)=>{
+    const q=st.P[k]||{};
+    return allMode
+      ? ((q.targeted||{})[v]||0)+((q.finished||{})[v]||0)+((q.wiped||{})[v]||0)
+      : ((q[field]||{})[v]||0);
+  };
+  coverage("n-kills",st.n,st.total);
   const names=Object.keys(st.P).sort();
   let ended=0, mid=0, wiped=0;
   names.forEach(k=>{
@@ -1634,32 +1741,33 @@ function drawKills(gs,pcol){
       "table \u2014 nobody had gone out before it. <b>Part of a finish</b> is the rest of the "+
       "winner's closing sequence: picking off the last player, or taking out two and killing the "+
       "third next turn. <b>Didn't follow up</b> is everything else \u2014 someone went down and "+
-      "the killer did not close. Of "+(mid+ended+wiped)+" credited kills, "+wiped+" were wipes, "+
+      "the killer did not close. <b>Overall</b> adds the three together. "+
+      "Of "+(mid+ended+wiped)+" credited kills, "+wiped+" were wipes, "+
       ended+" were part of a finish and "+mid+" weren't. Where the notes name no killer for a "+
       "table death the winner is credited, since a self-kill would have been written down.";
 
-  const any=names.some(k=>Object.keys(st.P[k][field]||{}).length);
+  const any=names.some(k=>names.some(v=>cell(k,v)>0));
   if(!any){
     box.innerHTML = (mid+ended)===0
       ? '<p class="empty"><b>No kill notes in view yet.</b>'+
         'Write something like "Ryan kills Rudy turn 7" in a game\'s notes and this fills in.</p>'
       : '<p class="empty"><b>Nothing in this bucket yet.</b>'+
-        (wipeMode?"No game in view was won by removing the whole table in one blow."
+        (allMode?"No credited kills in the current selection."
+         :wipeMode?"No game in view was won by removing the whole table in one blow."
          :finish?"No credited kill in view was part of a multi-step finish."
                :"Every credited kill in view was part of the winner's win.")+'</p>';
     bindKillToggle(gs,pcol);
     return;
   }
   let max=0;
-  names.forEach(k=>names.forEach(v=>{ max=Math.max(max,(st.P[k][field]||{})[v]||0); }));
+  names.forEach(k=>names.forEach(v=>{ max=Math.max(max,cell(k,v)); }));
   let h='<div class="scroll"><table class="matrix"><thead><tr>'+
     '<th style="text-align:left" title="'+esc("Read across a row for who that player removed; read down a column for who removed them.")+
     '"><span class="hint">Killer \u2193 / victim \u2192</span></th>'+
     names.map(v=>'<th title="'+esc("Times "+v+" was removed, by each player in this bucket")+'"><span class="hint">'+v+'</span></th>').join("")+
-    th("Total","Every removal in this bucket credited to that player.")+'</tr></thead><tbody>';
+    '</tr></thead><tbody>';
   names.forEach(k=>{
-    const row=names.map(v=>(st.P[k][field]||{})[v]||0);
-    const tot=row.reduce((a,b)=>a+b,0);
+    const row=names.map(v=>cell(k,v));
     h+='<tr><th><span class="swatch" style="background:'+(pcol[k]||GOLD)+'"></span>'+k+'</th>'+
       row.map((c,i)=>{
         if(names[i]===k) return '<td><span class="cell z">\u00b7</span></td>';
@@ -1669,43 +1777,59 @@ function drawKills(gs,pcol){
             (wipeMode?" in a single table-wide blow":
              finish?" while closing the game out":" without being able to follow up"))+'">'+
           (c||"\u2013")+'</span></td>';
-      }).join("")+'<td><b>'+tot+'</b></td></tr>';
+      }).join("")+'</tr>';
   });
   h+='</tbody></table></div>';
 
   const out={}, inn={};
   names.forEach(k=>{
-    out[k]=Object.keys(st.P[k][field]||{}).reduce((a,v)=>a+st.P[k][field][v],0);
-    inn[k]=0;
-    names.forEach(j=>{ inn[k]+=(st.P[j][field]||{})[k]||0; });
+    out[k]=names.reduce((a,v)=>a+cell(k,v),0);
+    inn[k]=names.reduce((a,j)=>a+cell(j,k),0);
   });
-  const tot=wipeMode?wiped:(finish?ended:mid);
+  const tot=allMode?(mid+ended+wiped):(wipeMode?wiped:(finish?ended:mid));
   const byOut=names.slice().sort((a,b)=>out[b]-out[a]);
   const byIn=names.slice().sort((a,b)=>inn[b]-inn[a]);
   const ranked=Object.keys(pairs).sort((a,b)=>pairs[b]-pairs[a]);
   const lines=[];
-  if(wipeMode){
+  if(tot<3){
+    lines.push("Only "+tot+" kill"+(tot===1?"":"s")+" in this bucket so far \u2014 too few to read anything into.");
+  } else if(allMode){
+    lines.push("<b>"+byOut[0]+"</b> has the most kills to their name overall, "+out[byOut[0]]+" of "+tot+
+      ", and <b>"+byIn[0]+"</b> has been removed most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+".");
+    const ranked2=Object.keys(pairs).sort((a,b)=>pairs[b]-pairs[a]);
+    if(ranked2.length){
+      const top=ranked2[0], n=pairs[top], parts=top.split("\u2192");
+      const back=pairs[parts[1]+"\u2192"+parts[0]]||0;
+      lines.push("The most frequent pairing in the pod is <b>"+parts[0]+" removing "+parts[1]+"</b>, "+n+
+        " time"+(n===1?"":"s")+", against "+back+" the other way.");
+    }
+    lines.push("Most of this is wipes and finishes, which follow whoever won \u2014 the other three tabs "+
+      "split it up so you can see which kills were anything else.");
+  } else if(wipeMode){
     lines.push("<b>"+byOut[0]+"</b> has wiped the table most, "+out[byOut[0]]+" of "+tot+
       " kills taken this way. A wipe removes everyone at once, so these rows move in groups of "+
       (names.length-1)+" rather than one at a time.");
     if(inn[byIn[0]]>0)
-      lines.push("<b>"+byIn[0]+"</b> is caught in them most often, "+inn[byIn[0]]+" times \u2014 but "+
+      lines.push("<b>"+byIn[0]+"</b> is caught in them most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+" \u2014 but "+
         "everyone still standing goes down together, so this says more about being alive at the end "+
         "than about being singled out.");
   } else if(finish){
     lines.push("<b>"+byOut[0]+"</b> has removed the most players while closing, "+out[byOut[0]]+" of "+tot+
       ". This bucket tracks with winning by design \u2014 read it as who finishes, not who targets.");
     if(inn[byIn[0]]>0)
-      lines.push("<b>"+byIn[0]+"</b> is swept up in other people's finishes most often, "+inn[byIn[0]]+" times.");
+      lines.push("<b>"+byIn[0]+"</b> is swept up in other people's finishes most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+".");
   } else {
     const evenShare=tot/names.length;
     if(out[byOut[0]]>0)
       lines.push("<b>"+byOut[0]+"</b> takes people out without closing most often, "+out[byOut[0]]+" of "+tot+
         (out[byOut[0]]>=evenShare*1.8?" \u2014 well above an even share of "+evenShare.toFixed(1)+"."
           :", against an even share of "+evenShare.toFixed(1)+"."));
-    const quiet=byOut[byOut.length-1];
-    if(out[quiet]===0)
-      lines.push("<b>"+quiet+"</b> has never removed anyone without going on to win \u2014 they either finish or they don't kill.");
+    const zeros=names.filter(n2=>out[n2]===0);
+    if(zeros.length===1)
+      lines.push("<b>"+zeros[0]+"</b> has never removed anyone without going on to win \u2014 they either finish or they don't kill.");
+    else if(zeros.length>1)
+      lines.push("<b>"+zeros.slice(0,-1).join(", ")+" and "+zeros[zeros.length-1]+
+        "</b> have never removed anyone without going on to win \u2014 they either finish or they don't kill.");
     if(inn[byIn[0]]>0)
       lines.push("<b>"+byIn[0]+"</b> absorbs the most, knocked out "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+
         " by someone who then failed to close.");
@@ -1717,7 +1841,7 @@ function drawKills(gs,pcol){
         (back===0?parts[1]+" has never returned it in this bucket.":parts[1]+" has returned it "+back+" time"+(back===1?"":"s")+"."));
     }
   }
-  if(tot<12) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");
+  if(tot>=3&&tot<12) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");
   h+='<p class="note">'+lines.join(" ")+'</p>';
   box.innerHTML=h;
   bindKillToggle(gs,pcol);
@@ -1887,7 +2011,7 @@ function render(){
     th("Colors","Color identity of the commander, not of the deck.")+
     th("Mana","Mana value of the commander. A partner pair is averaged.")+
     th("W\u2013L","Games this deck won and lost in the current selection.")+
-    th("Rate","Share of this deck's games that it won.");
+    th("Rate","Share of this deck's games that it won. Shaded red at 0% through gold to green at 100%; the number says the same thing.");
   document.getElementById("decks").innerHTML=dk.map(([d,v])=>{
     const owner=OWNERS[d]||"\u2014", r=pct(v.w,v.n);
     const cd=cardOf(d);
@@ -1898,7 +2022,7 @@ function render(){
       '<td>'+(pips?'<span class="pips">'+pips+'</span>':'<span class="down">\u2013</span>')+'</td>'+
       '<td class="down">'+(cd&&typeof cd.mv==="number"?cd.mv:"\u2013")+'</td>'+
       '<td>'+v.w+'\u2013'+(v.n-v.w)+'</td>'+
-      '<td class="'+(v.w===0?"down":"up")+'">'+fmt(r)+'</td></tr>';
+      '<td style="color:'+rateColor(r)+'">'+fmt(r)+'</td></tr>';
   }).join("");
 
   const rt=Object.entries(st.routes).sort((a,b)=>b[1]-a[1]);
@@ -1956,6 +2080,7 @@ function metaItem(k,v){return '<div><dt>'+k+'</dt><dd>'+v+'</dd></div>';}
 const status=document.getElementById("status");
 function load(txt,announce){
   const {games,errors}=parseLog(txt);
+  parseError=errors.length>0;
   if(errors.length){
     status.className="status bad";
     status.textContent=errors.length+(errors.length===1?" line was skipped. ":" lines were skipped. ")+errors[0];
@@ -2038,12 +2163,12 @@ if(AUTO_LOOKUP){
     const base="Written from the numbers on this page, and rewritten every time you add a game.";
     refreshCards(msg=>{
       if(sub) sub.textContent=base+" "+(/resolved|Couldn't/.test(msg)?"":msg);
-      if(logError) return;
+      if(logError||parseError) return;
       status.className="status"; status.textContent=msg;
     },gaps).then(()=>{
       if(!Object.keys(CARD_DATA).length&&sub)
         sub.textContent=base+" Color and mana detail needs a connection \u2014 press Refresh card data to try again.";
-      if(Object.keys(CARD_DATA).length&&!logError){
+      if(Object.keys(CARD_DATA).length&&!logError&&!parseError){
         status.className="status good";
         status.textContent="Card data loaded. Press Save updated copy to bake it in so this never has to run again.";
       }

@@ -13,7 +13,7 @@
   --serif:"Spectral",Georgia,serif;
   --mono:"IBM Plex Mono",ui-monospace,monospace;
 }
-/* Colour schemes. Change data-theme on <html> to set the default. */
+/* Color schemes. Change data-theme on <html> to set the default. */
 [data-theme="slate"]{
   --felt:#15181c; --felt-2:#101317; --felt-3:#1e2329;
   --ivory:#f3f1ed; --dim:#c4c9cf; --muted:#98a0a8;
@@ -268,7 +268,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
 
 <div class="topbar">
   <p class="eyebrow">Commander pod log</p>
-  <div class="toggle" id="themes" role="group" aria-label="Colour scheme">
+  <div class="toggle" id="themes" role="group" aria-label="Color scheme">
     <button class="tg" data-theme="slate" aria-pressed="true">Dark</button><button class="tg" data-theme="paper" aria-pressed="false">Light</button>
   </div>
 </div>
@@ -1049,7 +1049,7 @@ function profiles(gs){
     let colSum=0; Object.keys(p.decks).forEach(sh=>{const f=deckFacts(sh); if(f) colSum+=f.ci.length;});
     p.avgColors=known?colSum/known:null;
     p.tags=tags;
-    p.colourless=Object.keys(p.decks).length&&known?
+    p.colorless=Object.keys(p.decks).length&&known?
       Object.keys(p.decks).filter(sh=>{const f=deckFacts(sh);return f&&!f.ci.length;}).length:0;
   });
   return P;
@@ -1115,7 +1115,7 @@ function summarize(name,p,sup){
     else if(fo<=15&&p.survN>=4) C.push("Almost never the first one out, which is a quieter skill than winning and a real one.");
   }
 
-  /* 3. colour identity */
+  /* 3. color identity */
   if(p.known>=3){
     const ranked=Object.keys(p.ci).sort((a,b)=>p.ci[b]-p.ci[a]);
     const never=["W","U","B","R","G"].filter(c=>!p.ci[c]);
@@ -1135,16 +1135,16 @@ function summarize(name,p,sup){
     } else if(top&&lead.length>1){
       const two=list(lead.map(c=>WUBRG[c]));
       C.push(vary([
-        "Their "+D+" decks cover the whole colour wheel, with "+two+" tied at "+cnt+" apiece.",
-        "No colour is off-limits across "+D+" decks, though "+two+" share the lead at "+cnt+" each.",
-        "All five colours show up in their "+D+" decks, "+two+" most of all at "+cnt+" apiece."
+        "Their "+D+" decks cover the whole color wheel, with "+two+" tied at "+cnt+" apiece.",
+        "No color is off-limits across "+D+" decks, though "+two+" share the lead at "+cnt+" each.",
+        "All five colors show up in their "+D+" decks, "+two+" most of all at "+cnt+" apiece."
       ],name+"c"));
     } else if(top){
       C.push(vary([
-        "Their "+D+" decks cover the whole colour wheel, "+hue+" most of all at "+cnt+" of them.",
-        "No colour is off-limits here \u2014 all five across "+D+" decks, with "+hue+" in "+cnt+".",
-        "They've sleeved every colour at some point; "+hue+" leads, running through "+cnt+" of "+D+" decks.",
-        hue.replace(/^./,m=>m.toUpperCase())+" is their most-played colour, in "+cnt+" of "+D+" decks, though none are off the table."
+        "Their "+D+" decks cover the whole color wheel, "+hue+" most of all at "+cnt+" of them.",
+        "No color is off-limits here \u2014 all five across "+D+" decks, with "+hue+" in "+cnt+".",
+        "They've sleeved every color at some point; "+hue+" leads, running through "+cnt+" of "+D+" decks.",
+        hue.replace(/^./,m=>m.toUpperCase())+" is their most-played color, in "+cnt+" of "+D+" decks, though none are off the table."
       ],name+"c"));
     }
   }
@@ -1161,16 +1161,16 @@ function summarize(name,p,sup){
     ],name+"t"));
   }
 
-  /* 5. mana value and colour greed */
+  /* 5. mana value and color greed */
   if(p.avgCmc!==null&&p.known>=3){
     if(sup.heaviest) C.push("Their commanders are the priciest here at an average "+p.avgCmc.toFixed(1)+
       " mana, so they pay for their effects up front.");
     else if(sup.cheapest) C.push("They run the cheapest commanders at the table, averaging "+p.avgCmc.toFixed(1)+
       " mana \u2014 on the board while everyone else is still ramping.");
     else if(sup.widestId) C.push("Their decks average "+p.avgColors.toFixed(1)+
-      " colours, the greediest mana bases in the pod.");
+      " colors, the greediest mana bases in the pod.");
     else if(sup.tightestId) C.push("At "+p.avgColors.toFixed(1)+
-      " colours a deck, their mana is the most forgiving here.");
+      " colors a deck, their mana is the most forgiving here.");
   }
 
   /* 6. the deck, then whatever room is left */
@@ -1200,7 +1200,7 @@ function drawPeople(gs){
   LAST_GS=gs;
   const sub=document.getElementById("people-sub");
   if(sub) sub.textContent="Written from the numbers on this page, and rewritten every time you add a game."+
-    (Object.keys(CARD_DATA).length?"":" Press Refresh card data under the log to add colour, mana value and what each commander is built to do.");
+    (Object.keys(CARD_DATA).length?"":" Press Refresh card data under the log to add color, mana value and what each commander is built to do.");
   const P=profiles(gs), box=document.getElementById("people");
   const names=Object.keys(P).sort((a,b)=>(P[b].w-P[b].exp)-(P[a].w-P[a].exp));
   document.getElementById("n-people").textContent=names.length+(names.length===1?" pilot":" pilots");
@@ -1224,7 +1224,7 @@ function drawPeople(gs){
     const order=["W","U","B","R","G"].filter(c=>p.ci&&p.ci[c]);
     if(order.length) chips.push('<span class="chip" title="'+
       esc(order.map(c=>({W:"white",U:"blue",B:"black",R:"red",G:"green"})[c]+" in "+p.ci[c])
-        .join(", ")+" of "+p.known+" decks")+'">Colours <span class="pips">'+
+        .join(", ")+" of "+p.known+" decks")+'">Colors <span class="pips">'+
       order.map(c=>'<i style="background:'+PIP[c]+'"></i>').join("")+'</span></span>');
     if(p.avgCmc!==null) chips.push('<span class="chip" title="'+
       esc("Average mana value of the commanders they've played \u2014 the cost of the card in the command zone, not the deck")+
@@ -1291,7 +1291,7 @@ function drawForm(gs,pcol){
   });
 }
 
-/* ── What wins: commander colour and mana value against results ─────── */
+/* ── What wins: commander color and mana value against results ─────── */
 const WUBRG_NAME={W:"White",U:"Blue",B:"Black",R:"Red",G:"Green"};
 const PIPHEX={W:"#efe3c0",U:"#4a8dc4",B:"#5c5560",R:"#d0503c",G:"#4e9a51"};
 function drawWins(gs){
@@ -1303,15 +1303,15 @@ function drawWins(gs){
   el.textContent=known+" of "+all.size+" commanders looked up";
   el.className="n"+(known<all.size?" warn":"");
   document.getElementById("sub-wins").innerHTML=
-    "Every seat in view grouped by what was in the command zone. A deck counts once per colour in its "+
-    "identity, so a three-colour commander appears in three rows; the rates are seats won out of seats taken, "+
+    "Every seat in view grouped by what was in the command zone. A deck counts once per color in its "+
+    "identity, so a three-color commander appears in three rows; the rates are seats won out of seats taken, "+
     "not shares of a whole."+(known<all.size?" Commanders without card data yet are left out.":"");
   if(!known){
     box.innerHTML = looking
       ? '<p class="empty"><b>Looking up commanders on Scryfall\u2026</b>'+
         esc(LOOKUP_MSG||"This runs once. Press Save updated copy afterwards and it never runs again.")+'</p>'
       : '<p class="empty"><b>No card data yet.</b>'+
-        'Colour and mana value come from Scryfall \u2014 press Refresh card data under the log.</p>';
+        'Color and mana value come from Scryfall \u2014 press Refresh card data under the log.</p>';
     return;
   }
   const col={}, mv={};
@@ -1327,15 +1327,15 @@ function drawWins(gs){
     }
   }));
   const par=gs.length?gs.reduce((a,g)=>a+1/g.size,0)/gs.length*100:25;
-  const bar=(label,d,colour,tip)=>{
+  const bar=(label,d,color,tip)=>{
     const r=pct(d.w,d.n);
     return '<li title="'+esc(tip)+'"><span class="lab" style="width:96px">'+label+'</span>'+
       '<span class="bar"><i style="width:'+Math.min(100,r/Math.max(60,par*2)*100).toFixed(1)+
-      '%;background:'+colour+'"></i></span>'+
+      '%;background:'+color+'"></i></span>'+
       '<span class="val" style="width:76px">'+r.toFixed(0)+'% of '+d.n+'</span></li>';
   };
   const order=["W","U","B","R","G"].filter(k=>col[k]&&col[k].n>=3);
-  let h='<div class="split"><div><p class="striphead">By colour in the identity</p><ul class="strip">'+
+  let h='<div class="split"><div><p class="striphead">By color in the identity</p><ul class="strip">'+
     order.sort((a,b)=>pct(col[b].w,col[b].n)-pct(col[a].w,col[a].n)).map(k=>
       bar(WUBRG_NAME[k],col[k],PIPHEX[k],
         WUBRG_NAME[k]+" appears in "+col[k].n+" seats and won "+col[k].w)).join("")+
@@ -1360,7 +1360,7 @@ function drawWins(gs){
       "%, against "+pct(mv[sorted[sorted.length-1]].w,mv[sorted[sorted.length-1]].n).toFixed(0)+
       "% for "+sorted[sorted.length-1]+".");
   }
-  lines.push("Colours overlap, so these rows are not independent of each other \u2014 a Jund commander pulls on black, red and green at once.");
+  lines.push("Colors overlap, so these rows are not independent of each other \u2014 a Jund commander pulls on black, red and green at once.");
   h+='<p class="note">'+lines.join(" ")+'</p>';
   box.innerHTML=h;
 }
@@ -1875,7 +1875,7 @@ function render(){
   if(dh) dh.innerHTML=
     th("Commander","Links to the card on Scryfall. Hover the name for the card image.")+
     th("Pilot","Whose deck it is.")+
-    th("Colours","Colour identity of the commander, not of the deck.")+
+    th("Colors","Color identity of the commander, not of the deck.")+
     th("Mana","Mana value of the commander. A partner pair is averaged.")+
     th("W\u2013L","Games this deck won and lost in the current selection.")+
     th("Rate","Share of this deck's games that it won.");
@@ -2033,7 +2033,7 @@ if(AUTO_LOOKUP){
       status.className="status"; status.textContent=msg;
     },gaps).then(()=>{
       if(!Object.keys(CARD_DATA).length&&sub)
-        sub.textContent=base+" Colour and mana detail needs a connection \u2014 press Refresh card data to try again.";
+        sub.textContent=base+" Color and mana detail needs a connection \u2014 press Refresh card data to try again.";
       if(Object.keys(CARD_DATA).length&&!logError){
         status.className="status good";
         status.textContent="Card data loaded. Press Save updated copy to bake it in so this never has to run again.";

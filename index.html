@@ -1162,11 +1162,11 @@ function summarize(name,p,sup,dst){
         "% those seats owed him";
     }
     if(notable) line+=" \u2014 "+(W>p.exp?"the best conversion at the table, and far enough clear to mean something: a run this good"
-      :"a drought long enough to clear the noise bar: a run this quiet")+
+      :"a cold run long enough to clear the noise bar: a stretch this quiet")+
       " turns up by chance about "+Math.round(odd*100)+"% of the time.";
     else line+=(Math.abs(W-p.exp)<0.5?", which is par to within a rounding error."
       :W>p.exp?", a shade ahead of par, though on "+p.n+" games that gap is well inside noise."
-              :", a little under par, which over "+p.n+" games is ordinary noise rather than a slump.");
+              :", a little under par, which over "+p.n+" games is well within normal variation.");
     C.push(line);
   }
 
@@ -1175,7 +1175,8 @@ function summarize(name,p,sup,dst){
   if(p.n>=10&&Math.abs(rolls-rollExp)>=2){
     C.push(rolls>rollExp
       ? "He has the best dice in the pod \u2014 "+rolls+" roll wins in "+p.n+" against about "+
-        rollExp.toFixed(0)+" expected \u2014 and "+(W<p.exp?"the least to show for it.":"has converted them.")
+        rollExp.toFixed(0)+" expected \u2014 "+(W<p.exp?"so the results aren't coming from turn order."
+                                              :"and has turned them into wins.")
       : "He does it on poor dice, winning the roll "+times(rolls)+" in "+p.n+" games"+
         " and sitting at an average seat of "+(p.seatSum/p.n).toFixed(1)+".");
   }
@@ -1188,7 +1189,7 @@ function summarize(name,p,sup,dst){
   }
   if(p.avgColors!==null&&p.known>=3){
     if(sup.tightestId) bits.push("the tightest color identities at "+p.avgColors.toFixed(1)+" a deck");
-    else if(sup.widestId) bits.push("the greediest mana at "+p.avgColors.toFixed(1)+" colors a deck");
+    else if(sup.widestId) bits.push("the widest color spread at "+p.avgColors.toFixed(1)+" colors a deck");
   }
   if(sup.widest) bits.push("the widest rotation at "+Object.keys(p.decks).length+" decks");
   const ranked=Object.keys(p.ci||{}).sort((a,b)=>p.ci[b]-p.ci[a]);
@@ -1467,7 +1468,7 @@ function drawWins(gs){
       pct(cc[hi].w,cc[hi].n).toFixed(0)+"% of their "+cc[hi].n+" seats against "+
       pct(cc[lo].w,cc[lo].n).toFixed(0)+"% for "+lo.toLowerCase()+"-color \u2014 "+
       (pct(cc[hi].w,cc[hi].n)>=pct(cc[lo].w,cc[lo].n)*2
-        ? "a wide enough spread to be worth watching, though greedier mana is also what the stronger decks tend to want."
+        ? "a wide enough spread to be worth watching, though multicolor commanders also tend to be the more built-out decks."
         : "not far enough apart to read much into yet.")+"");
   }
   lines.push("Colors overlap, so these rows are not independent of each other \u2014 a Jund commander pulls on black, red and green at once.");
@@ -1667,7 +1668,7 @@ function drawDeaths(gs,pcol){
       Math.round(pct(st.fbGames,st.n))+'% of games ('+st.fbGames+' of '+st.n+'). '+
       'Drawing first blood resulted in a win for that player '+conv.toFixed(0)+'% of the time. '+
       (conv>=par*1.6?'Striking first looks like it pays here.'
-       :conv<=par*0.6?'Striking first looks more like painting a target than taking a lead.'
+       :conv<=par*0.6?'Striking first has tended to draw the table\u2019s attention rather than build a lead.'
        :'That is close enough to par that it neither helps nor hurts yet.')+
       (st.fbGames<10?' On '+st.fbGames+' games, treat it as a hint rather than a finding.':'')+'</p>'+
       '</div>';
@@ -1773,7 +1774,7 @@ function drawKills(gs,pcol){
         if(names[i]===k) return '<td><span class="cell z">\u00b7</span></td>';
         const a=max?c/max:0;
         return '<td><span class="cell'+(c?"":" z")+'" style="'+(c?'background:rgba(214,169,59,'+(0.12+a*0.55).toFixed(2)+')':'')+
-          '" title="'+esc(k+" took "+names[i]+" out "+c+" time"+(c===1?"":"s")+
+          '" title="'+esc(k+" took "+names[i]+" out "+times(c)+
             (wipeMode?" in a single table-wide blow":
              finish?" while closing the game out":" without being able to follow up"))+'">'+
           (c||"\u2013")+'</span></td>';
@@ -1794,14 +1795,13 @@ function drawKills(gs,pcol){
   if(tot<3){
     lines.push("Only "+tot+" kill"+(tot===1?"":"s")+" in this bucket so far \u2014 too few to read anything into.");
   } else if(allMode){
-    lines.push("<b>"+byOut[0]+"</b> has the most kills to their name overall, "+out[byOut[0]]+" of "+tot+
-      ", and <b>"+byIn[0]+"</b> has been removed most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+".");
+    lines.push("<b>"+byOut[0]+"</b> has the most kills to his name overall, "+out[byOut[0]]+" of "+tot+
+      ", and <b>"+byIn[0]+"</b> has been removed most often, "+times(inn[byIn[0]])+".");
     const ranked2=Object.keys(pairs).sort((a,b)=>pairs[b]-pairs[a]);
     if(ranked2.length){
       const top=ranked2[0], n=pairs[top], parts=top.split("\u2192");
       const back=pairs[parts[1]+"\u2192"+parts[0]]||0;
-      lines.push("The most frequent pairing in the pod is <b>"+parts[0]+" removing "+parts[1]+"</b>, "+n+
-        " time"+(n===1?"":"s")+", against "+back+" the other way.");
+      lines.push("The most frequent pairing in the pod is <b>"+parts[0]+" removing "+parts[1]+"</b>, "+times(n)+", against "+back+" the other way.");
     }
     lines.push("Most of this is wipes and finishes, which follow whoever won \u2014 the other three tabs "+
       "split it up so you can see which kills were anything else.");
@@ -1810,35 +1810,37 @@ function drawKills(gs,pcol){
       " kills taken this way. A wipe removes everyone at once, so these rows move in groups of "+
       (names.length-1)+" rather than one at a time.");
     if(inn[byIn[0]]>0)
-      lines.push("<b>"+byIn[0]+"</b> is caught in them most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+" \u2014 but "+
+      lines.push("<b>"+byIn[0]+"</b> is on the receiving end most often, "+times(inn[byIn[0]])+" \u2014 but "+
         "everyone still standing goes down together, so this says more about being alive at the end "+
         "than about being singled out.");
   } else if(finish){
     lines.push("<b>"+byOut[0]+"</b> has removed the most players while closing, "+out[byOut[0]]+" of "+tot+
       ". This bucket tracks with winning by design \u2014 read it as who finishes, not who targets.");
     if(inn[byIn[0]]>0)
-      lines.push("<b>"+byIn[0]+"</b> is swept up in other people's finishes most often, "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+".");
+      lines.push("<b>"+byIn[0]+"</b> is swept up in other people's finishes most often, "+times(inn[byIn[0]])+".");
   } else {
     const evenShare=tot/names.length;
     if(out[byOut[0]]>0)
-      lines.push("<b>"+byOut[0]+"</b> takes people out without closing most often, "+out[byOut[0]]+" of "+tot+
+      lines.push("<b>"+byOut[0]+"</b> accounts for most of these, "+out[byOut[0]]+" of "+tot+
         (out[byOut[0]]>=evenShare*1.8?" \u2014 well above an even share of "+evenShare.toFixed(1)+"."
           :", against an even share of "+evenShare.toFixed(1)+"."));
     const zeros=names.filter(n2=>out[n2]===0);
     if(zeros.length===1)
-      lines.push("<b>"+zeros[0]+"</b> has never removed anyone without going on to win \u2014 they either finish or they don't kill.");
+      lines.push("<b>"+zeros[0]+"</b> has never removed anyone without going on to win \u2014 "+
+        "all of his credited kills came while closing a game out.");
     else if(zeros.length>1)
       lines.push("<b>"+zeros.slice(0,-1).join(", ")+" and "+zeros[zeros.length-1]+
-        "</b> have never removed anyone without going on to win \u2014 they either finish or they don't kill.");
+        "</b> have never removed anyone without going on to win \u2014 "+
+        "all of their credited kills came while closing a game out.");
     if(inn[byIn[0]]>0)
-      lines.push("<b>"+byIn[0]+"</b> absorbs the most, knocked out "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+
-        " by someone who then failed to close.");
+      lines.push("<b>"+byIn[0]+"</b> is removed most often, knocked out "+times(inn[byIn[0]])+
+        " by someone who didn't go on to win.");
     if(ranked.length){
       const top=ranked[0], n=pairs[top], parts=top.split("\u2192");
       const back=pairs[parts[1]+"\u2192"+parts[0]]||0;
       lines.push("Most repeated pairing: <b>"+parts[0]+" removing "+parts[1]+"</b>, "+n+" of "+tot+
         " ("+Math.round(n/tot*100)+"%). "+
-        (back===0?parts[1]+" has never returned it in this bucket.":parts[1]+" has returned it "+back+" time"+(back===1?"":"s")+"."));
+        (back===0?parts[1]+" has never returned it in this bucket.":parts[1]+" has returned it "+times(back)+"."));
     }
   }
   if(tot>=3&&tot<12) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");

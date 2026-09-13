@@ -19,7 +19,8 @@
   --ivory:#f3f1ed; --dim:#c4c9cf; --muted:#98a0a8;
   --gold:#e2b64a; --on-gold:#171307;
   --edge:rgba(243,241,237,.35); --rule:rgba(243,241,237,.26); --rule-2:rgba(243,241,237,.14);
-  --chip:rgba(243,241,237,.06); --glow:rgba(226,182,74,.08); --shade:rgba(0,0,0,.55);
+  --chip:rgba(243,241,237,.06); --hover:rgba(243,241,237,.14); --ok:#2e9e55;
+  --glow:rgba(226,182,74,.08); --shade:rgba(0,0,0,.55);
   --c1:#f6e9b2; --c2:#a5daf6; --c3:#71bd57; --c4:#ec7f62; --c5:#a37fdb; --c6:#2b9d92;
 }
 [data-theme="paper"]{
@@ -27,7 +28,8 @@
   --ivory:#191714; --dim:#4c4842; --muted:#605c55;
   --gold:#7c5612; --on-gold:#fdfbf6;
   --edge:rgba(25,23,20,.46); --rule:rgba(25,23,20,.35); --rule-2:rgba(25,23,20,.19);
-  --chip:rgba(25,23,20,.05); --glow:rgba(138,95,20,.06); --shade:rgba(0,0,0,.22);
+  --chip:rgba(25,23,20,.05); --hover:rgba(25,23,20,.10); --ok:#1f8a49;
+  --glow:rgba(138,95,20,.06); --shade:rgba(0,0,0,.22);
   --c1:#7d5f0e; --c2:#1a6ea8; --c3:#2b7a3f; --c4:#b03a17; --c5:#4f3487; --c6:#0d6a7c;
 }
 *{box-sizing:border-box}
@@ -39,7 +41,8 @@ body{margin:0;background:var(--felt);color:var(--ivory);font-family:var(--sans);
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}
 .topbar .eyebrow{margin:0}
 .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(38px,7vw,64px);line-height:.98;margin:0 0 18px;letter-spacing:-.015em}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,5vw,54px);line-height:1.04;
+  margin:0 0 18px;letter-spacing:-.015em;text-wrap:balance}
 h1 em{font-style:italic;font-weight:400;color:var(--gold)}
 .lede{max-width:56ch;color:var(--dim);margin:0 0 30px}
 
@@ -52,19 +55,54 @@ h1 em{font-style:italic;font-weight:400;color:var(--gold)}
 .meta dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
 .meta dd{font-family:var(--mono);font-size:22px;margin:2px 0 0;font-weight:500}
 
-.pods{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 10px}
-.meta{margin-bottom:38px}
+.filters{margin:34px 0 10px;display:flex;flex-direction:column;gap:12px}
+.frow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.flabel{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);width:68px;flex:0 0 auto}
+.pods{display:flex;flex-wrap:wrap;gap:8px}
+.drop{position:relative}
+.drop-btn{min-width:170px;justify-content:space-between}
+.drop-btn::before{display:none}
+.drop-btn b{margin-left:10px}
+.drop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:250px;
+  background:var(--felt-3);border:1px solid var(--edge);border-radius:4px;padding:6px;
+  box-shadow:0 10px 30px var(--shade)}
+.drop-menu button{display:flex;width:100%;align-items:center;gap:0;background:transparent;border:0;
+  color:var(--dim);font-family:var(--mono);font-size:12px;padding:8px 9px;border-radius:3px;
+  cursor:pointer;text-align:left}
+.drop-menu button:hover:not(:disabled){background:var(--hover);color:var(--ivory)}
+.drop-menu button:disabled{opacity:.4;cursor:not-allowed}
+.drop-menu button[aria-pressed=true]{color:var(--ivory)}
+.drop-menu .box{width:16px;height:16px;border-radius:50%;border:1.5px dashed var(--edge);
+  flex:0 0 auto;box-sizing:border-box;margin-right:10px}
+.drop-menu button[aria-pressed=true] .box{background:var(--ok);border:1.5px solid var(--ok);
+  color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;
+  font-weight:700;line-height:1;font-family:var(--sans)}
+.drop-menu button[aria-pressed=true] .box::after{content:"\2713"}
+.drop-menu .cnt{margin-left:auto;color:var(--muted);font-size:11px}
+.drop-sep{height:1px;background:var(--rule-2);margin:6px 4px}
+.mini{background:transparent;border:1px solid var(--edge);color:var(--muted);border-radius:3px;
+  padding:6px 10px;font-family:var(--mono);font-size:11px;cursor:pointer;width:100%;text-align:center}
+.mini:hover{color:var(--ivory);border-color:var(--gold)}
+.mini:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.meta{margin-bottom:10px}
+.updated{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 38px}
 .pod{background:transparent;border:1px solid var(--edge);color:var(--dim);border-radius:3px;
   padding:9px 15px;font-family:var(--mono);font-size:12.5px;cursor:pointer;
   transition:border-color .15s,color .15s,background .15s;
-  display:flex;align-items:baseline;gap:8px}
-.pod:hover:not(:disabled){border-color:var(--gold);color:var(--ivory);background:var(--chip)}
+  display:flex;align-items:center;gap:0}
+.drop-btn:hover{background:var(--hover)}
 .pod:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.pod[aria-pressed=true]{background:var(--gold);border-color:var(--gold);color:var(--on-gold);font-weight:500}
+.pod[aria-pressed=true]{background:var(--chip);border-color:var(--ok);color:var(--ivory);font-weight:500}
+.pod::before{content:"";width:16px;height:16px;border-radius:50%;border:1.5px dashed currentColor;
+  opacity:.42;flex:0 0 auto;align-self:center;box-sizing:border-box;margin-right:9px}
+.pod[aria-pressed=true]::before{content:"\2713";opacity:1;background:var(--ok);
+  border:1.5px solid var(--ok);color:#fff;display:inline-flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;line-height:1;font-family:var(--sans)}
 .pod:disabled{opacity:.75;cursor:not-allowed;border-style:dashed;color:var(--muted)}
-.pod b{font-weight:400;opacity:.6;font-size:11px}
-.pod[aria-pressed=true] b{opacity:.65}
-.caution{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin:0 0 22px}
+.pod b{font-weight:400;opacity:.6;font-size:11px;margin-left:7px}
+.pod[aria-pressed=true] b{opacity:.75}
+.caution{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:0 0 22px}
 
 .grid{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:26px;align-items:start}
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px;margin-top:26px}
@@ -75,8 +113,9 @@ h1 em{font-style:italic;font-weight:400;color:var(--gold)}
 
 .phead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 4px}
 h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
-.n{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-.sub{font-size:12.5px;color:var(--muted);margin:0 0 18px;line-height:1.5}
+.n{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.n.warn{color:var(--c4)}
+.sub{font-size:13.5px;color:var(--dim);margin:0 0 18px;line-height:1.6}
 .ringnote{margin:14px 0 0}
 .ringnote:empty{display:none}
 
@@ -84,6 +123,9 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
   text-align:right;font-weight:400;padding:0 0 9px;border-bottom:1px solid var(--rule);white-space:nowrap}
 th:first-child{text-align:left}
+th .hint{border-bottom:1px dotted var(--muted);padding-bottom:2px;cursor:help}
+th[title]{cursor:help}
+th .hint:hover{border-bottom-color:var(--gold);color:var(--ivory)}
 td{padding:10px 0;border-bottom:1px solid var(--rule-2);text-align:right;font-family:var(--mono);
   font-size:13px;white-space:nowrap;vertical-align:middle}
 td:first-child,th:first-child{text-align:left;white-space:normal;width:99%}
@@ -102,7 +144,6 @@ tbody tr:last-child td{border-bottom:0}
 .legend{display:flex;flex-wrap:wrap;gap:7px 16px;margin:0 0 14px;font-family:var(--mono);font-size:11.5px;color:var(--dim)}
 .legend span{display:flex;align-items:center;gap:6px}
 .canvasbox{position:relative;width:100%;height:230px}
-.canvasbox.tall{height:272px}
 
 .routes{margin:0;padding:0;list-style:none}
 .routes li{margin-bottom:15px}
@@ -120,10 +161,11 @@ tbody tr:last-child td{border-bottom:0}
 .pname{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.01em}
 .prate{font-family:var(--mono);font-size:19px}
 .pline{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:13px;letter-spacing:.02em}
-.psay{font-size:13.5px;line-height:1.62;color:var(--dim);margin:0 0 15px}
+.psay{font-size:14px;line-height:1.65;color:var(--dim);margin:0 0 15px}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{font-family:var(--mono);font-size:10.5px;color:var(--dim);background:var(--chip);
-  border:1px solid var(--rule);border-radius:2px;padding:4px 9px;white-space:nowrap}
+.chip{font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--chip);
+  border:1px solid var(--rule);border-radius:2px;padding:4px 9px;
+  max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
 .chip b{color:var(--ivory);font-weight:400}
 .pips{display:inline-flex;gap:3px;margin-left:2px;vertical-align:-1px}
 .pips i{width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 1px var(--edge)}
@@ -132,15 +174,19 @@ tbody tr:last-child td{border-bottom:0}
 .empty code{display:inline-block;background:var(--felt-2);border:1px solid var(--rule);border-radius:2px;
   padding:9px 13px;margin-top:12px;font-family:var(--mono);font-size:11.5px;color:var(--dim);text-align:left;max-width:100%;overflow-x:auto}
 
+.ctl{display:flex;align-items:center;gap:12px;margin:0 0 16px;flex-wrap:wrap}
+.ctl .flabel{width:auto}
 .toggle{display:flex;border:1px solid var(--edge);border-radius:3px;overflow:hidden;flex:0 0 auto}
 .tg{background:transparent;border:0;color:var(--muted);font-family:var(--mono);font-size:11px;
   padding:6px 12px;cursor:pointer;transition:color .15s,background .15s}
 .tg+.tg{border-left:1px solid var(--edge)}
-.tg:hover{color:var(--ivory)}
-.tg[aria-pressed=true]{background:var(--gold);color:var(--on-gold)}
+.tg:hover:not([aria-pressed="true"]){color:var(--ivory);background:var(--felt-3);
+  box-shadow:inset 0 -2px 0 var(--muted)}
+.tg[aria-pressed=true]{background:var(--chip);color:var(--ivory);font-weight:500;
+  box-shadow:inset 0 -2px 0 var(--ok)}
 .tg:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
 .tg.sw{padding:5px 7px;display:flex;align-items:center}
-.tg.sw:hover{background:var(--chip)}
+
 .tg.sw[aria-pressed=true]{background:var(--chip)}
 .tg.sw[aria-pressed=true] .chip-sw{box-shadow:0 0 0 2px var(--gold)}
 .chip-sw{display:block;width:30px;height:18px;border-radius:3px;position:relative;
@@ -152,13 +198,37 @@ tbody tr:last-child td{border-bottom:0}
 
 .split{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:30px;align-items:start}
 .strip{margin:0;padding:0;list-style:none}
-.striphead{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+.striphead{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
   padding-bottom:9px;border-bottom:1px solid var(--rule);margin-bottom:14px}
-.strip li{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-family:var(--mono);font-size:11.5px}
+.strip li{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:var(--mono);font-size:12.5px}
 .strip li:last-child{margin-bottom:0}
 .strip .lab{color:var(--dim);width:46px;flex:0 0 auto}
 .strip .bar{flex:1}
 .strip .val{color:var(--muted);width:34px;text-align:right;flex:0 0 auto}
+.hist{display:flex;align-items:flex-end;gap:6px;height:130px;margin:6px 0 10px}
+.hist .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;height:100%}
+.hist .stem{width:100%;max-width:34px;background:var(--gold);border-radius:2px 2px 0 0;min-height:2px}
+.hist .cap{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.hist .tick{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.matrix{border-collapse:collapse;font-family:var(--mono);font-size:12px;width:100%}
+.matrix th,.matrix td{padding:9px 6px;font-size:12.5px;text-align:center;white-space:nowrap;border:0}
+.matrix thead th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--rule)}
+.matrix tbody th{text-align:left;font-family:var(--sans);font-size:13.5px;font-weight:400;color:var(--ivory);
+  text-transform:none;letter-spacing:0;border-right:1px solid var(--rule);
+  width:22%;white-space:nowrap;padding-right:14px}
+.matrix thead th:first-child{width:22%;text-align:left;padding-right:14px}
+.matrix thead th+th,.matrix tbody td{width:auto}
+.matrix td{border-bottom:1px solid var(--rule-2)}
+.cell{display:inline-flex;align-items:center;justify-content:center;width:30px;height:26px;border-radius:3px}
+.cell.z{color:var(--muted);opacity:.4}
+.fb{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule)}
+.fbline{font-family:var(--mono);font-size:13px;color:var(--dim);margin:0 0 10px}
+.fbpct{font-size:26px;color:var(--gold);vertical-align:-3px;margin:0 6px 0 2px}
+.fbpar{font-size:12.5px;color:var(--muted)}
+.note{font-family:var(--sans);font-size:13.5px;color:var(--dim);margin:16px 0 0;line-height:1.65}
+.note b{color:var(--ivory);font-weight:500}
+.miss{color:var(--c4)}
 @media (max-width:700px){.split{grid-template-columns:1fr;gap:26px}}
 
 .editor{margin-top:52px;border-top:1px solid var(--rule);padding-top:32px}
@@ -199,16 +269,31 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
 <div class="topbar">
   <p class="eyebrow">Commander pod log</p>
   <div class="toggle" id="themes" role="group" aria-label="Colour scheme">
-    <button class="tg sw" data-theme="slate" aria-pressed="true" aria-label="Slate colour scheme" title="Slate"><span class="chip-sw s-slate"><i class="a"></i><i class="b"></i></span></button><button class="tg sw" data-theme="paper" aria-pressed="false" aria-label="Paper colour scheme" title="Paper"><span class="chip-sw s-paper"><i class="a"></i><i class="b"></i></span></button>
+    <button class="tg" data-theme="slate" aria-pressed="true">Dark</button><button class="tg" data-theme="paper" aria-pressed="false">Light</button>
   </div>
 </div>
-<h1>Four players,<br>one <em>table</em>.</h1>
-<p class="lede">Every game we've logged, split by pod size — because a seat at a three-player table is worth a third of the wins, and a seat at a five-player table is worth a fifth. Comparing them without splitting them hides more than it shows.</p>
+<h1>Turn 1 Sol Ring Support Group</h1>
+<p class="lede">Every game we've logged, split by pod size and date.</p>
 
-<div class="pods" id="pods" role="group" aria-label="Filter by pod size"></div>
+<div class="filters">
+  <div class="frow">
+    <span class="flabel">Pod size</span>
+    <div class="pods" id="pods" role="group" aria-label="Pod sizes to include"></div>
+  </div>
+  <div class="frow">
+    <span class="flabel">Sessions</span>
+    <div class="drop" id="dropwrap">
+      <button class="pod drop-btn" id="dropbtn" type="button" aria-expanded="false" aria-haspopup="true">
+        <span id="droplabel">All sessions</span> <b>&#9662;</b>
+      </button>
+      <div class="drop-menu" id="dates" role="group" aria-label="Session dates to include" hidden></div>
+    </div>
+  </div>
+</div>
 <p class="caution" id="caution"></p>
 
 <dl class="meta" id="meta"></dl>
+<p class="updated" id="updated"></p>
 
 <div id="view">
   <div class="grid">
@@ -223,26 +308,64 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
       <div class="phead"><h2 id="h-standings">Standings</h2><span class="n" id="n-standings"></span></div>
       <p class="sub">Expected is how many wins pure chance owed them: a third of each three-player game, a quarter of each four-player one, added up. Gap is actual wins minus that, in wins. Avg seat is where in turn order they tended to sit, and roll win % is how often that was seat one.</p>
       <div class="scroll"><table class="lean">
-        <thead><tr><th>Player</th><th>W–L</th><th>Rate</th><th>Avg seat</th><th>Roll win %</th><th>Expected</th><th>Gap</th></tr></thead>
+        <thead id="standings-head"><tr></tr></thead>
         <tbody id="standings"></tbody>
       </table></div>
     </section>
   </div>
 
-  <div class="duo">
-    <section class="panel" aria-labelledby="h-share">
-      <div class="phead"><h2 id="h-share">Who's winning</h2><span class="n" id="n-share"></span></div>
-      <p class="sub">Share of all wins in this pod size, labelled on the chart. Slices are portions of the wins, not win rates — those are in the standings.</p>
-      <div class="canvasbox tall"><canvas id="c-share" role="img" aria-label="Doughnut chart showing each player's share of wins">Share of wins by player.</canvas></div>
-    </section>
 
+
+
+
+
+
+</div>
+
+  <section class="panel" aria-labelledby="h-form" style="margin-top:26px">
+    <div class="phead"><h2 id="h-form">Form over time</h2></div>
+    <p class="sub" id="sub-form"></p>
+    <div class="ctl">
+      <span class="flabel">Show</span>
+      <span class="toggle" role="group" aria-label="Timeline mode">
+        <button class="tg" data-mode="wins" aria-pressed="true">Wins</button><button class="tg" data-mode="gap" aria-pressed="false">Vs. expected</button>
+      </span>
+    </div>
+    <div class="legend" id="leg-form"></div>
+    <div class="canvasbox" style="height:270px"><canvas id="c-form" role="img" aria-label="Line chart of each player's running total across games in chronological order">Running totals per player across the season.</canvas></div>
+  </section>
+
+  <div class="duo wide">
+      <section class="panel" aria-labelledby="h-length">
+      <div class="phead"><h2 id="h-length">How long games run</h2><span class="n" id="n-length"></span></div>
+      <p class="sub" id="sub-length"></p>
+      <div id="length"></div>
+    </section>
     <section class="panel" aria-labelledby="h-routes">
       <div class="phead"><h2 id="h-routes">How games end</h2><span class="n" id="n-routes"></span></div>
       <p class="sub">Sorted from your table's most common closing line to its rarest.</p>
       <ul class="routes" id="routes"></ul>
     </section>
-
   </div>
+
+  <section class="panel" aria-labelledby="h-deaths" style="margin-top:26px">
+    <div class="phead"><h2 id="h-deaths">Who dies, and when</h2><span class="n" id="n-deaths"></span></div>
+    <p class="sub" id="sub-deaths"></p>
+    <div id="deaths"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-kills" style="margin-top:26px">
+    <div class="phead"><h2 id="h-kills">Who kills whom</h2>
+      <span class="n" id="n-kills"></span></div>
+    <p class="sub" id="sub-kills"></p>
+    <div class="ctl">
+      <span class="flabel">Show</span>
+      <span class="toggle" role="group" aria-label="Which kills to show">
+        <button class="tg" data-kills="stalled" aria-pressed="true">Didn't follow up</button><button class="tg" data-kills="finish" aria-pressed="false">Part of a finish</button>
+      </span>
+    </div>
+    <div id="kills"></div>
+  </section>
 
   <section class="panel" aria-labelledby="h-people" style="margin-top:26px">
     <div class="phead"><h2 id="h-people">The players</h2><span class="n" id="n-people"></span></div>
@@ -250,38 +373,28 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
     <div class="people" id="people"></div>
   </section>
 
+  <section class="panel" aria-labelledby="h-wins" style="margin-top:26px">
+    <div class="phead"><h2 id="h-wins">What attributes win</h2><span class="n" id="n-wins"></span></div>
+    <p class="sub" id="sub-wins"></p>
+    <div id="wins"></div>
+  </section>
+
   <div class="duo solo">
     <section class="panel" aria-labelledby="h-decks">
       <div class="phead"><h2 id="h-decks">Deck records</h2><span class="n" id="n-decks"></span></div>
       <p class="sub">Sorted by win rate, then by games played.</p>
       <div class="scroll"><table>
-        <thead><tr><th>Commander</th><th>Pilot</th><th>W–L</th><th>Rate</th></tr></thead>
+        <thead id="decks-head"><tr></tr></thead>
         <tbody id="decks"></tbody>
       </table></div>
     </section>
 
   </div>
 
-  <section class="panel" aria-labelledby="h-form" style="margin-top:26px">
-    <div class="phead"><h2 id="h-form">Form over time</h2>
-      <span class="toggle" role="group" aria-label="Timeline mode">
-        <button class="tg" data-mode="wins" aria-pressed="true">Wins</button><button class="tg" data-mode="gap" aria-pressed="false">Vs. expected</button>
-      </span></div>
-    <p class="sub" id="sub-form"></p>
-    <div class="legend" id="leg-form"></div>
-    <div class="canvasbox" style="height:270px"><canvas id="c-form" role="img" aria-label="Line chart of each player's running total across games in chronological order">Running totals per player across the season.</canvas></div>
-  </section>
-
-  <section class="panel" aria-labelledby="h-threat" style="margin-top:26px">
-    <div class="phead"><h2 id="h-threat">Who gets shot first</h2><span class="n" id="n-threat"></span></div>
-    <p class="sub">Winning is one number, surviving is another — a deck the table kills on sight can be strong and still never close a game.</p>
-    <div id="threat"></div>
-  </section>
-</div>
-
-<section class="editor" aria-labelledby="h-log">
+<section class="editor" aria-labelledby="h-log" id="editor" hidden>
   <div class="phead"><h2 id="h-log">The log</h2><span class="n">one game per line</span></div>
-  <p class="sub" style="max-width:66ch">Nothing on this page talks to the internet on its own. Refresh card data looks the commanders up on Scryfall once, on demand. Save updated copy then writes a fresh file with those results and your current log baked in, so the copy you share never calls out at all.</p>
+  <p class="sub" style="max-width:66ch">Only you see this — the panel stays hidden unless the page is opened with <code>?edit</code> on the end of the address.
+  Nothing on this page talks to the internet on its own. Refresh card data looks the commanders up on Scryfall once, on demand. Save updated copy then writes a fresh file with those results and your current log baked in, so the copy you share never calls out at all.</p>
   <p class="sub" style="max-width:66ch">Format is <code>date | deck(seat) vs deck(seat) … | winner | how it ended | knocked out, in order</code>. The last field is optional and unlocks the survival numbers — list the losers first-out first and leave the winner off. Add a line, press update, and every number on this page moves. Pods of any size work; a fifth name makes it a five-player table on its own.</p>
   <label class="sr-only" for="log">Game log</label>
   <textarea id="log" spellcheck="false"></textarea>
@@ -328,6 +441,9 @@ const DECKS = {
   "jasmine boreal":["Ricardo","Jasmine Boreal of the Seven"],
   "purphoros":    ["Ricardo","Purphoros, God of the Forge"],
   "zur":          ["Ricardo","Zur, Eternal Schemer"],
+  "oloro":        ["Ricardo","Oloro, Ageless Ascetic"],
+  "felothar":     ["Ricardo","Felothar the Steadfast"],
+  "shay cormac":  ["Ricardo","Shay Cormac"],
 
   "camellia":     ["Rudy","Camellia, the Seedmiser"],
   "giada":        ["Rudy","Giada, Font of Hope"],
@@ -335,29 +451,52 @@ const DECKS = {
   "kuja":         ["Rudy","Kuja, Genome Sorcerer"],
   "aloy":         ["Rudy","Aloy, Savior of Meridian"],
   "tidus":        ["Rudy","Tidus, Yuna's Guardian"],
+  "ultima":       ["Rudy","Ultima, Origin of Oblivion"],
+  "henzie":       ["Rudy",'Henzie "Toolbox" Torre'],
+  "kambal":       ["Rudy","Kambal, Profiteering Mayor"],
 
   "sonic":        ["Stephen","Sonic the Hedgehog"],
   "toph":         ["Stephen","Toph, the First Metalbender"],
   "valgavoth":    ["Stephen","Valgavoth, Harrower of Souls"],
   "dihada":       ["Stephen","Dihada, Binder of Wills"],
   "eriette":      ["Stephen","Eriette of the Charmed Apple"],
+  "rielle":       ["Stephen","Rielle, the Everwise"],
+  "falco":        ["Stephen","Falco Spara, Pactweaver"],
+  "muckslinger gang":["Stephen","The Muckslinger Gang"],
+  "aminatou":     ["Stephen","Aminatou, the Fateshifter"],
   "vial smasher and sakashima":["Stephen","Vial Smasher the Fierce & Sakashima of a Thousand Faces"]
+};
+/* alternate spellings that appear in the log */
+const ALIASES = {
+  "muckslinger":"muckslinger gang",
+  "vial smasher sakashima":"vial smasher and sakashima",
+  "ultima oblivion":"ultima"
 };
 const OWNERS={}, SEEDS={};
 Object.keys(DECKS).forEach(k=>{ OWNERS[k]=DECKS[k][0]; SEEDS[k]=DECKS[k][1]; });
 
-const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amalia | inkshield victory
-2026-06-11 | ognis(1) vs pantlaza(2) vs giada(3) | ognis | mazirek counters
+const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amalia | inkshield victory (combat damage)
+2026-06-11 | ognis(1) vs pantlaza(2) vs giada(3) | ognis | mazirek counters (combat damage)
 2026-06-11 | katilda(2) vs pantlaza(3) vs eshki(1) | eshki | burn
-2026-06-11 | niko(3) vs mindskinner(1) vs kuja(2) | kuja | combo off
-2026-07-25 | sonic(1) vs raffine(2) vs camellia(3) vs obeka(4) | raffine | flyers
-2026-07-25 | jin sakai(1) vs toph(2) vs mirko(3) vs aloy(4) | toph | creature swarm off urza's saga
-2026-07-25 | ognis(2) vs valgavoth(1) vs pantlaza(4) vs kuja(3) | ognis | swarm of X 1/1 tokens
-2026-07-25 | kenrith(2) vs dihada(3) vs dragonhawk(4) vs giada(1) | dihada | rise of the dark realms
-2026-07-25 | loot(3) vs eriette(2) vs massacre girl(1) vs eshki(4) | eshki | burn damage and creatures
+2026-06-11 | niko(3) vs mindskinner(1) vs kuja(2) | kuja | kuja wizards burn opponents
+2026-07-25 | sonic(1) vs raffine(2) vs camellia(3) vs obeka(4) | raffine | flyers (combat damage)
+2026-07-25 | jin sakai(1) vs toph(2) vs mirko(3) vs aloy(4) | toph | making lots of creatures with urza's saga (combat damage)
+2026-07-25 | ognis(2) vs valgavoth(1) vs pantlaza(4) vs kuja(3) | ognis | making lots of X 1/1s win (combat damage)
+2026-07-25 | kenrith(2) vs dihada(3) vs dragonhawk(4) vs giada(1) | dihada | rise of the dark realms win (combat damage)
+2026-07-25 | loot(3) vs eriette(2) vs massacre girl(1) vs eshki(4) | eshki | eshki burn damage and combat damage
 2026-07-25 | vial smasher and sakashima(2) vs kenessos(3) vs tidus(4) vs jasmine boreal(1) | vial smasher and sakashima | burn damage to all
-2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin plus mass bounce snipe
-2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills final two`;
+2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin and mass bounce snipe the win (combat damage)
+2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills 2 final players
+2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table | entire table died turn 8
+2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills table turn 8
+2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid combat damage | Ryan kills Stephen and rudy turn 9, Ryan kills Ricardo turn 10
+2026-09-12 | purphoros(1) vs aminatou(2) vs katilda(3) vs ultima(4) | aminatou | infinite combo | stephen goes infinite turn 7
+2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards | kuja kills all turn 7
+2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss | Ricardo kills Ryan turn 11, Ricardo kills rudy and stephen turn 12
+2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will combat damage | Ricardo kills stephen turn 11, Ryan concedes turn 12,Ricardo kills rudy turn 14 with akromas will
+2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce and combat damage | Stephen kills rudy turn 5,Ryan kills stephen rudy turn 6
+2026-09-12 | katilda(1) vs tidus(2) vs purphoros(3) vs rielle(4) | tidus | combat damage with some flyers | Rudy kills everyone turn 7
+2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid combat damage | Ryan kills rudy stephen turn 7, Ryan kills ricardo turn 8`;
 
 let PALETTE=[], SEAT_TINTS=[], GOLD, DIMC, RULE, SUNK, PANEL, INK, LAST_GS=null;
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -369,50 +508,106 @@ function syncTheme(){
 }
 syncTheme();
 
-let GAMES=[], FILTER="all", FORMMODE="wins", charts={};
+let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", charts={};
+let LOG_MODIFIED=null;
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
   Object.keys(charts).forEach(k=>{ try{charts[k].destroy();}catch(e){} delete charts[k]; });
 }
 
 /* ── Parsing ─────────────────────────────────────────────────────────── */
+const PLAYERS_ALL=["Ryan","Ricardo","Rudy","Stephen"];
+function canon(d){ d=d.trim().toLowerCase(); return ALIASES[d]||d; }
+
+/* Reads the free-text notes column. Understands the shapes actually used:
+   "X kills Y turn N", "X kills Y and Z turn N", "X kills table turn N",
+   "X concedes turn N", "X goes infinite turn N", "entire table died turn N". */
+function parseNotes(txt,players){
+  const turns=(txt.match(/turn\s+(\d+)/gi)||[]).map(x=>parseInt(x.replace(/\D/g,""),10));
+  const events=[];
+  txt.split(/[,;]/).forEach(raw=>{
+    const c=raw.trim(); if(!c) return;
+    const who=t=>{ let f=null; players.forEach(p=>{ if(new RegExp("\\b"+p+"\\b","i").test(t)) f=p; }); return f; };
+    let m=c.match(/^(.*?)\s+kills?\s+(.*?)\s+turn\s+(\d+)/i);
+    if(m){
+      let k=who(m[1]);
+      if(!k){ const d=canon(m[1]); if(OWNERS[d]) k=OWNERS[d]; }
+      const all=/\b(table|all|everyone|everybody)\b/i.test(m[2]);
+      events.push({killer:k,victims:all?"ALL":players.filter(p=>new RegExp("\\b"+p+"\\b","i").test(m[2])),
+        turn:parseInt(m[3],10)});
+      return;
+    }
+    m=c.match(/^(.*?)\s+concedes?\s+turn\s+(\d+)/i);
+    if(m){ const p=who(m[1]); events.push({killer:null,victims:p?[p]:[],turn:parseInt(m[2],10)}); return; }
+    m=c.match(/^(?:the\s+)?(?:entire\s+|whole\s+)?(?:table|everyone|everybody|all)\s+(?:died|dies|die|wiped|was\s+wiped)\s+turn\s+(\d+)/i);
+    if(m){ events.push({killer:null,victims:"ALL",turn:parseInt(m[1],10)}); return; }
+    m=c.match(/^(.*?)\s+goes\s+infinite\s+turn\s+(\d+)/i);
+    if(m){ const p=who(m[1]); if(p) events.push({killer:p,victims:"ALL",turn:parseInt(m[2],10)}); return; }
+  });
+  return {turns:turns.length?Math.max.apply(null,turns):null, events:events};
+}
+
 function parseLog(txt){
   const games=[], errors=[];
   txt.split("\n").map(s=>s.trim()).filter(Boolean).forEach((line,i)=>{
     const p=line.split("|").map(s=>s.trim());
     if(p.length<3){ errors.push("Line "+(i+1)+" needs at least date | matchup | winner."); return; }
-    const [date,matchup,winnerRaw,how="",outRaw=""]=p;
+    const date=p[0], matchup=p[1], winnerRaw=p[2], how=p[3]||"", notes=p[4]||"";
     const seats=[];
     matchup.split(/\s+v[sa]\.?\s+/i).forEach(chunk=>{
       const m=chunk.trim().match(/^(.*?)\s*\((\d+)\)$/);
-      if(m) seats.push({deck:m[1].trim().toLowerCase(), seat:+m[2]});
+      if(m) seats.push({deck:canon(m[1]), seat:+m[2]});
     });
-    let w=winnerRaw.toLowerCase().replace(/\s+wins?$/,"").trim();
-    if(w.indexOf("via ")===0) w="vial "+w.slice(4);
+    let w=canon(winnerRaw.replace(/\s+wins?$/i,""));
     if(seats.length<2){ errors.push("Line "+(i+1)+" needs at least two decks written as name(seat)."); return; }
     if(!seats.some(s=>s.deck===w)){ errors.push("Line "+(i+1)+": winner \u201c"+w+"\u201d isn't one of the decks in that game."); return; }
+    const players=seats.map(s=>OWNERS[s.deck]).filter(Boolean);
+    const n=parseNotes(notes,players);
+    const champ=OWNERS[w];
+    const deaths=[], dead={};
+    n.events.slice().sort((a,b)=>a.turn-b.turn).forEach(ev=>{
+      let v=ev.victims;
+      if(v==="ALL") v=players.filter(p=>p!==(ev.killer||champ)&&!dead[p]);
+      v=v.filter(p=>p&&!dead[p]);
+      if(!v.length) return;
+      const batch=[];
+      v.forEach(p=>{
+        dead[p]=1;
+        const d={player:p,turn:ev.turn,by:ev.killer||null,ending:false};
+        deaths.push(d); batch.push(d);
+      });
+      /* if one player or fewer is left standing, this event ended the game */
+      const left=players.filter(p=>!dead[p]).length;
+      if(left<=1) batch.forEach(d=>{ d.ending=true; });
+    });
 
-    let order=null;
-    const cleaned=outRaw.replace(/^out:\s*/i,"").trim();
-    if(cleaned){
-      const names=cleaned.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
-      const pool=seats.map(s=>s.deck), bad=names.filter(nm=>pool.indexOf(nm)<0);
-      if(bad.length) errors.push("Line "+(i+1)+": \u201c"+bad[0]+"\u201d was knocked out of a game it wasn't in \u2014 finishes ignored.");
-      else if(names.indexOf(w)>=0) errors.push("Line "+(i+1)+": the winner can't also be knocked out \u2014 finishes ignored.");
-      else if(new Set(names).size!==names.length) errors.push("Line "+(i+1)+": a deck is listed out twice \u2014 finishes ignored.");
-      else if(names.length!==seats.length-1) errors.push("Line "+(i+1)+": needs "+(seats.length-1)+" decks in knock-out order, got "+names.length+" \u2014 finishes ignored.");
-      else order=names;
+    /* The winner's closing run: walk back from the end while each event is
+       theirs and lands within a turn of the next. Taking out two players and
+       finishing the last one next turn is one finish, not a mid-game kill. */
+    const byTurn={};
+    deaths.forEach(d=>{ (byTurn[d.turn]=byTurn[d.turn]||[]).push(d); });
+    const turnList=Object.keys(byTurn).map(Number).sort((a,b)=>a-b);
+    let prev=null;
+    for(let i=turnList.length-1;i>=0;i--){
+      const t=turnList[i], grp=byTurn[t];
+      if(!grp.every(d=>d.by&&d.by===champ)) break;
+      if(prev!==null&&prev-t>1) break;
+      grp.forEach(d=>{ d.closing=true; });
+      prev=t;
     }
-    games.push({date,seats,winner:w,how,size:seats.length,order:order});
+    games.push({date:date,seats:seats,winner:w,how:how,notes:notes,size:seats.length,
+      turns:n.turns,deaths:deaths});
   });
-  return {games,errors};
+  return {games:games,errors:errors};
 }
 
 function route(how){
   const h=(how||"").toLowerCase();
   if(/combo|infinite|loop/.test(h)) return "Combo";
-  if(/burn|damage|drain|ping/.test(h)) return "Burn and direct damage";
-  if(/token|swarm|creature|flyer|flier|counter|attack|combat|realms|inkshield|army/.test(h)) return "Board and combat";
+  if(/combat damage/.test(h)) return "Combat damage";
+  if(/burn|drain|ignition|life loss|damage to (each|all|every)|ping/.test(h)) return "Burn and direct damage";
+  if(/mill/.test(h)) return "Milling out";
+  if(/token|swarm|creature|flyer|flier|counter|attack|realms|inkshield|army/.test(h)) return "Board presence";
   return "Something else";
 }
 
@@ -439,20 +634,24 @@ function compute(gs){
     decks[g.winner].w++;
     const r=route(g.how); routes[r]=(routes[r]||0)+1;
 
-    if(g.order){
+    if(g.deaths&&g.deaths.length){
       finish.n++;
-      const place={}; place[g.winner]=1;
-      g.order.forEach((deck,i)=>{ place[deck]=g.size-i; });
-      const firstOut=g.order[0];
-      g.seats.forEach(s=>{
-        const o=OWNERS[s.deck]||"Unassigned", P=place[s.deck];
-        const score=(g.size-P)/(g.size-1);
+      const order=g.deaths.slice().sort((a,b)=>a.turn-b.turn);
+      const tied=order.filter(x=>x.turn===order[0].turn);
+      const firstOut=tied.length===1?order[0].player:null;
+      const full=order.length>=g.size-1;
+      const place={}; place[OWNERS[g.winner]]=1;
+      order.forEach((dd,i)=>{ if(place[dd.player]===undefined) place[dd.player]=g.size-i; });
+      g.seats.forEach(s2=>{
+        const o=OWNERS[s2.deck]; if(!o) return;
+        const P2=place[o];
         const f=finish.players[o]=finish.players[o]||{n:0,score:0,first:0,final2:0};
-        f.n++; f.score+=score; if(P<=2) f.final2++;
-        const fd=finish.decks[s.deck]=finish.decks[s.deck]||{n:0,score:0,first:0};
-        fd.n++; fd.score+=score;
-        finish.seatN[s.seat]=(finish.seatN[s.seat]||0)+1;
-        if(s.deck===firstOut){ f.first++; fd.first++; finish.seatOut[s.seat]=(finish.seatOut[s.seat]||0)+1; }
+        f.n++;
+        if(full&&P2){ f.score+=(g.size-P2)/(g.size-1); if(P2<=2) f.final2++; }
+        const fd=finish.decks[s2.deck]=finish.decks[s2.deck]||{n:0,score:0,first:0};
+        fd.n++;
+        finish.seatN[s2.seat]=(finish.seatN[s2.seat]||0)+1;
+        if(o===firstOut){ f.first++; fd.first++; finish.seatOut[s2.seat]=(finish.seatOut[s2.seat]||0)+1; }
       });
     }
   });
@@ -484,7 +683,8 @@ function drawRing(st, size){
     const rad=(a-90)*Math.PI/180, x=C+Math.cos(rad)*R, y=C+Math.sin(rad)*R;
     s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="1.6" fill="'+RULE+'"/>';
   }
-  s+='<text x="200" y="190" text-anchor="middle" font-family="Spectral,serif" font-size="25" fill="'+INK+'">'+(size==="all"?"All pods":size+"-player")+'</text>';
+  const szLabel=Array.isArray(size)?(size.length===1?size[0]+"-player":size.slice().sort((a,b)=>a-b).join(" + ")+" player"):String(size);
+  s+='<text x="200" y="190" text-anchor="middle" font-family="Spectral,serif" font-size="'+(szLabel.length>10?19:25)+'" fill="'+INK+'">'+szLabel+'</text>';
   s+='<text x="200" y="213" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="13" fill="'+DIMC+'">'+st.n+(st.n===1?" game":" games")+'</text>';
   s+='<text x="200" y="234" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" letter-spacing="1.8" fill="'+DIMC+'">TURN ORDER \u21bb</text>';
 
@@ -509,78 +709,6 @@ function drawRing(st, size){
 }
 
 /* ── Doughnuts ───────────────────────────────────────────────────────── */
-const callouts = {
-  id:"callouts",
-  afterDatasetsDraw(chart){
-    const ctx=chart.ctx, ds=chart.data.datasets[0], meta=chart.getDatasetMeta(0);
-    const total=ds.data.reduce((a,b)=>a+b,0);
-    if(!total) return;
-    const o=(chart.options.plugins&&chart.options.plugins.callouts)||{};
-    const ink=o.ink||"#fff", mute=o.mute||"#999", mono=o.mono||"monospace", unit=o.unit||"win";
-    const W=chart.width, H=chart.height, COL=o.col||74;
-    const sides={l:[],r:[]};
-    meta.data.forEach((arc,i)=>{
-      const v=ds.data[i]; if(!v) return;
-      const p=arc.getProps(["x","y","startAngle","endAngle","outerRadius"],true);
-      const mid=(p.startAngle+p.endAngle)/2, cos=Math.cos(mid), sin=Math.sin(mid);
-      const side=cos>=0?"r":"l";
-      sides[side].push({
-        ax:p.x+cos*(p.outerRadius-1), ay:p.y+sin*(p.outerRadius-1),
-        ex:p.x+cos*(p.outerRadius+14), ey:p.y+sin*(p.outerRadius+14),
-        color:ds.backgroundColor[i], label:chart.data.labels[i], v:v,
-        pct:Math.round(v/total*100)
-      });
-    });
-    const GAP=30, TOP=16, BOT=H-19;
-    ["l","r"].forEach(s=>{
-      const a=sides[s].sort((x,y)=>x.ey-y.ey);
-      if(!a.length) return;
-      a.forEach(it=>{ it.ey=Math.max(TOP,Math.min(BOT,it.ey)); });
-      for(let i=1;i<a.length;i++) if(a[i].ey-a[i-1].ey<GAP) a[i].ey=a[i-1].ey+GAP;
-      if(a[a.length-1].ey>BOT){
-        a[a.length-1].ey=BOT;
-        for(let i=a.length-2;i>=0;i--) if(a[i+1].ey-a[i].ey<GAP) a[i].ey=a[i+1].ey-GAP;
-      }
-      a.forEach(it=>{
-        const endX = s==="r" ? W-COL : COL;
-        ctx.save();
-        ctx.strokeStyle=it.color; ctx.lineWidth=1.25; ctx.globalAlpha=.9;
-        ctx.beginPath(); ctx.moveTo(it.ax,it.ay); ctx.lineTo(it.ex,it.ey); ctx.lineTo(endX,it.ey); ctx.stroke();
-        ctx.globalAlpha=1;
-        ctx.beginPath(); ctx.arc(endX,it.ey,2.4,0,Math.PI*2); ctx.fillStyle=it.color; ctx.fill();
-        ctx.textAlign = s==="r" ? "left" : "right";
-        const tx = s==="r" ? endX+8 : endX-8;
-        ctx.fillStyle=ink; ctx.font="500 12px "+mono; ctx.textBaseline="alphabetic";
-        ctx.fillText(it.label, tx, it.ey-1);
-        ctx.fillStyle=mute; ctx.font="10.5px "+mono;
-        ctx.fillText(it.v+" \u00b7 "+it.pct+"%", tx, it.ey+12);
-        ctx.restore();
-      });
-    });
-  }
-};
-
-function doughnut(id,labels,data,colors,unit){
-  if(charts[id]) charts[id].destroy();
-  const el=document.getElementById(id);
-  const keep=data.map((v,i)=>i).filter(i=>data[i]>0);
-  if(!keep.length){ el.getContext("2d").clearRect(0,0,el.width,el.height); return; }
-  charts[id]=new Chart(el,{
-    type:"doughnut",
-    plugins:[callouts],
-    data:{labels:keep.map(i=>labels[i]),
-      datasets:[{data:keep.map(i=>data[i]),backgroundColor:keep.map(i=>colors[i]),
-        borderColor:PANEL,borderWidth:2,hoverOffset:5}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:"56%",
-      layout:{padding:{left:82,right:82,top:14,bottom:14}},
-      plugins:{legend:{display:false},
-        callouts:{ink:INK,mute:DIMC,mono:'"IBM Plex Mono",monospace',unit:unit||"win",col:74},
-        tooltip:{callbacks:{label:c=>{
-          const t=c.dataset.data.reduce((a,b)=>a+b,0);
-          return c.label+": "+c.parsed+(c.parsed===1?" win":" wins")+" ("+Math.round(c.parsed/t*100)+"%)";
-        }}}}}
-  });
-}
 /* ── Card data ────────────────────────────────────────────────────────
    Static on purpose: nothing here is fetched when the page loads, so it
    opens instantly and works with no connection at all. Press "Refresh
@@ -597,7 +725,7 @@ const CARD_DATA = {
    is read from there instead, so updating the site means editing one small
    file rather than this one. Same-origin, so it costs one quick request.
    Leave it "" and the page stays a single self-contained file. */
-const LOG_URL = "log.txt";
+const LOG_URL = "";
 
 /* Look up anything missing from CARD_DATA when the page opens. Once you've
    pressed Save updated copy there is nothing missing, so this does nothing
@@ -665,9 +793,12 @@ async function collection(names){
   for(let i=0;i<names.length;i+=70){
     const batch=names.slice(i,i+70);
     try{
-      const r=await fetch("https://api.scryfall.com/cards/collection",{
-        method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-        body:JSON.stringify({identifiers:batch.map(n=>({name:n}))})});
+      const body=JSON.stringify({identifiers:batch.map(n=>({name:n}))});
+      let r=null;
+      try{ r=await fetch("https://api.scryfall.com/cards/collection",
+        {method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:body}); }catch(e){ r=null; }
+      if(!r||!r.ok) r=await fetch("https://api.scryfall.com/cards/collection",
+        {method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:body});
       const j=await r.json();
       (j.data||[]).forEach(c=>{
         hit[lower(c.name)]=c;
@@ -711,15 +842,16 @@ function pack(c){
   return {ci:(c.color_identity||[]).join(""), mv:typeof c.cmc==="number"?c.cmc:null,
     tag:tagOf((face.oracle_text||"")+" "+(c.oracle_text||"")), img:img};
 }
-let looking=false;
+let looking=false, LOOKUP_MSG="";
 function missingCards(){ return Object.keys(DECKS).filter(sh=>!CARD_DATA[sh]); }
 async function refreshCards(report,only){
   if(looking) return;
   looking=true;
+  const say=m=>{ LOOKUP_MSG=m; report(m); if(LAST_GS) drawWins(LAST_GS); };
   const shorts=only&&only.length?only:Object.keys(DECKS);
   const want={}; shorts.forEach(sh=>seedNames(sh).forEach(n=>want[n]=1));
   const names=Object.keys(want);
-  report("Looking up "+names.length+" commanders\u2026");
+  say("Looking up "+names.length+" commanders\u2026");
 
   let found={}, missed=names.slice(), viaGet=false;
   const bulk=await collection(names);
@@ -730,7 +862,7 @@ async function refreshCards(report,only){
     viaGet=true; missed=[];
     let dead=0;
     for(let i=0;i<names.length;i++){
-      report("Looking up commanders one at a time \u2014 "+(i+1)+" of "+names.length+"\u2026");
+      say("Looking up commanders one at a time \u2014 "+(i+1)+" of "+names.length+"\u2026");
       const c=await namedExact(names[i]);
       if(c){ found[lower(c.name)]=c; dead=0; }
       else { missed.push(names[i]); dead++; }
@@ -746,8 +878,10 @@ async function refreshCards(report,only){
 
   /* nothing came back at all: no point grinding through near-miss retries */
   if(!Object.keys(found).length){
+    looking=false; LOOKUP_MSG="";
     report("Couldn't reach Scryfall \u2014 nothing was updated. Check the connection and try again.");
-    looking=false; return;
+    if(LAST_GS) drawWins(LAST_GS);
+    return;
   }
 
   /* only the near-misses need the slower per-name lookup */
@@ -783,6 +917,7 @@ async function refreshCards(report,only){
     ok++;
   });
   repaintCards(); render();
+  LOOKUP_MSG="";
   if(!ok) report("Couldn't reach Scryfall \u2014 nothing was updated. Check the connection and try again.");
   else report(ok+" of "+shorts.length+" commanders resolved"+
     (miss.length?" \u2014 no match for "+miss.join(", "):"")+
@@ -864,7 +999,7 @@ function profiles(gs){
     g.seats.forEach(s=>{
       const o=OWNERS[s.deck]||"Unassigned";
       const p=P[o]=P[o]||{w:0,n:0,exp:0,noWin:1,decks:{},routes:{},seq:[],
-        seats:{},seatSum:0,surv:0,survN:0,first:0,final2:0};
+        seats:{},seatSum:0,surv:0,survN:0,first:0,final2:0,mkills:0,mkGames:0};
       p.n++; p.exp+=1/g.size; p.noWin*=(1-1/g.size);
       p.seats[s.seat]=(p.seats[s.seat]||0)+1;
       p.seatSum+=s.seat;
@@ -872,13 +1007,26 @@ function profiles(gs){
       const won=s.deck===g.winner;
       if(won){ p.w++; d.w++; const r=route(g.how); p.routes[r]=(p.routes[r]||0)+1; }
       p.seq.push(won?1:0);
-      if(g.order){
-        const place=won?1:g.size-g.order.indexOf(s.deck);
-        p.survN++; p.surv+=(g.size-place)/(g.size-1);
-        if(g.order[0]===s.deck) p.first++;
-        if(place<=2) p.final2++;
+      if(g.deaths&&g.deaths.length){
+        const order=g.deaths.slice().sort((a,b)=>a.turn-b.turn);
+        const idx=order.map(x=>x.player).indexOf(o);
+        const place=won?1:(idx>=0?g.size-idx:null);
+        if(place){
+          p.survN++; p.surv+=(g.size-place)/(g.size-1);
+          const tied0=order.filter(x=>x.turn===order[0].turn);
+        if(tied0.length===1&&order[0].player===o) p.first++;
+          if(place<=2) p.final2++;
+        }
       }
     });
+    if(g.deaths&&g.deaths.length){
+      const here={};
+      g.seats.forEach(s2=>{ const o=OWNERS[s2.deck]; if(o){ here[o]=1; } });
+      Object.keys(here).forEach(o=>{ if(P[o]) P[o].mkGames++; });
+      g.deaths.forEach(dd=>{
+        if(dd.by&&!dd.ending&&!dd.closing&&P[dd.by]) P[dd.by].mkills++;
+      });
+    }
   });
   Object.keys(P).forEach(name=>{
     const p=P[name], ci={}, cmcs=[], tags={};
@@ -901,7 +1049,8 @@ function profiles(gs){
   });
   return P;
 }
-const deckName=k=>{const n=cardNames(k); return n.length?n[0]:(SEEDS[k]||titleCase(k));};
+const shortName=n=>String(n).split(/\s*\/\/\s*/)[0].trim();
+const deckName=k=>{const n=cardNames(k); return shortName(n.length?n[0]:(SEEDS[k]||titleCase(k)));};
 function topDeck(decks){
   const e=Object.entries(decks).filter(x=>x[1].w>0);
   if(!e.length) return null;
@@ -1072,10 +1221,17 @@ function drawPeople(gs){
       esc(order.map(c=>({W:"white",U:"blue",B:"black",R:"red",G:"green"})[c]+" in "+p.ci[c])
         .join(", ")+" of "+p.known+" decks")+'">Colours <span class="pips">'+
       order.map(c=>'<i style="background:'+PIP[c]+'"></i>').join("")+'</span></span>');
-    if(p.avgCmc!==null) chips.push('<span class="chip">Avg mana <b>'+p.avgCmc.toFixed(1)+'</b></span>');
-    if(p.survN>=3) chips.push('<span class="chip">Survival <b>'+(p.surv/p.survN).toFixed(2)+'</b></span>');
-    else chips.push('<span class="chip">Expected <b>'+p.exp.toFixed(1)+'</b> wins</span>');
-    chips.push('<span class="chip">Avg seat <b>'+(p.seatSum/p.n).toFixed(1)+'</b></span>');
+    if(p.avgCmc!==null) chips.push('<span class="chip" title="'+
+      esc("Average mana value of the commanders they've played \u2014 the cost of the card in the command zone, not the deck")+
+      '">Avg cmdr mana <b>'+p.avgCmc.toFixed(1)+'</b></span>');
+    if(p.mkGames>=3) chips.push('<span class="chip" title="'+
+      esc("Players they knocked out while the game was still live, across "+p.mkGames+
+          " games with kill notes. The blow that ends a game isn't counted.")+
+      '">Mid-game kills <b>'+p.mkills+'</b></span>');
+    else chips.push('<span class="chip" title="'+esc("Wins pure chance owed them across these games")+
+      '">Expected <b>'+p.exp.toFixed(1)+'</b> wins</span>');
+    chips.push('<span class="chip" title="'+esc("Average spot in turn order they rolled into; lower means winning more rolls")+
+      '">Avg seat <b>'+(p.seatSum/p.n).toFixed(1)+'</b></span>');
     return '<article class="person" style="border-left-color:'+pcol[n]+'">'+
       '<div class="ptop"><span class="pname">'+esc(n)+'</span><span class="prate">'+fmt(pct(p.w,p.n))+'</span></div>'+
       '<p class="pline">'+p.w+'\u2013'+(p.n-p.w)+' \u00b7 '+p.n+' games \u00b7 '+
@@ -1130,77 +1286,516 @@ function drawForm(gs,pcol){
   });
 }
 
-/* ── Threat and survival ─────────────────────────────────────────────── */
-function drawThreat(st,pcol){
-  const f=st.finish, box=document.getElementById("threat");
-  document.getElementById("n-threat").textContent=f.n+" of "+st.n+" games have finishes";
-  if(!f.n){
-    box.innerHTML='<p class="empty"><b>No knock-out orders logged yet.</b>'+
-      'Add a fifth field to any line \u2014 the decks that died, in the order they died, winner left off.'+
-      '<code>2026-08-20 | amalia(1) vs eshki(2) vs toph(3) | eshki | burn | toph, amalia</code></p>';
+/* ── What wins: commander colour and mana value against results ─────── */
+const WUBRG_NAME={W:"White",U:"Blue",B:"Black",R:"Red",G:"Green"};
+const PIPHEX={W:"#efe3c0",U:"#4a8dc4",B:"#5c5560",R:"#d0503c",G:"#4e9a51"};
+function drawWins(gs){
+  const box=document.getElementById("wins");
+  const seen=[]; gs.forEach(g=>g.seats.forEach(s2=>{ if(cardOf(s2.deck)) seen.push(s2.deck); }));
+  const known=new Set(seen).size, all=new Set();
+  gs.forEach(g=>g.seats.forEach(s2=>all.add(s2.deck)));
+  const el=document.getElementById("n-wins");
+  el.textContent=known+" of "+all.size+" commanders looked up";
+  el.className="n"+(known<all.size?" warn":"");
+  document.getElementById("sub-wins").innerHTML=
+    "Every seat in view grouped by what was in the command zone. A deck counts once per colour in its "+
+    "identity, so a three-colour commander appears in three rows; the rates are seats won out of seats taken, "+
+    "not shares of a whole."+(known<all.size?" Commanders without card data yet are left out.":"");
+  if(!known){
+    box.innerHTML = looking
+      ? '<p class="empty"><b>Looking up commanders on Scryfall\u2026</b>'+
+        esc(LOOKUP_MSG||"This runs once. Press Save updated copy afterwards and it never runs again.")+'</p>'
+      : '<p class="empty"><b>No card data yet.</b>'+
+        'Colour and mana value come from Scryfall \u2014 press Refresh card data under the log.</p>';
     return;
   }
-  const pl=Object.entries(f.players).sort((a,b)=>(b[1].score/b[1].n)-(a[1].score/a[1].n));
-  let t='<div class="split"><div class="scroll"><table><thead><tr><th>Player</th><th>Games</th>'+
-    '<th>Survival</th><th>First out</th><th>Final two</th></tr></thead><tbody>';
-  pl.forEach(([name,d])=>{
-    const surv=d.score/d.n, fo=pct(d.first,d.n);
-    t+='<tr><td><span class="swatch" style="background:'+(pcol[name]||GOLD)+'"></span>'+name+'</td>'+
-       '<td class="down">'+d.n+'</td>'+
-       '<td class="'+(surv>=.5?"up":"down")+'">'+surv.toFixed(2)+'</td>'+
-       '<td class="'+(fo>40?"zero":"down")+'">'+Math.round(fo)+'%</td>'+
-       '<td>'+Math.round(pct(d.final2,d.n))+'%</td></tr>';
-  });
-  t+='</tbody></table><p class="sub" style="margin:16px 0 0">Survival runs 0 to 1: a 1.00 means never once knocked out, a 0.00 means always the first to go. Even play sits near 0.50.</p></div>';
+  const col={}, mv={};
+  const bucket=v=>v<=2?"2 or less":(v<=3?"3":(v<=4?"4":(v<=5?"5":"6 or more")));
+  gs.forEach(g=>g.seats.forEach(s2=>{
+    const c=cardOf(s2.deck); if(!c) return;
+    const won=s2.deck===g.winner?1:0;
+    (c.ci||"").split("").forEach(k=>{
+      col[k]=col[k]||{n:0,w:0}; col[k].n++; col[k].w+=won;
+    });
+    if(typeof c.mv==="number"){
+      const b=bucket(c.mv); mv[b]=mv[b]||{n:0,w:0}; mv[b].n++; mv[b].w+=won;
+    }
+  }));
+  const par=gs.length?gs.reduce((a,g)=>a+1/g.size,0)/gs.length*100:25;
+  const bar=(label,d,colour,tip)=>{
+    const r=pct(d.w,d.n);
+    return '<li title="'+esc(tip)+'"><span class="lab" style="width:96px">'+label+'</span>'+
+      '<span class="bar"><i style="width:'+Math.min(100,r/Math.max(60,par*2)*100).toFixed(1)+
+      '%;background:'+colour+'"></i></span>'+
+      '<span class="val" style="width:76px">'+r.toFixed(0)+'% of '+d.n+'</span></li>';
+  };
+  const order=["W","U","B","R","G"].filter(k=>col[k]&&col[k].n>=3);
+  let h='<div class="split"><div><p class="striphead">By colour in the identity</p><ul class="strip">'+
+    order.sort((a,b)=>pct(col[b].w,col[b].n)-pct(col[a].w,col[a].n)).map(k=>
+      bar(WUBRG_NAME[k],col[k],PIPHEX[k],
+        WUBRG_NAME[k]+" appears in "+col[k].n+" seats and won "+col[k].w)).join("")+
+    '</ul></div>';
+  const mk=["2 or less","3","4","5","6 or more"].filter(k=>mv[k]&&mv[k].n>=3);
+  h+='<div><p class="striphead">By commander mana value</p><ul class="strip">'+
+    mk.map(k=>bar(k,mv[k],"var(--gold)",k+" mana: "+mv[k].n+" seats, "+mv[k].w+" wins")).join("")+
+    '</ul></div></div>';
+  const lines=["An even draw is worth "+par.toFixed(0)+"% here, so that is the line each bar is trying to beat."];
+  if(order.length){
+    const best=order[0], worst=order[order.length-1];
+    if(col[best].n>=5&&pct(col[best].w,col[best].n)>=par*1.4)
+      lines.push("<b>"+WUBRG_NAME[best]+"</b> is carrying, "+pct(col[best].w,col[best].n).toFixed(0)+
+        "% across "+col[best].n+" seats.");
+    if(col[worst].n>=5&&pct(col[worst].w,col[worst].n)<=par*0.6)
+      lines.push("<b>"+WUBRG_NAME[worst]+"</b> is the one to be suspicious of, "+
+        pct(col[worst].w,col[worst].n).toFixed(0)+"% across "+col[worst].n+" seats.");
+  }
+  if(mk.length>1){
+    const sorted=mk.slice().sort((a,b)=>pct(mv[b].w,mv[b].n)-pct(mv[a].w,mv[a].n));
+    lines.push("On cost, <b>"+sorted[0]+"</b> mana commanders lead at "+pct(mv[sorted[0]].w,mv[sorted[0]].n).toFixed(0)+
+      "%, against "+pct(mv[sorted[sorted.length-1]].w,mv[sorted[sorted.length-1]].n).toFixed(0)+
+      "% for "+sorted[sorted.length-1]+".");
+  }
+  lines.push("Colours overlap, so these rows are not independent of each other \u2014 a Jund commander pulls on black, red and green at once.");
+  h+='<p class="note">'+lines.join(" ")+'</p>';
+  box.innerHTML=h;
+}
 
-  const seats=Object.keys(f.seatN).map(Number).sort((a,b)=>a-b);
-  t+='<div><p class="striphead">First out, by seat</p><ul class="strip">';
-  seats.forEach((k,i)=>{
-    const r=pct(f.seatOut[k]||0,f.seatN[k]);
-    t+='<li><span class="lab">Seat '+k+'</span><span class="bar"><i style="width:'+r.toFixed(1)+
-       '%;background:'+SEAT_TINTS[i%SEAT_TINTS.length]+'"></i></span><span class="val">'+Math.round(r)+'%</span></li>';
+/* ── Game length ─────────────────────────────────────────────────────── */
+function drawLength(gs){
+  const box=document.getElementById("length");
+  const known=gs.filter(g=>g.turns), miss=gs.length-known.length;
+  coverage("n-length",known.length,gs.length);
+  document.getElementById("sub-length").innerHTML=
+    "Turn counts come from the notes column, so they only exist where someone wrote one down."+
+    (miss?' The rest are left out of everything below.':"");
+  if(!known.length){
+    box.innerHTML='<p class="empty"><b>No turn counts in view yet.</b>'+
+      'Add "turn 8" anywhere in a game\'s notes and it starts counting.</p>';
+    return;
+  }
+  const ts=known.map(g=>g.turns).sort((a,b)=>a-b);
+  const avg=ts.reduce((a,b)=>a+b,0)/ts.length;
+  const med=ts.length%2?ts[(ts.length-1)/2]:(ts[ts.length/2-1]+ts[ts.length/2])/2;
+  const lo=ts[0], hi=ts[ts.length-1];
+  const counts={}; ts.forEach(t=>counts[t]=(counts[t]||0)+1);
+  const span=[]; for(let t=lo;t<=hi;t++) span.push(t);
+  const peak=Math.max.apply(null,span.map(t=>counts[t]||0));
+  let h='<div class="split"><div>';
+  h+='<div class="hist">'+span.map(t=>{
+    const c=counts[t]||0;
+    return '<div class="col" title="'+esc(c+" game"+(c===1?"":"s")+" ended on turn "+t)+'">'+
+      '<span class="cap">'+(c||"")+'</span>'+
+      '<span class="stem" style="height:'+(c?Math.max(3,c/peak*100):0)+'%;'+(c?"":"opacity:.25")+'"></span>'+
+      '<span class="tick">'+t+'</span></div>';
+  }).join("")+'</div>';
+  h+='<p class="note">Games ending on each turn. '+
+    (hi-lo>=6?"The spread is wide \u2014 this pod has both quick kills and long grinds.":
+              "Tightly clustered, so games tend to end at a predictable point.")+'</p></div>';
+  h+='<div><ul class="strip"><p class="striphead">At a glance</p>'+
+    [["Average turn",avg.toFixed(1)],["Median",String(med)],["Shortest",String(lo)],["Longest",String(hi)]]
+      .map(r=>'<li><span class="lab" style="width:auto;flex:1">'+r[0]+'</span><span class="val" style="width:auto">'+r[1]+'</span></li>').join("")+
+    '</ul>';
+  /* by pod size, when more than one is in view */
+  const bySize={};
+  known.forEach(g=>{ (bySize[g.size]=bySize[g.size]||[]).push(g.turns); });
+  const keys=Object.keys(bySize).sort();
+  if(keys.length>1){
+    h+='<p class="striphead" style="margin-top:20px">By pod size</p><ul class="strip">'+
+      keys.map(k=>{
+        const a=bySize[k].reduce((x,y)=>x+y,0)/bySize[k].length;
+        return '<li><span class="lab" style="width:auto;flex:1">'+k+'-player</span>'+
+          '<span class="val" style="width:auto">'+a.toFixed(1)+' turns</span></li>';
+      }).join("")+'</ul>';
+  }
+  /* who wins the grinds and who wins the races */
+  const byWinner={};
+  known.forEach(g=>{ const o=OWNERS[g.winner]; if(o) (byWinner[o]=byWinner[o]||[]).push(g.turns); });
+  const wk=Object.keys(byWinner).filter(k=>byWinner[k].length>=2)
+    .sort((a,b)=>(byWinner[b].reduce((x,y)=>x+y,0)/byWinner[b].length)-
+                 (byWinner[a].reduce((x,y)=>x+y,0)/byWinner[a].length));
+  if(wk.length>1){
+    h+='<p class="striphead" style="margin-top:20px">Turn they win on</p><ul class="strip">'+
+      wk.map(k=>{
+        const a=byWinner[k].reduce((x,y)=>x+y,0)/byWinner[k].length;
+        return '<li><span class="lab" style="width:auto;flex:1">'+k+'</span>'+
+          '<span class="val" style="width:auto" title="'+esc(byWinner[k].length+" wins with a turn count: turn "+
+            byWinner[k].slice().sort((x,y)=>x-y).join(", "))+'">'+a.toFixed(1)+'</span></li>';
+      }).join("")+'</ul>';
+  }
+  h+='</div></div>';
+  box.innerHTML=h;
+}
+
+/* ── Deaths: when each player goes out ───────────────────────────────── */
+function deathStats(gs){
+  const withData=gs.filter(g=>g.deaths&&g.deaths.length);
+  const P={}, pair={}, tpair={}, fpair={};
+  let fbGames=0, fbWins=0, fbExp=0, soloWipe=0, wipeGames=0;
+  withData.forEach(g=>{
+    const players=g.seats.map(s=>OWNERS[s.deck]).filter(Boolean);
+    const order=g.deaths.slice().sort((a,b)=>a.turn-b.turn);
+    const tiedFirst=order.filter(x=>x.turn===order[0].turn);
+    const loneFirst=tiedFirst.length===1?order[0].player:null;
+    const survivor=OWNERS[g.winner];
+    players.forEach(p=>{
+      P[p]=P[p]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
+        targeted:{},finished:{},takenBy:{},endKills:0,share:[],foGames:0};
+      P[p].games++;
+      if(loneFirst) P[p].foGames++;
+      if(g.turns) P[p].share.push(p===survivor?1:null);
+    });
+    /* only counts when the first kill left the game running — otherwise
+       "first blood" is just another name for "won the game" */
+    if(order.some(x=>x.ending&&x.by)) wipeGames++;
+    if(order.length&&!order.some(x=>!x.ending&&!x.closing)) soloWipe++;
+    const fb=order.find(x=>x.by&&!x.ending&&!x.closing);
+    if(fb){
+      fbGames++; fbExp+=1/g.size;
+      P[fb.by]=P[fb.by]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
+        targeted:{},finished:{},takenBy:{},endKills:0,share:[],firstBlood:0};
+      P[fb.by].firstBlood=(P[fb.by].firstBlood||0)+1;
+      if(survivor===fb.by){ fbWins++; P[fb.by].fbWin=(P[fb.by].fbWin||0)+1; }
+    }
+    order.forEach((dth,i)=>{
+      const p=dth.player; if(!P[p]) return;
+      P[p].died++; P[p].turns.push(dth.turn);
+      if(g.turns){
+        const k=P[p].share.lastIndexOf(null);
+        if(k>=0) P[p].share[k]=Math.min(1,dth.turn/g.turns);
+      }
+      if(loneFirst===p) P[p].first++;
+      if(dth.by&&dth.by!==p){
+        P[p].killedBy[dth.by]=(P[p].killedBy[dth.by]||0)+1;
+        P[dth.by]=P[dth.by]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
+          targeted:{},finished:{},takenBy:{},endKills:0,share:[]};
+        P[dth.by].killed[p]=(P[dth.by].killed[p]||0)+1;
+        const k=dth.by+"\u2192"+p;
+        pair[k]=(pair[k]||0)+1;
+        if(dth.ending||dth.closing){
+          P[dth.by].endKills++;
+          P[dth.by].finished[p]=(P[dth.by].finished[p]||0)+1;
+          fpair[dth.by+"\u2192"+p]=(fpair[dth.by+"\u2192"+p]||0)+1;
+        }
+        else {
+          P[dth.by].targeted[p]=(P[dth.by].targeted[p]||0)+1;
+          P[p].takenBy=P[p].takenBy||{}; P[p].takenBy[dth.by]=(P[p].takenBy[dth.by]||0)+1;
+          tpair[k]=(tpair[k]||0)+1;
+        }
+      }
+    });
+    if(survivor&&P[survivor]) P[survivor].survived++;
   });
-  t+='</ul><p class="sub" style="margin:16px 0 0">If one seat keeps drawing the table\u2019s attention, it shows up here before it shows up in the win rates.</p></div></div>';
-  box.innerHTML=t;
+  Object.keys(P).forEach(k=>{ P[k].share=P[k].share.filter(v=>v!==null); });
+  return {P:P,pair:pair,tpair:tpair,n:withData.length,total:gs.length,fbGames:fbGames,fbWins:fbWins,fbExp:fbExp,soloWipe:soloWipe,wipeGames:wipeGames,fpair:fpair};
+}
+
+function drawDeaths(gs,pcol){
+  const box=document.getElementById("deaths"), st=deathStats(gs), miss=st.total-st.n;
+  coverage("n-deaths",st.n,st.total);
+  const names=Object.keys(st.P).filter(p=>st.P[p].games);
+  const foTotal=Math.max.apply(null,[0].concat(names.map(p=>st.P[p].foGames)));
+  document.getElementById("sub-deaths").innerHTML= !st.n
+    ? "Read from the notes column, so only games where the order was written down count here. "+
+      "Nothing in the current selection has any."
+    : "Read from the notes column, so only games where the order was written down count here. "+
+    "Died first is only credited when one player clearly went out ahead of the rest \u2014 when "+
+    "several are wiped on the same turn nobody is charged with it, so that column runs out of the "+
+    foTotal+" games with a lone first casualty. First blood is narrower still, out of the "+st.fbGames+
+    " games where a kill both left the game running and wasn't the winner starting to close \u2014 "+
+    "that is why the two counts don't match. Games and Avg death turn are out of all "+st.n+".";
+  if(!st.n||!names.length){
+    box.innerHTML='<p class="empty"><b>No kill notes in view yet.</b>'+
+      'Write something like "Ryan kills Rudy turn 7" in a game\'s notes and this fills in.</p>';
+    return;
+  }
+  const shareOf=p=>st.P[p].share.length?st.P[p].share.reduce((a,b)=>a+b,0)/st.P[p].share.length:-1;
+  names.sort((a,b)=>shareOf(b)-shareOf(a));
+  let h='<div class="scroll"><table class="lean"><thead><tr>'+
+    th("Player","Deck owner, from the deck list at the top of the file.")+
+    th("Games","Games in this selection that have kill notes and that they played in.")+
+    th("Died first","Times they were the lone first casualty, out of the games that had one. When several go out on the same turn nobody is charged with it.")+
+    th("Avg death turn","Mean turn they were knocked out, counting only the games they actually died in.")+
+    th("First blood","Times they landed the first kill that left the game running and wasn't the winner starting to close.")+
+    th("Won it","How many of those first-blood games they went on to win.")+
+    '</tr></thead><tbody>';
+  names.forEach(p=>{
+    const d=st.P[p];
+    const avg=d.turns.length?(d.turns.reduce((a,b)=>a+b,0)/d.turns.length):null;
+    const share=d.share.length?d.share.reduce((a,b)=>a+b,0)/d.share.length:null;
+    h+='<tr><td><span class="swatch" style="background:'+(pcol[p]||GOLD)+'"></span>'+p+'</td>'+
+      '<td class="down">'+d.games+'</td>'+
+      '<td title="'+
+        esc(d.foGames?p+" was the lone first casualty in "+d.first+" of the "+d.foGames+
+          " games that had one":"No game in view had a single clear first casualty")+'">'+
+      (d.foGames?d.first+' ('+Math.round(pct(d.first,d.foGames))+'%)':"\u2013")+'</td>'+
+      '<td title="'+esc(d.turns.length?p+" was knocked out on turns "+d.turns.slice().sort((a,b)=>a-b).join(", ")
+        :"Never knocked out in these games")+'">'+(avg?avg.toFixed(1):"\u2014")+'</td>'+
+      '<td class="down" title="'+esc(p+" drew the first non-ending kill in "+(d.firstBlood||0)+" of the "+
+        st.fbGames+" games that had one")+'">'+(d.firstBlood||0)+'</td>'+
+      '<td class="'+((d.fbWin||0)&&(d.fbWin||0)===(d.firstBlood||0)?"up":"")+'" title="'+
+        esc((d.firstBlood||0)?p+" went on to win "+(d.fbWin||0)+" of those "+d.firstBlood
+          :"Never drew first blood in these games")+'">'+
+      ((d.firstBlood||0)?(d.fbWin||0):"\u2013")+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  /* first blood, and whether drawing it actually converts */
+  if(st.fbGames>0){
+    const conv=pct(st.fbWins,st.fbGames), par=st.fbExp/st.fbGames*100;
+    h+='<div class="fb"><p class="striphead">First blood \u2192 the win</p>'+
+      '<p class="fbline"><b>'+st.fbWins+' of '+st.fbGames+'</b> \u00b7 <span class="fbpct">'+
+      conv.toFixed(0)+'%</span> <span class="fbpar">against '+par.toFixed(0)+'% par</span></p>'+
+      '<p class="sub" style="margin:0 0 14px">A player killed another player without ending the game in '+
+      Math.round(pct(st.fbGames,st.n))+'% of games ('+st.fbGames+' of '+st.n+'). '+
+      'Drawing first blood resulted in a win for that player '+conv.toFixed(0)+'% of the time. '+
+      (conv>=par*1.6?'Striking first looks like it pays here.'
+       :conv<=par*0.6?'Striking first looks more like painting a target than taking a lead.'
+       :'That is close enough to par that it neither helps nor hurts yet.')+
+      (st.fbGames<10?' On '+st.fbGames+' games, treat it as a hint rather than a finding.':'')+'</p>'+
+      '</div>';
+  }
+
+  const lines=[];
+  const byFirst=names.slice().sort((a,b)=>pct(st.P[b].first,st.P[b].foGames||1)-pct(st.P[a].first,st.P[a].foGames||1));
+  const fo=st.P[byFirst[0]];
+  if(fo.first>0&&fo.foGames)
+    lines.push("<b>"+byFirst[0]+"</b> goes out first most often, "+fo.first+" of the "+fo.foGames+
+      " games with a lone first casualty"+(pct(fo.first,fo.foGames)>=45?
+        " \u2014 often enough to look like the table picking a target."
+        :", which is close to an even share at this table."));
+  const deep=names.filter(p2=>st.P[p2].share.length)
+    .sort((a,b)=>shareOf(b)-shareOf(a));
+  if(deep.length>1){
+    const lo=deep[deep.length-1];
+    lines.push("<b>"+lo+"</b> sees the least of a game before going out, about "+
+      Math.round(shareOf(lo)*100)+"% of the turns played, against "+
+      Math.round(shareOf(deep[0])*100)+"% for "+deep[0]+".");
+  }
+  const removed=names.map(p2=>({p:p2,by:Object.keys(st.P[p2].takenBy||{})
+    .sort((a,b)=>st.P[p2].takenBy[b]-st.P[p2].takenBy[a])[0],
+    n:Math.max.apply(null,[0].concat(Object.keys(st.P[p2].takenBy||{}).map(k=>st.P[p2].takenBy[k])))}))
+    .filter(x=>x.by&&x.n>=2).sort((a,b)=>b.n-a.n);
+  if(removed.length)
+    lines.push("<b>"+removed[0].by+"</b> is the one taking <b>"+removed[0].p+"</b> out mid-game most often ("+
+      removed[0].n+" times) \u2014 the matrix below has the rest.");
+  if(st.n>=4){
+    const r=Math.round(pct(st.soloWipe,st.n));
+    lines.push("In the other "+st.soloWipe+", nobody went out until the game was already being ended \u2014 "+
+      "a full table, then over inside a turn or two. "+
+      (r>=40?"That is the shape of a pod where damage spreads thin and nobody commits until they can finish."
+            :"So games here are not purely a race to set up one big turn."));
+  }
+  if(st.wipeGames)
+    lines.push("Kills inside a closing run are excluded from the matrix below, since they are part of "+
+      "winning rather than removal \u2014 but how often games go that way is worth watching on its own.");
+  lines.push("Average death turn counts only the games a player actually died in, so a win doesn't drag it upward.");
+  h+='<p class="note">'+lines.join(" ")+'</p>';
+  box.innerHTML=h;
+}
+
+/* ── Kill matrix: who takes whom out ─────────────────────────────────── */
+function drawKills(gs,pcol){
+  const box=document.getElementById("kills"), st=deathStats(gs);
+  const finish=KILLMODE==="finish", field=finish?"finished":"targeted";
+  const pairs=finish?st.fpair:st.tpair;
+  document.getElementById("n-kills").textContent=st.n+" of "+st.total+" games have kill notes";
+  const names=Object.keys(st.P).sort();
+  let ended=0, mid=0;
+  names.forEach(k=>{
+    ended+=Object.keys(st.P[k].finished).reduce((a,v)=>a+st.P[k].finished[v],0);
+    mid+=Object.keys(st.P[k].targeted).reduce((a,v)=>a+st.P[k].targeted[v],0);
+  });
+  document.getElementById("sub-kills").innerHTML= (mid+ended)===0
+    ? "Rows are the killer, columns the victim, split into kills that ended a game and kills that "+
+      "didn't. Nothing in the current selection has kill notes to place."
+    : "Rows are the killer, columns the victim. Every credited kill falls into one of two buckets. "+
+    "<b>Part of a finish</b> means the killer went on to end the game in the same swing \u2014 "+
+    "the run is read backwards from the end while each blow is theirs and lands within a turn of the "+
+    "next, so taking out two and killing the last one next turn is one finish, not three removals. "+
+    "<b>Didn't follow up</b> is everything else: someone went down and the killer did not close. "+
+    "Of "+(mid+ended)+" credited kills, "+ended+" were part of a finish and "+mid+" weren't. "+
+    "Concessions have nobody to credit, so they only appear in the table above.";
+
+  const any=names.some(k=>Object.keys(st.P[k][field]||{}).length);
+  if(!any){
+    box.innerHTML = (mid+ended)===0
+      ? '<p class="empty"><b>No kill notes in view yet.</b>'+
+        'Write something like "Ryan kills Rudy turn 7" in a game\'s notes and this fills in.</p>'
+      : '<p class="empty"><b>Nothing in this bucket yet.</b>'+
+        (finish?"Every credited kill in view left the game running."
+               :"Every credited kill in view was part of the winner's finish.")+'</p>';
+    bindKillToggle(gs,pcol);
+    return;
+  }
+  let max=0;
+  names.forEach(k=>names.forEach(v=>{ max=Math.max(max,(st.P[k][field]||{})[v]||0); }));
+  let h='<div class="scroll"><table class="matrix"><thead><tr>'+
+    '<th style="text-align:left" title="'+esc("Read across a row for who that player removed; read down a column for who removed them.")+
+    '"><span class="hint">Killer \u2193 / victim \u2192</span></th>'+
+    names.map(v=>'<th title="'+esc("Times "+v+" was removed, by each player in this bucket")+'"><span class="hint">'+v+'</span></th>').join("")+
+    th("Total","Every removal in this bucket credited to that player.")+'</tr></thead><tbody>';
+  names.forEach(k=>{
+    const row=names.map(v=>(st.P[k][field]||{})[v]||0);
+    const tot=row.reduce((a,b)=>a+b,0);
+    h+='<tr><th><span class="swatch" style="background:'+(pcol[k]||GOLD)+'"></span>'+k+'</th>'+
+      row.map((c,i)=>{
+        if(names[i]===k) return '<td><span class="cell z">\u00b7</span></td>';
+        const a=max?c/max:0;
+        return '<td><span class="cell'+(c?"":" z")+'" style="'+(c?'background:rgba(214,169,59,'+(0.12+a*0.55).toFixed(2)+')':'')+
+          '" title="'+esc(k+" took "+names[i]+" out "+c+" time"+(c===1?"":"s")+
+            (finish?" while closing the game out":" without being able to follow up"))+'">'+
+          (c||"\u2013")+'</span></td>';
+      }).join("")+'<td><b>'+tot+'</b></td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  const out={}, inn={};
+  names.forEach(k=>{
+    out[k]=Object.keys(st.P[k][field]||{}).reduce((a,v)=>a+st.P[k][field][v],0);
+    inn[k]=0;
+    names.forEach(j=>{ inn[k]+=(st.P[j][field]||{})[k]||0; });
+  });
+  const tot=finish?ended:mid;
+  const byOut=names.slice().sort((a,b)=>out[b]-out[a]);
+  const byIn=names.slice().sort((a,b)=>inn[b]-inn[a]);
+  const ranked=Object.keys(pairs).sort((a,b)=>pairs[b]-pairs[a]);
+  const lines=[];
+  if(finish){
+    lines.push("<b>"+byOut[0]+"</b> has removed the most players while closing, "+out[byOut[0]]+" of "+tot+
+      ". This bucket tracks with winning by design \u2014 read it as who finishes, not who targets.");
+    if(inn[byIn[0]]>0)
+      lines.push("<b>"+byIn[0]+"</b> is swept up in other people's finishes most often, "+inn[byIn[0]]+" times.");
+  } else {
+    const evenShare=tot/names.length;
+    if(out[byOut[0]]>0)
+      lines.push("<b>"+byOut[0]+"</b> takes people out without closing most often, "+out[byOut[0]]+" of "+tot+
+        (out[byOut[0]]>=evenShare*1.8?" \u2014 well above an even share of "+evenShare.toFixed(1)+"."
+          :", against an even share of "+evenShare.toFixed(1)+"."));
+    const quiet=byOut[byOut.length-1];
+    if(out[quiet]===0)
+      lines.push("<b>"+quiet+"</b> has never removed anyone without going on to win \u2014 they either finish or they don't kill.");
+    if(inn[byIn[0]]>0)
+      lines.push("<b>"+byIn[0]+"</b> absorbs the most, knocked out "+inn[byIn[0]]+" time"+(inn[byIn[0]]===1?"":"s")+
+        " by someone who then failed to close.");
+    if(ranked.length){
+      const top=ranked[0], n=pairs[top], parts=top.split("\u2192");
+      const back=pairs[parts[1]+"\u2192"+parts[0]]||0;
+      lines.push("Most repeated pairing: <b>"+parts[0]+" removing "+parts[1]+"</b>, "+n+" of "+tot+
+        " ("+Math.round(n/tot*100)+"%). "+
+        (back===0?parts[1]+" has never returned it in this bucket.":parts[1]+" has returned it "+back+" time"+(back===1?"":"s")+"."));
+    }
+  }
+  if(tot<12) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");
+  h+='<p class="note">'+lines.join(" ")+'</p>';
+  box.innerHTML=h;
+  bindKillToggle(gs,pcol);
+}
+function bindKillToggle(gs,pcol){
+  document.querySelectorAll('.tg[data-kills]').forEach(b=>{
+    b.setAttribute("aria-pressed",String(b.dataset.kills===KILLMODE));
+    b.onclick=()=>{ KILLMODE=b.dataset.kills; drawKills(gs,pcol); };
+  });
 }
 
 /* ── Render ──────────────────────────────────────────────────────────── */
 function render(){
-  const sizes={};
-  GAMES.forEach(g=>sizes[g.size]=(sizes[g.size]||0)+1);
-  const inView=FILTER==="all"?GAMES:GAMES.filter(g=>String(g.size)===FILTER);
+  const sizes={}, dates={};
+  GAMES.forEach(g=>{ sizes[g.size]=(sizes[g.size]||0)+1; dates[g.date]=(dates[g.date]||0)+1; });
+  const allSizes=Object.keys(sizes).map(Number).sort((a,b)=>a-b);
+  const allDates=Object.keys(dates).sort();
+
+  /* defaults: four-player only, every session */
+  if(SIZES===null) SIZES=allSizes.indexOf(4)>=0?[4]:allSizes.slice(0,1);
+  if(DATES===null) DATES=allDates.slice();
+  SIZES=SIZES.filter(v=>allSizes.indexOf(v)>=0);
+  DATES=DATES.filter(v=>allDates.indexOf(v)>=0);
+
+  const inView=GAMES.filter(g=>SIZES.indexOf(g.size)>=0&&DATES.indexOf(g.date)>=0);
+  const allDatesLive=allDates.filter(dt=>GAMES.some(g=>g.date===dt&&SIZES.indexOf(g.size)>=0));
 
   const sessions=new Set(inView.map(g=>g.date)).size;
   const decksSeen=new Set(); inView.forEach(g=>g.seats.forEach(s=>decksSeen.add(s.deck)));
   const pilots=new Set(); decksSeen.forEach(d=>pilots.add(OWNERS[d]||"Unassigned"));
   const sizesInView={}; inView.forEach(g=>sizesInView[g.size]=1);
+  const turnsKnown=inView.filter(g=>g.turns).length;
 
   document.getElementById("meta").innerHTML=
-    metaItem("Games logged",inView.length)+metaItem("Sessions",sessions)+
+    metaItem("Games",inView.length)+metaItem("Sessions",sessions)+
     metaItem("Commanders",decksSeen.size)+metaItem("Pilots",pilots.size)+
     metaItem("Pod sizes",Object.keys(sizesInView).sort().join(" \u00b7 ")||"\u2014");
 
-  document.getElementById("pods").innerHTML=
-    ['all',2,3,4,5].map(k=>{
-      const c=k==="all"?GAMES.length:(sizes[k]||0);
-      const label=k==="all"?"All pods":k+"-player";
-      return '<button class="pod" data-size="'+k+'" aria-pressed="'+(FILTER==String(k))+'"'+
-        (c?"":" disabled")+'>'+label+' <b>'+(c||"\u2014")+'</b></button>';
-    }).join("");
-  document.querySelectorAll(".pod").forEach(b=>b.onclick=()=>{FILTER=b.dataset.size;render();});
+  const up=document.getElementById("updated");
+  if(up){
+    if(LOG_MODIFIED){
+      up.textContent="Last updated "+longDate(LOG_MODIFIED);
+      up.title="Taken from when "+LOG_URL+" was last changed on the server";
+    } else if(allDates.length){
+      const newest=allDates[allDates.length-1];
+      up.textContent="Last updated "+longDate(newest);
+      up.title="The most recent session in the log";
+    } else up.textContent="";
+  }
+
+  document.getElementById("pods").innerHTML=allSizes.map(k=>
+    '<button class="pod" data-size="'+k+'" aria-pressed="'+(SIZES.indexOf(k)>=0)+'">'+
+    k+'-player <b>'+sizes[k]+'</b></button>').join("");
+  /* how many games each session contributes at the pod sizes currently on */
+  const perDate={};
+  allDates.forEach(dt=>{ perDate[dt]=GAMES.filter(g=>g.date===dt&&SIZES.indexOf(g.size)>=0).length; });
+  const usable=allDates.filter(dt=>perDate[dt]>0);
+  if(!DATES.some(dt=>perDate[dt]>0)) DATES=usable.slice();
+
+  document.getElementById("dates").innerHTML=
+    allDates.map(dt=>{
+      const off=perDate[dt]===0;
+      return '<button type="button" data-date="'+dt+'" aria-pressed="'+(DATES.indexOf(dt)>=0&&!off)+'"'+
+        (off?' disabled title="No '+SIZES.join("- or ")+'-player games this session"':'')+'>'+
+        '<span class="box"></span>'+prettyDate(dt)+
+        '<span class="cnt">'+(off?"\u2014":perDate[dt])+'</span></button>';
+    }).join("")+
+    '<div class="drop-sep"></div><button class="mini" type="button" data-date="__all">'+
+    (DATES.length>=usable.length?"Latest only":"Select all")+'</button>';
+
+  const live=DATES.filter(dt=>perDate[dt]>0);
+  document.getElementById("droplabel").textContent =
+    live.length===usable.length ? (usable.length===1?prettyDate(usable[0]):"All sessions")
+    : live.length===1 ? prettyDate(live[0]) : live.length+" of "+usable.length+" sessions";
+
+  const toggle=(arr,v)=>{
+    const i=arr.indexOf(v);
+    if(i>=0){ if(arr.filter(x=>perDate[x]===undefined||perDate[x]>0).length>1) arr.splice(i,1); }
+    else arr.push(v);
+  };
+  document.querySelectorAll("#pods .pod").forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.size, i=SIZES.indexOf(v);
+    if(i>=0){ if(SIZES.length>1) SIZES.splice(i,1); } else SIZES.push(v);
+    render();
+  });
+  document.querySelectorAll("#dates button").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    if(b.dataset.date==="__all"){ DATES=DATES.length>=usable.length?usable.slice(-1):usable.slice(); }
+    else toggle(DATES,b.dataset.date);
+    render(); openDrop(true);
+  });
 
   const gs=inView;
-  const label=FILTER==="all"?"across every pod size":"in "+FILTER+"-player pods";
+  const scope=SIZES.length===allSizes.length?"every pod size":
+    SIZES.slice().sort((a,b)=>a-b).map(v=>v+"-player").join(" + ");
+  const shown=DATES.filter(dt=>allDatesLive.indexOf(dt)>=0);
+  const when=shown.length===allDatesLive.length?
+    (allDatesLive.length===1?prettyDate(allDatesLive[0]):
+     allDatesLive.length===2?"both sessions":"all "+allDatesLive.length+" sessions"):
+    (shown.length===1?prettyDate(shown[0]):shown.length+" of "+allDatesLive.length+" sessions");
   document.getElementById("caution").textContent=
-    gs.length===0?"Nothing logged here yet."
-    :gs.length<30?"n = "+gs.length+" "+label+". Under about 30 games these are stories, not findings \u2014 read the gaps, not the decimals."
-    :"n = "+gs.length+" "+label+". Enough to start trusting the wide gaps.";
+    gs.length===0?"Nothing logged for that combination \u2014 add a pod size or a session."
+    :"n = "+gs.length+" \u00b7 "+scope+" \u00b7 "+when+
+      (gs.length<30?". Under about 30 games these are stories, not findings.":". Enough to start trusting the wide gaps.");
 
   const view=document.getElementById("view");
   if(!gs.length){
     teardown();
-    view.innerHTML='<div class="panel"><p class="empty"><b>No '+(FILTER==="all"?"":FILTER+"-player ")+
-      'games logged yet.</b>Add them at the bottom of the page and this view fills itself in.</p></div>';
+    view.innerHTML='<div class="panel"><p class="empty"><b>Nothing matches that combination.</b>'+
+      'Switch a pod size or a session back on above.</p></div>';
     return;
   }
   if(!document.getElementById("ring")){ teardown(); view.innerHTML=VIEW_HTML; }
@@ -1209,7 +1804,7 @@ function render(){
   const setN=(id,v)=>{const e=document.getElementById(id); if(e) e.textContent=v;};
 
   setN("n-table",gs.length+(gs.length===1?" game":" games"));
-  document.getElementById("ring").innerHTML=drawRing(st,FILTER);
+  document.getElementById("ring").innerHTML=drawRing(st,SIZES);
   const seatCounts=Object.keys(st.seat).map(k=>st.seat[k].n);
   const mixed=Math.min.apply(null,seatCounts)!==Math.max.apply(null,seatCounts);
   document.getElementById("ring-note").textContent = mixed
@@ -1219,6 +1814,15 @@ function render(){
   const pl=Object.entries(st.players).sort((a,b)=>(b[1].w-b[1].exp)-(a[1].w-a[1].exp));
   const pcol={}; pl.forEach((p,i)=>pcol[p[0]]=PALETTE[i%PALETTE.length]);
   setN("n-standings",pl.length+" pilots");
+  const sh=document.querySelector("#standings-head tr");
+  if(sh) sh.innerHTML=
+    th("Player","Deck owner, from the deck list at the top of the file.")+
+    th("W\u2013L","Games won and lost in the current selection.")+
+    th("Rate","Share of their games that they won.")+
+    th("Avg seat","Average spot in turn order they rolled into. Lower means winning more rolls.")+
+    th("Roll win %","How often they rolled into seat one. A fair shuffle gives 33% in a three-player pod, 25% in a four.")+
+    th("Expected","Wins pure chance owed them: a third of each three-player game, a quarter of each four-player one, added up.")+
+    th("Gap","Actual wins minus expected, in wins. Over this many games a gap of about a win either way is ordinary noise.");
   document.getElementById("standings").innerHTML=pl.map(([name,d])=>{
     const gap=d.w-d.exp, cls=d.w===0?"zero":(gap>=0?"up":"down");
     const avg=d.seatSum/d.n, first=d.seats[1]||0;
@@ -1240,17 +1844,27 @@ function render(){
       Math.abs(gap).toFixed(2)+'</td></tr>';
   }).join("");
 
-  const winners=pl.filter(p=>p[1].w>0).sort((a,b)=>b[1].w-a[1].w);
-  setN("n-share",st.n+" wins");
-  doughnut("c-share",winners.map(p=>p[0]),winners.map(p=>p[1].w),winners.map(p=>pcol[p[0]]));
 
   const dk=Object.entries(st.decks).sort((a,b)=>
     pct(b[1].w,b[1].n)-pct(a[1].w,a[1].n) || b[1].n-a[1].n || a[0].localeCompare(b[0]));
   setN("n-decks",dk.length+" commanders");
+  const dh=document.querySelector("#decks-head tr");
+  if(dh) dh.innerHTML=
+    th("Commander","Links to the card on Scryfall. Hover the name for the card image.")+
+    th("Pilot","Whose deck it is.")+
+    th("Colours","Colour identity of the commander, not of the deck.")+
+    th("Mana","Mana value of the commander. A partner pair is averaged.")+
+    th("W\u2013L","Games this deck won and lost in the current selection.")+
+    th("Rate","Share of this deck's games that it won.");
   document.getElementById("decks").innerHTML=dk.map(([d,v])=>{
     const owner=OWNERS[d]||"\u2014", r=pct(v.w,v.n);
+    const cd=cardOf(d);
+    const pips=cd&&cd.ci?["W","U","B","R","G"].filter(c=>cd.ci.indexOf(c)>=0)
+      .map(c=>'<i style="background:'+PIPHEX[c]+'"></i>').join(""):"";
     return '<tr><td>'+cardCell(d)+'</td>'+
       '<td style="font-family:var(--sans);font-size:13px;color:var(--dim)">'+owner+'</td>'+
+      '<td>'+(pips?'<span class="pips">'+pips+'</span>':'<span class="down">\u2013</span>')+'</td>'+
+      '<td class="down">'+(cd&&typeof cd.mv==="number"?cd.mv:"\u2013")+'</td>'+
       '<td>'+v.w+'\u2013'+(v.n-v.w)+'</td>'+
       '<td class="'+(v.w===0?"down":"up")+'">'+fmt(r)+'</td></tr>';
   }).join("");
@@ -1263,11 +1877,46 @@ function render(){
 
   drawPeople(gs);
   drawForm(gs,pcol);
-  drawThreat(st,pcol);
+  drawWins(gs);
+  drawLength(gs);
+  drawDeaths(gs,pcol);
+  drawKills(gs,pcol);
   document.querySelectorAll(".tg[data-mode]").forEach(b=>{
     b.setAttribute("aria-pressed",String(b.dataset.mode===FORMMODE));
     b.onclick=()=>{FORMMODE=b.dataset.mode;render();};
   });
+}
+function openDrop(on){
+  const m=document.getElementById("dates"), b=document.getElementById("dropbtn");
+  if(!m||!b) return;
+  m.hidden=!on; b.setAttribute("aria-expanded",String(!!on));
+}
+document.addEventListener("click",e=>{
+  const w=document.getElementById("dropwrap");
+  if(!w) return;
+  if(w.contains(e.target)){
+    if(e.target.closest("#dropbtn")) openDrop(document.getElementById("dates").hidden);
+  } else openDrop(false);
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") openDrop(false); });
+const MONTHS=["January","February","March","April","May","June","July",
+  "August","September","October","November","December"];
+function longDate(d){
+  if(d instanceof Date) return d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear();
+  const p=String(d).split("-");
+  return p.length===3?(+p[2])+" "+MONTHS[+p[1]-1]+" "+p[0]:String(d);
+}
+function prettyDate(d){
+  const p=d.split("-"), M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return p.length===3?(M[+p[1]-1]+" "+(+p[2])):d;
+}
+function coverage(id,have,total){
+  const el=document.getElementById(id); if(!el) return;
+  el.textContent=have+" of "+total+" games "+(id==="n-length"?"timed":"have kill notes");
+  el.className="n"+(have<total?" warn":"");
+}
+function th(label,tip){
+  return tip?'<th title="'+esc(tip)+'"><span class="hint">'+label+'</span></th>':'<th>'+label+'</th>';
 }
 function metaItem(k,v){return '<div><dt>'+k+'</dt><dd>'+v+'</dd></div>';}
 
@@ -1282,7 +1931,7 @@ function load(txt,announce){
     status.className="status good";
     status.textContent="Updated \u2014 "+games.length+" games read.";
   } else { status.className="status"; status.textContent=""; }
-  GAMES=games; FILTER="all"; render();
+  GAMES=games; SIZES=null; DATES=null; render();
 }
 (function(){
   const cur=document.documentElement.getAttribute("data-theme");
@@ -1321,12 +1970,23 @@ document.getElementById("copy").onclick=async()=>{
     status.className="status good"; status.textContent="Log copied.";
   }catch(e){ status.className="status bad"; status.textContent="Couldn't reach the clipboard \u2014 select the text and copy it."; }
 };
+/* the log panel is for whoever maintains the page, not for visitors */
+if(/(^|[?&])edit(=|&|$)/.test(location.search)){
+  const ed=document.getElementById("editor");
+  if(ed) ed.hidden=false;
+}
+
 load(DEFAULT_LOG,false);
 
 let logError=false;
 if(LOG_URL){
   fetch(LOG_URL+(LOG_URL.indexOf("?")<0?"?":"&")+"v="+Date.now(),{cache:"no-store"})
-    .then(r=>r.ok?r.text():Promise.reject(new Error("HTTP "+r.status)))
+    .then(r=>{
+      if(!r.ok) return Promise.reject(new Error("HTTP "+r.status));
+      const lm=r.headers&&r.headers.get?r.headers.get("Last-Modified"):null;
+      if(lm){ const t=new Date(lm); if(!isNaN(t)) LOG_MODIFIED=t; }
+      return r.text();
+    })
     .then(txt=>{
       if(!txt.trim()) return;
       document.getElementById("log").value=txt.trim();

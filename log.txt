@@ -1,12 +1,22 @@
-2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amalia | inkshield victory
-2026-06-11 | ognis(1) vs pantlaza(2) vs giada(3) | ognis | mazirek counters
+2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amalia | inkshield victory (combat damage)
+2026-06-11 | ognis(1) vs pantlaza(2) vs giada(3) | ognis | mazirek counters (combat damage)
 2026-06-11 | katilda(2) vs pantlaza(3) vs eshki(1) | eshki | burn
-2026-06-11 | niko(3) vs mindskinner(1) vs kuja(2) | kuja | combo off
-2026-07-25 | sonic(1) vs raffine(2) vs camellia(3) vs obeka(4) | raffine | flyers
-2026-07-25 | jin sakai(1) vs toph(2) vs mirko(3) vs aloy(4) | toph | creature swarm off urza's saga
-2026-07-25 | ognis(2) vs valgavoth(1) vs pantlaza(4) vs kuja(3) | ognis | swarm of X 1/1 tokens
-2026-07-25 | kenrith(2) vs dihada(3) vs dragonhawk(4) vs giada(1) | dihada | rise of the dark realms
-2026-07-25 | loot(3) vs eriette(2) vs massacre girl(1) vs eshki(4) | eshki | burn damage and creatures
+2026-06-11 | niko(3) vs mindskinner(1) vs kuja(2) | kuja | kuja wizards burn opponents
+2026-07-25 | sonic(1) vs raffine(2) vs camellia(3) vs obeka(4) | raffine | flyers (combat damage)
+2026-07-25 | jin sakai(1) vs toph(2) vs mirko(3) vs aloy(4) | toph | making lots of creatures with urza's saga (combat damage)
+2026-07-25 | ognis(2) vs valgavoth(1) vs pantlaza(4) vs kuja(3) | ognis | making lots of X 1/1s win (combat damage)
+2026-07-25 | kenrith(2) vs dihada(3) vs dragonhawk(4) vs giada(1) | dihada | rise of the dark realms win (combat damage)
+2026-07-25 | loot(3) vs eriette(2) vs massacre girl(1) vs eshki(4) | eshki | eshki burn damage and combat damage
 2026-07-25 | vial smasher and sakashima(2) vs kenessos(3) vs tidus(4) vs jasmine boreal(1) | vial smasher and sakashima | burn damage to all
-2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin plus mass bounce snipe
-2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills final two
+2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin and mass bounce snipe the win (combat damage)
+2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills 2 final players
+2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table | entire table died turn 8
+2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills table turn 8
+2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid combat damage | Ryan kills Stephen and rudy turn 9, Ryan kills Ricardo turn 10
+2026-09-12 | purphoros(1) vs aminatou(2) vs katilda(3) vs ultima(4) | aminatou | infinite combo | stephen goes infinite turn 7
+2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards | kuja kills all turn 7
+2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss | Ricardo kills Ryan turn 11, Ricardo kills rudy and stephen turn 12
+2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will combat damage | Ricardo kills stephen turn 11, Ryan concedes turn 12,Ricardo kills rudy turn 14 with akromas will
+2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce and combat damage | Stephen kills rudy turn 5,Ryan kills stephen rudy turn 6
+2026-09-12 | katilda(1) vs tidus(2) vs purphoros(3) vs rielle(4) | tidus | combat damage with some flyers | Rudy kills everyone turn 7
+2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid combat damage | Ryan kills rudy stephen turn 7, Ryan kills ricardo turn 8

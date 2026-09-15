@@ -778,6 +778,13 @@ const CARD_DATA = {
    Leave it "" and the page stays a single self-contained file. */
 const LOG_URL = "";
 
+/* Visit counting. Paste the code from your GoatCounter site between the
+   quotes — if it is "podlog" then the value here is "podlog". Leave it
+   empty and nothing is loaded and no request is ever made.
+   It deliberately stays quiet when the page is opened from a local file
+   and when you open it with ?edit, so your own visits don't count. */
+const GOATCOUNTER_CODE = "podlog";
+
 /* Look up anything missing from CARD_DATA when the page opens. Once you've
    pressed Save updated copy there is nothing missing, so this does nothing
    and costs no requests. Set to false to only ever look up on the button. */
@@ -2133,6 +2140,21 @@ document.getElementById("copy").onclick=async()=>{
 if(/(^|[?&])edit(=|&|$)/.test(location.search)){
   const ed=document.getElementById("editor");
   if(ed) ed.hidden=false;
+}
+
+/* ---- visit counting, only if a code was set above ---- */
+if(GOATCOUNTER_CODE&&/^https?:$/.test(location.protocol)&&
+   !/(^|[?&])edit(=|&|$)/.test(location.search)){
+  /* keep the ?v= tag so you can tell one person's link from another's */
+  window.goatcounter={path:function(p){
+    const v=new URLSearchParams(location.search).get("v");
+    return v?p+"?v="+encodeURIComponent(v):p;
+  }};
+  const gc=document.createElement("script");
+  gc.async=true;
+  gc.src="https://gc.zgo.at/count.js";
+  gc.setAttribute("data-goatcounter","https://"+GOATCOUNTER_CODE+".goatcounter.com/count");
+  document.body.appendChild(gc);
 }
 
 load(DEFAULT_LOG,false);

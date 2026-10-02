@@ -10,13 +10,18 @@
 2026-07-25 | vial smasher and sakashima(2) vs kenessos(3) vs tidus(4) vs jasmine boreal(1) | vial smasher and sakashima | burn damage to all
 2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin and mass bounce snipe the win (combat damage)
 2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills 2 final players (burn)
-2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table (Life drain) | entire table died turn 8
-2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills table turn 8
-2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid counters (combat damage) | Ryan kills Stephen and rudy turn 9, Ryan kills Ricardo turn 10
+2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table (Life drain) | ryan kills table on turn 8
+2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills ryan & ricardo turn 8
+2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid counters (combat damage) | Ryan kills Stephen & rudy turn 9, Ryan kills Ricardo turn 10
 2026-09-12 | purphoros(1) vs aminatou(2) vs katilda(3) vs ultima(4) | aminatou | infinite combo | stephen goes infinite turn 7
-2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards (burn) | kuja kills all turn 7
-2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss (burn) | Ricardo kills Ryan turn 11, Ricardo kills rudy and stephen turn 12
-2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will (combat damage) | Ricardo kills stephen turn 11, Ryan concedes turn 12,Ricardo kills rudy turn 14 with akromas will
-2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce (combat damage) | Stephen kills rudy turn 5,Ryan kills stephen rudy turn 6
+2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards (burn) | rudy kills everyone turn 7
+2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss (burn) | Ricardo kills Ryan turn 11, Ricardo kills rudy & stephen turn 12
+2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will (combat damage) | Ricardo kills stephen turn 11, Ryan has the win but concedes turn 12,Ricardo kills rudy turn 14 with akromas will
+2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce (combat damage) | Stephen kills rudy turn 5,Ryan kills stephen & ricardo turn 6
 2026-09-12 | katilda(1) vs tidus(2) vs purphoros(3) vs rielle(4) | tidus | combat damage with some flyers | Rudy kills everyone turn 7
-2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy stephen turn 7, Ryan kills ricardo turn 8
+2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy & stephen turn 7, Ryan kills ricardo turn 8
+2026-10-01 | agatha(1) vs zur(2) vs camellia(3) | agatha | leafkin avenger ability damage (burn) | Rudy kills ricardo turn 8, ryan kills rudy turn 11
+2026-10-01 | felothar(1) vs kambal(2) vs rokiric(3) | kambal | death trigger damage (life drain) | Rudy kills everyone turn 7 with a boardwipe and drain triggers
+2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage and rudy turn 9 with dragonhawk burn damage
+2026-10-01 | jin sakai(1) vs aloy(2) vs ognis(3) | ognis | sacrificing treasures (burn) | Ricardo kills rudy turn 8, Ryan kills ricardo turn 8
+2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, then kills rudy turn 7

@@ -496,7 +496,9 @@ const DECKS = {
 const ALIASES = {
   "muckslinger":"muckslinger gang",
   "vial smasher sakashima":"vial smasher and sakashima",
-  "ultima oblivion":"ultima"
+  "ultima oblivion":"ultima",
+  "feltothar":"felothar",
+  "ferrous":"rokiric"
 };
 const OWNERS={}, SEEDS={};
 Object.keys(DECKS).forEach(k=>{ OWNERS[k]=DECKS[k][0]; SEEDS[k]=DECKS[k][1]; });
@@ -513,16 +515,21 @@ const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amali
 2026-07-25 | vial smasher and sakashima(2) vs kenessos(3) vs tidus(4) vs jasmine boreal(1) | vial smasher and sakashima | burn damage to all
 2026-07-25 | kenessos(4) vs jasmine boreal(2) vs camellia(1) vs toph(3) | kenessos | sin and mass bounce snipe the win (combat damage)
 2026-07-25 | dragonhawk(4) vs sonic(3) vs eshki(1) vs obeka(2) | dragonhawk | dragonhawk burn kills 2 final players (burn)
-2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table (Life drain) | entire table died turn 8
-2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills table turn 8
-2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid counters (combat damage) | Ryan kills Stephen and rudy turn 9, Ryan kills Ricardo turn 10
+2026-09-12 | amalia(4) vs muckslinger gang(3) vs shay cormac(2) vs kambal(1) | amalia | mass reanimation drains table (Life drain) | ryan kills table on turn 8
+2026-09-12 | aloy(1) vs felothar(2) vs rielle(3) vs agatha(4) | rielle | rielle plus chandras ignition burns table | Stephen kills rudy turn 5, Stephen kills ryan & ricardo turn 8
+2026-09-12 | muckslinger gang(1) vs mirko(2) vs eshki(3) vs zur(4) | mirko | ouroboroid counters (combat damage) | Ryan kills Stephen & rudy turn 9, Ryan kills Ricardo turn 10
 2026-09-12 | purphoros(1) vs aminatou(2) vs katilda(3) vs ultima(4) | aminatou | infinite combo | stephen goes infinite turn 7
-2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards (burn) | kuja kills all turn 7
-2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss (burn) | Ricardo kills Ryan turn 11, Ricardo kills rudy and stephen turn 12
-2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will (combat damage) | Ricardo kills stephen turn 11, Ryan concedes turn 12,Ricardo kills rudy turn 14 with akromas will
-2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce (combat damage) | Stephen kills rudy turn 5,Ryan kills stephen rudy turn 6
+2026-09-12 | falco(1) vs ognis(2) vs kuja(3) vs obeka(4) | kuja | multiple burn triggers from wizards (burn) | rudy kills everyone turn 7
+2026-09-12 | giada(1) vs obeka(2) vs dihada(3) vs agatha(4) | obeka | multiple upkeep triggers causing life loss (burn) | Ricardo kills Ryan turn 11, Ricardo kills rudy & stephen turn 12
+2026-09-12 | valgavoth(1) vs loot(2) vs henzie(3) vs pantlaza(4) | pantlaza | akromas will (combat damage) | Ricardo kills stephen turn 11, Ryan has the win but concedes turn 12,Ricardo kills rudy turn 14 with akromas will
+2026-09-12 | tidus(1) vs purphoros(2) vs vial smasher and sakashima(3) vs kenessos(4) | kenessos | mass bounce (combat damage) | Stephen kills rudy turn 5,Ryan kills stephen & ricardo turn 6
 2026-09-12 | katilda(1) vs tidus(2) vs purphoros(3) vs rielle(4) | tidus | combat damage with some flyers | Rudy kills everyone turn 7
-2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy stephen turn 7, Ryan kills ricardo turn 8`;
+2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy & stephen turn 7, Ryan kills ricardo turn 8
+2026-10-01 | agatha(1) vs zur(2) vs camellia(3) | agatha | leafkin avenger ability damage (burn) | Rudy kills ricardo turn 8, ryan kills rudy turn 11
+2026-10-01 | felothar(1) vs kambal(2) vs rokiric(3) | kambal | death trigger damage (life drain) | Rudy kills everyone turn 7 with a boardwipe and drain triggers
+2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage and rudy turn 9 with dragonhawk burn damage
+2026-10-01 | jin sakai(1) vs aloy(2) vs ognis(3) | ognis | sacrificing treasures (burn) | Ricardo kills rudy turn 8, Ryan kills ricardo turn 8
+2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, then kills rudy turn 7`;
 
 let PALETTE=[], SEAT_TINTS=[], GOLD, DIMC, RULE, SUNK, PANEL, INK, LAST_GS=null;
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -551,17 +558,27 @@ function canon(d){ d=d.trim().toLowerCase(); return ALIASES[d]||d; }
 function parseNotes(txt,players){
   const turns=(txt.match(/turn\s+(\d+)/gi)||[]).map(x=>parseInt(x.replace(/\D/g,""),10));
   const events=[];
+  let lastKiller=null;
   txt.split(/[,;]/).forEach(raw=>{
     const c=raw.trim(); if(!c) return;
     const who=t=>{ let f=null; players.forEach(p=>{ if(new RegExp("\\b"+p+"\\b","i").test(t)) f=p; }); return f; };
-    let m=c.match(/^(.*?)\s+kills?\s+(.*?)\s+turn\s+(\d+)/i);
-    if(m){
+    let m=c.match(/^(.*?)\s+kills?\s+(.*)$/i);
+    if(m&&/turn\s+\d+/i.test(m[2])){
       let k=who(m[1]);
-      if(!k){ const d=canon(m[1]); if(OWNERS[d]) k=OWNERS[d]; }
-      const all=/\b(table|all|everyone|everybody)\b/i.test(m[2]);
-      events.push({killer:k,victims:all?"ALL":players.filter(p=>new RegExp("\\b"+p+"\\b","i").test(m[2])),
-        turn:parseInt(m[3],10)});
-      return;
+      if(!k){ const d=canon(m[1].replace(/^\s*(then|and)\s+/i,"")); if(OWNERS[d]) k=OWNERS[d]; }
+      if(!k) k=lastKiller;              /* "…, then kills rudy turn 7" */
+      if(k) lastKiller=k;
+      /* one clause can name several victims at different turns:
+         "kills ricardo turn 9 with combat damage and rudy turn 9 with burn" */
+      const seg=/([^,]*?)\s+turn\s+(\d+)/gi;
+      let s2, got=false;
+      while((s2=seg.exec(m[2]))){
+        const txt2=s2[1], t2=parseInt(s2[2],10);
+        const all=/\b(table|all|everyone|everybody)\b/i.test(txt2);
+        const vs=all?"ALL":players.filter(p=>p!==k&&new RegExp("\\b"+p+"\\b","i").test(txt2));
+        if(all||vs.length){ events.push({killer:k,victims:vs,turn:t2}); got=true; }
+      }
+      if(got) return;
     }
     m=c.match(/^(.*?)\s+concedes?\s+turn\s+(\d+)/i);
     if(m){ const p=who(m[1]); events.push({killer:null,victims:p?[p]:[],turn:parseInt(m[2],10)}); return; }
@@ -781,8 +798,10 @@ const LOG_URL = "";
 /* Visit counting. Paste the code from your GoatCounter site between the
    quotes — if it is "podlog" then the value here is "podlog". Leave it
    empty and nothing is loaded and no request is ever made.
-   It deliberately stays quiet when the page is opened from a local file
-   and when you open it with ?edit, so your own visits don't count. */
+   It deliberately stays quiet when the page is opened from a local file,
+   and when the address carries ?edit or ?me. Bookmark ?me for your own
+   reading: unlike GoatCounter's own toggle it is part of the link, so
+   clearing your browser data doesn't undo it. */
 const GOATCOUNTER_CODE = "podlog";
 
 /* Look up anything missing from CARD_DATA when the page opens. Once you've
@@ -2144,7 +2163,7 @@ if(/(^|[?&])edit(=|&|$)/.test(location.search)){
 
 /* ---- visit counting, only if a code was set above ---- */
 if(GOATCOUNTER_CODE&&/^https?:$/.test(location.protocol)&&
-   !/(^|[?&])edit(=|&|$)/.test(location.search)){
+   !/(^|[?&])(edit|me)(=|&|$)/.test(location.search)){
   /* keep the ?v= tag so you can tell one person's link from another's */
   window.goatcounter={path:function(p){
     const v=new URLSearchParams(location.search).get("v");

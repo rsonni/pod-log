@@ -22,6 +22,12 @@
 2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy & stephen turn 7, Ryan kills ricardo turn 8
 2026-10-01 | agatha(1) vs zur(2) vs camellia(3) | agatha | leafkin avenger ability damage (burn) | Rudy kills ricardo turn 8, ryan kills rudy turn 11
 2026-10-01 | felothar(1) vs kambal(2) vs rokiric(3) | kambal | death trigger damage (life drain) | Rudy kills everyone turn 7 with a boardwipe and drain triggers
-2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage and rudy turn 9 with dragonhawk burn damage
+2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage, then ryan kills rudy turn 9 with dragonhawk burn damage
 2026-10-01 | jin sakai(1) vs aloy(2) vs ognis(3) | ognis | sacrificing treasures (burn) | Ricardo kills rudy turn 8, Ryan kills ricardo turn 8
-2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, then kills rudy turn 7
+2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, Ricardo then kills rudy turn 7
+2026-10-10 | agatha(1) vs felothar(2) vs tidus(3) | tidus | combat damage | Rudy kills ricardo turn 8, Ryan concedes turn 9
+2026-10-10 | shay cormac(1) vs aloy(2) vs agatha(3) | agatha | dragon whisperer fying tokens (combat damage) | Ryan kills rudy with flyers turn 8, Ricardo concedes turn 9
+2026-10-10 | rokiric(1) vs zur(2) vs giada(3) | rokiric | brave the elements and double strike (combat damage) | Ryan kills both players turn 8
+2026-10-10 | katilda(1) vs obeka(2) vs eshki(3) | katilda | combat damage | Rudy kills ricardo turn 7, Ryan kills rudy turn 8
+2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | kuja | burn | Rudy kills both players turn 6
+2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | purphoros | burn | Ricardo kills rudy turn 6, Ricardo kills Ryan turn 7

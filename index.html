@@ -254,6 +254,10 @@ tbody tr:last-child td{border-bottom:0}
 .cell{display:inline-flex;align-items:center;justify-content:center;width:30px;height:26px;border-radius:3px}
 .cell.z{color:var(--muted);opacity:.4}
 .fb{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule)}
+.defs{margin:12px 0 14px;padding-left:20px;display:grid;gap:5px}
+.defs li{line-height:1.55}
+.defs li::marker{color:var(--muted)}
+.defs b{color:var(--ivory);font-weight:500}
 .note{font-family:var(--sans);font-size:13.5px;color:var(--dim);margin:16px 0 0;line-height:1.65}
 .note b{color:var(--ivory);font-weight:500}
 @media (max-width:700px){.split{grid-template-columns:1fr;gap:26px}}
@@ -387,7 +391,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
     <div class="ctl">
       <span class="flabel">Show</span>
       <span class="toggle" role="group" aria-label="Which kills to show">
-        <button class="tg" data-kills="stalled" aria-pressed="true">Didn't follow up</button><button class="tg" data-kills="finish" aria-pressed="false">Part of a finish</button><button class="tg" data-kills="wipe" aria-pressed="false">Wiped the table</button><button class="tg" data-kills="all" aria-pressed="false">Overall</button>
+        <button class="tg" data-kills="stalled" aria-pressed="true">Didn't follow up</button><button class="tg" data-kills="late" aria-pressed="false">Late game kill</button><button class="tg" data-kills="finish" aria-pressed="false">Part of a finish</button><button class="tg" data-kills="wipe" aria-pressed="false">Wiped the table</button><button class="tg" data-kills="all" aria-pressed="false">Overall</button>
       </span>
     </div>
     <div id="kills"></div>
@@ -527,9 +531,15 @@ const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amali
 2026-09-12 | eshki(1) vs purphoros(2) vs rielle(3) vs katilda(4) | katilda | ouroboroid counters (combat damage) | Ryan kills rudy & stephen turn 7, Ryan kills ricardo turn 8
 2026-10-01 | agatha(1) vs zur(2) vs camellia(3) | agatha | leafkin avenger ability damage (burn) | Rudy kills ricardo turn 8, ryan kills rudy turn 11
 2026-10-01 | felothar(1) vs kambal(2) vs rokiric(3) | kambal | death trigger damage (life drain) | Rudy kills everyone turn 7 with a boardwipe and drain triggers
-2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage and rudy turn 9 with dragonhawk burn damage
+2026-10-01 | henzie(1) vs loot(2) vs felothar(3) | loot | combat damage and burn | Ryan kills ricardo turn 9 with combat damage, then ryan kills rudy turn 9 with dragonhawk burn damage
 2026-10-01 | jin sakai(1) vs aloy(2) vs ognis(3) | ognis | sacrificing treasures (burn) | Ricardo kills rudy turn 8, Ryan kills ricardo turn 8
-2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, then kills rudy turn 7`;
+2026-10-01 | purphoros(1) vs eshki(2) vs katilda(3) | purphoros | purphoros damage (burn) | Ricardo kills ryan turn 7, Ricardo then kills rudy turn 7
+2026-10-10 | agatha(1) vs felothar(2) vs tidus(3) | tidus | combat damage | Rudy kills ricardo turn 8, Ryan concedes turn 9
+2026-10-10 | shay cormac(1) vs aloy(2) vs agatha(3) | agatha | dragon whisperer fying tokens (combat damage) | Ryan kills rudy with flyers turn 8, Ricardo concedes turn 9
+2026-10-10 | rokiric(1) vs zur(2) vs giada(3) | rokiric | brave the elements and double strike (combat damage) | Ryan kills both players turn 8
+2026-10-10 | katilda(1) vs obeka(2) vs eshki(3) | katilda | combat damage | Rudy kills ricardo turn 7, Ryan kills rudy turn 8
+2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | kuja | burn | Rudy kills both players turn 6
+2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | purphoros | burn | Ricardo kills rudy turn 6, Ricardo kills Ryan turn 7`;
 
 let PALETTE=[], SEAT_TINTS=[], GOLD, DIMC, RULE, SUNK, PANEL, INK, LAST_GS=null;
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -574,7 +584,7 @@ function parseNotes(txt,players){
       let s2, got=false;
       while((s2=seg.exec(m[2]))){
         const txt2=s2[1], t2=parseInt(s2[2],10);
-        const all=/\b(table|all|everyone|everybody)\b/i.test(txt2);
+        const all=/\b(table|all|everyone|everybody|both|rest|remaining|others)\b/i.test(txt2);
         const vs=all?"ALL":players.filter(p=>p!==k&&new RegExp("\\b"+p+"\\b","i").test(txt2));
         if(all||vs.length){ events.push({killer:k,victims:vs,turn:t2}); got=true; }
       }
@@ -611,17 +621,22 @@ function parseLog(txt){
     n.events.slice().sort((a,b)=>a.turn-b.turn).forEach(ev=>{
       let v=ev.victims;
       const wholeTable=ev.victims==="ALL";
-      const credit=ev.killer||(wholeTable?champ:null);
+      let credit=ev.killer||(wholeTable?champ:null);
       if(v==="ALL") v=players.filter(p=>p!==credit&&!dead[p]);
       v=v.filter(p=>p&&!dead[p]);
       if(!v.length) return;
+      /* A concession is a death. If it leaves one player standing the game is
+         over, so that player is credited with it the same as any other kill;
+         if the game carries on, nobody is. */
+      if(!credit){
+        const left=players.filter(p=>!dead[p]&&v.indexOf(p)<0).length;
+        if(left<=1&&champ&&v.indexOf(champ)<0) credit=champ;
+      }
       /* a table wipe takes everyone out at once, from a full table */
-      const noneDeadYet=Object.keys(dead).length===0;
-      const wipe=noneDeadYet&&v.length>1&&v.length===players.length-1;
       const batch=[];
       v.forEach(p=>{
         dead[p]=1;
-        const d={player:p,turn:ev.turn,by:credit||null,ending:false,wipe:wipe};
+        const d={player:p,turn:ev.turn,by:credit||null,ending:false,kind:null};
         deaths.push(d); batch.push(d);
       });
       /* if one player or fewer is left standing, this event ended the game */
@@ -629,19 +644,27 @@ function parseLog(txt){
       if(left<=1) batch.forEach(d=>{ d.ending=true; });
     });
 
-    /* The winner's closing run: walk back from the end while each event is
-       theirs and lands within a turn of the next. Taking out two players and
-       finishing the last one next turn is one finish, not a mid-game kill. */
-    const byTurn={};
-    deaths.forEach(d=>{ (byTurn[d.turn]=byTurn[d.turn]||[]).push(d); });
-    const turnList=Object.keys(byTurn).map(Number).sort((a,b)=>a-b);
-    let prev=null;
-    for(let i=turnList.length-1;i>=0;i--){
-      const t=turnList[i], grp=byTurn[t];
-      if(!grp.every(d=>d.by&&d.by===champ)) break;
-      if(prev!==null&&prev-t>1) break;
-      grp.forEach(d=>{ d.closing=true; });
-      prev=t;
+    /* Four kinds of kill, tested in this order so they can't overlap:
+         wipe    one player removes every other player on a single turn,
+                 with nobody already dead
+         finish  the killer went on to win and the game ended that turn
+                 or the next
+         late    the game ended that turn or the next, but the killer lost
+         stalled the game ran two or more turns after it                  */
+    if(deaths.length){
+      const turns=deaths.map(d=>d.turn);
+      const endT=Math.max.apply(null,turns), firstT=Math.min.apply(null,turns);
+      const atFirst=deaths.filter(d=>d.turn===firstT);
+      const kset=[];
+      atFirst.forEach(d=>{ if(kset.indexOf(d.by)<0) kset.push(d.by); });
+      const isWipe = kset.length===1 && kset[0] &&
+                     atFirst.length===players.length-1;
+      deaths.forEach(d=>{
+        if(!d.by){ d.kind=null; return; }
+        if(isWipe&&d.turn===firstT){ d.kind="wipe"; return; }
+        if(endT-d.turn<=1) d.kind=(d.by===champ)?"finish":"late";
+        else d.kind="stalled";
+      });
     }
     games.push({date:date,seats:seats,winner:w,how:how,notes:notes,size:seats.length,
       turns:n.turns,deaths:deaths});
@@ -1107,7 +1130,7 @@ function profiles(gs){
       g.seats.forEach(s2=>{ const o=OWNERS[s2.deck]; if(o){ here[o]=1; } });
       Object.keys(here).forEach(o=>{ if(P[o]) P[o].mkGames++; });
       g.deaths.forEach(dd=>{
-        if(dd.by&&!dd.ending&&!dd.closing&&P[dd.by]) P[dd.by].mkills++;
+        if(dd.by&&dd.kind==="stalled"&&P[dd.by]) P[dd.by].mkills++;
       });
     }
   });
@@ -1258,8 +1281,12 @@ function summarize(name,p,sup,dst){
         " of his credited kills were finishes or wipes.");
     else if(mid>0&&sup.topMid&&sup.midTotal>=3)
       C.push("He is the pod's most active remover while a game is still live \u2014 "+mid+
-        " of the "+sup.midTotal+" kills that left play going are his"+
-        (sup.midVictim?", "+(mid>1?"both ":"")+"on "+sup.midVictim:"")+".");
+        " of the "+sup.midTotal+" kills that left play going "+(mid===1?"is":"are")+" his"+
+        (sup.midVictim
+          ? ", "+(sup.midVictimN===mid
+                   ? (mid===2?"both ":"all "+numWord(mid).toLowerCase()+" ")
+                   : times(sup.midVictimN)+" of them ")+"on "+sup.midVictim
+          : "")+".");
   }
 
 
@@ -1318,6 +1345,10 @@ function drawPeople(gs){
         const t=(dst.P[n]||{}).targeted||{};
         const k=Object.keys(t).sort((a,b)=>t[b]-t[a]);
         return k.length&&t[k[0]]>=2?k[0]:null; })(),
+      midVictimN:(function(){
+        const t=(dst.P[n]||{}).targeted||{};
+        const k=Object.keys(t).sort((a,b)=>t[b]-t[a]);
+        return k.length?t[k[0]]:0; })(),
       earliestDeath:n===earliest,
       takenBy:(function(){
         const t=(dst.P[n]||{}).takenBy||{};
@@ -1571,7 +1602,7 @@ function drawLength(gs){
 /* ── Deaths: when each player goes out ───────────────────────────────── */
 function deathStats(gs){
   const withData=gs.filter(g=>g.deaths&&g.deaths.length);
-  const P={}, pair={}, tpair={}, fpair={}, wpair={};
+  const P={}, pair={}, tpair={}, fpair={}, wpair={}, lpair={};
   let fbGames=0, fbWins=0, fbExp=0, soloWipe=0, wipeGames=0;
   withData.forEach(g=>{
     const players=g.seats.map(s=>OWNERS[s.deck]).filter(Boolean);
@@ -1581,7 +1612,7 @@ function deathStats(gs){
     const survivor=OWNERS[g.winner];
     players.forEach(p=>{
       P[p]=P[p]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
-        targeted:{},finished:{},wiped:{},takenBy:{},endKills:0,wipeKills:0,share:[],foGames:0};
+        targeted:{},finished:{},wiped:{},late:{},takenBy:{},endKills:0,wipeKills:0,lateKills:0,share:[],foGames:0};
       P[p].games++;
       if(loneFirst) P[p].foGames++;
       if(g.turns) P[p].share.push(p===survivor?1:null);
@@ -1589,12 +1620,12 @@ function deathStats(gs){
     /* only counts when the first kill left the game running — otherwise
        "first blood" is just another name for "won the game" */
     if(order.some(x=>x.ending&&x.by)) wipeGames++;
-    if(order.length&&!order.some(x=>!x.ending&&!x.closing)) soloWipe++;
-    const fb=order.find(x=>x.by&&!x.ending&&!x.closing);
+    if(order.length&&!order.some(x=>x.kind==="stalled"||x.kind==="late")) soloWipe++;
+    const fb=order.find(x=>x.by&&(x.kind==="stalled"||x.kind==="late"));
     if(fb){
       fbGames++; fbExp+=1/g.size;
       P[fb.by]=P[fb.by]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
-        targeted:{},finished:{},wiped:{},takenBy:{},endKills:0,wipeKills:0,share:[],firstBlood:0};
+        targeted:{},finished:{},wiped:{},late:{},takenBy:{},endKills:0,wipeKills:0,lateKills:0,share:[],firstBlood:0};
       P[fb.by].firstBlood=(P[fb.by].firstBlood||0)+1;
       if(survivor===fb.by){ fbWins++; P[fb.by].fbWin=(P[fb.by].fbWin||0)+1; }
     }
@@ -1609,21 +1640,23 @@ function deathStats(gs){
       if(dth.by&&dth.by!==p){
         P[p].killedBy[dth.by]=(P[p].killedBy[dth.by]||0)+1;
         P[dth.by]=P[dth.by]||{games:0,died:0,first:0,turns:[],survived:0,killedBy:{},killed:{},
-          targeted:{},finished:{},wiped:{},takenBy:{},endKills:0,wipeKills:0,share:[]};
+          targeted:{},finished:{},wiped:{},late:{},takenBy:{},endKills:0,wipeKills:0,lateKills:0,share:[]};
         P[dth.by].killed[p]=(P[dth.by].killed[p]||0)+1;
         const k=dth.by+"\u2192"+p;
         pair[k]=(pair[k]||0)+1;
-        if(dth.wipe){
+        if(dth.kind==="wipe"){
           P[dth.by].wipeKills++;
           P[dth.by].wiped[p]=(P[dth.by].wiped[p]||0)+1;
-          wpair[dth.by+"\u2192"+p]=(wpair[dth.by+"\u2192"+p]||0)+1;
-        }
-        else if(dth.ending||dth.closing){
+          wpair[k]=(wpair[k]||0)+1;
+        } else if(dth.kind==="finish"){
           P[dth.by].endKills++;
           P[dth.by].finished[p]=(P[dth.by].finished[p]||0)+1;
-          fpair[dth.by+"\u2192"+p]=(fpair[dth.by+"\u2192"+p]||0)+1;
-        }
-        else {
+          fpair[k]=(fpair[k]||0)+1;
+        } else if(dth.kind==="late"){
+          P[dth.by].lateKills++;
+          P[dth.by].late[p]=(P[dth.by].late[p]||0)+1;
+          lpair[k]=(lpair[k]||0)+1;
+        } else {
           P[dth.by].targeted[p]=(P[dth.by].targeted[p]||0)+1;
           P[p].takenBy=P[p].takenBy||{}; P[p].takenBy[dth.by]=(P[p].takenBy[dth.by]||0)+1;
           tpair[k]=(tpair[k]||0)+1;
@@ -1633,7 +1666,7 @@ function deathStats(gs){
     if(survivor&&P[survivor]) P[survivor].survived++;
   });
   Object.keys(P).forEach(k=>{ P[k].share=P[k].share.filter(v=>v!==null); });
-  return {P:P,pair:pair,tpair:tpair,n:withData.length,total:gs.length,fbGames:fbGames,fbWins:fbWins,fbExp:fbExp,soloWipe:soloWipe,wipeGames:wipeGames,fpair:fpair,wpair:wpair};
+  return {P:P,pair:pair,tpair:tpair,n:withData.length,total:gs.length,fbGames:fbGames,fbWins:fbWins,fbExp:fbExp,soloWipe:soloWipe,wipeGames:wipeGames,fpair:fpair,wpair:wpair,lpair:lpair};
 }
 
 function drawDeaths(gs,pcol){
@@ -1742,36 +1775,45 @@ function drawDeaths(gs,pcol){
 /* ── Kill matrix: who takes whom out ─────────────────────────────────── */
 function drawKills(gs,pcol){
   const box=document.getElementById("kills"), st=deathStats(gs);
-  const MODE={stalled:{f:"targeted",p:st.tpair},finish:{f:"finished",p:st.fpair},
-              wipe:{f:"wiped",p:st.wpair},all:{f:null,p:st.pair}}[KILLMODE]||{f:"targeted",p:st.tpair};
+  const MODE={stalled:{f:"targeted",p:st.tpair},late:{f:"late",p:st.lpair},
+              finish:{f:"finished",p:st.fpair},wipe:{f:"wiped",p:st.wpair},
+              all:{f:null,p:st.pair}}[KILLMODE]||{f:"targeted",p:st.tpair};
   const field=MODE.f, pairs=MODE.p;
-  const finish=KILLMODE==="finish", wipeMode=KILLMODE==="wipe", allMode=KILLMODE==="all";
+  const finish=KILLMODE==="finish", wipeMode=KILLMODE==="wipe",
+        lateMode=KILLMODE==="late", allMode=KILLMODE==="all";
   const cell=(k,v)=>{
     const q=st.P[k]||{};
     return allMode
-      ? ((q.targeted||{})[v]||0)+((q.finished||{})[v]||0)+((q.wiped||{})[v]||0)
+      ? ((q.targeted||{})[v]||0)+((q.finished||{})[v]||0)+((q.wiped||{})[v]||0)+((q.late||{})[v]||0)
       : ((q[field]||{})[v]||0);
   };
   coverage("n-kills",st.n,st.total);
   const names=Object.keys(st.P).sort();
-  let ended=0, mid=0, wiped=0;
+  let ended=0, mid=0, wiped=0, latek=0;
   names.forEach(k=>{
     ended+=Object.keys(st.P[k].finished).reduce((a,v)=>a+st.P[k].finished[v],0);
     mid+=Object.keys(st.P[k].targeted).reduce((a,v)=>a+st.P[k].targeted[v],0);
     wiped+=Object.keys(st.P[k].wiped).reduce((a,v)=>a+st.P[k].wiped[v],0);
+    latek+=Object.keys(st.P[k].late||{}).reduce((a,v)=>a+st.P[k].late[v],0);
   });
-  document.getElementById("sub-kills").innerHTML= (mid+ended+wiped)===0
+  document.getElementById("sub-kills").innerHTML= (mid+ended+wiped+latek)===0
     ? "Rows are the killer, columns the victim, split by how the kill related to the end of the "+
       "game. Nothing in the current selection has kill notes to place."
-    : "Rows are the killer, columns the victim. Every credited kill falls into one of three buckets. "+
-      "<b>Wiped the table</b> is a single blow that removed every opponent at once, from a full "+
-      "table \u2014 nobody had gone out before it. <b>Part of a finish</b> is the rest of the "+
-      "winner's closing sequence: picking off the last player, or taking out two and killing the "+
-      "third next turn. <b>Didn't follow up</b> is everything else \u2014 someone went down and "+
-      "the killer did not close. <b>Overall</b> adds the three together. "+
-      "Of "+(mid+ended+wiped)+" credited kills, "+wiped+" were wipes, "+
-      ended+" were part of a finish and "+mid+" weren't. Where the notes name no killer for a "+
-      "table death the winner is credited, since a self-kill would have been written down.";
+    : "Rows are the killer, columns the victim. Every credited kill falls into one of four kinds, "+
+      "tested in reverse order so none can overlap."+
+      '<ul class="defs">'+
+        '<li><b>Didn\'t follow up</b> \u2014 the game ran two or more turns afterwards. ('+mid+')</li>'+
+        '<li><b>Late game kill</b> \u2014 the game ended that turn or the next, but the killer did '+
+          'not win it. ('+latek+')</li>'+
+        '<li><b>Part of a finish</b> \u2014 the killer went on to win, and the game ended that turn '+
+          'or the next. ('+ended+')</li>'+
+        '<li><b>Wiped the table</b> \u2014 one player removed every other player on a single turn, '+
+          'with nobody already dead. ('+wiped+')</li>'+
+        '<li><b>Overall</b> \u2014 all four added together. ('+(mid+ended+wiped+latek)+')</li>'+
+      '</ul>'+
+      "A concession is a death like any other: if it leaves one player standing the game is over "+
+      "and that player is credited with it, and if the game carries on nobody is. A table death "+
+      "with no killer named is credited the same way.";
 
   const any=names.some(k=>names.some(v=>cell(k,v)>0));
   if(!any){
@@ -1781,8 +1823,9 @@ function drawKills(gs,pcol){
       : '<p class="empty"><b>Nothing in this bucket yet.</b>'+
         (allMode?"No credited kills in the current selection."
          :wipeMode?"No game in view was won by removing the whole table in one blow."
-         :finish?"No credited kill in view was part of a multi-step finish."
-               :"Every credited kill in view was part of the winner's win.")+'</p>';
+         :lateMode?"No kill in view landed in the last turn or two from someone who then lost."
+         :finish?"No credited kill in view was part of a winner's finish."
+               :"Every credited kill in view came in the closing turn or two.")+'</p>';
     bindKillToggle(gs,pcol);
     return;
   }
@@ -1802,6 +1845,7 @@ function drawKills(gs,pcol){
         return '<td><span class="cell'+(c?"":" z")+'" style="'+(c?'background:rgba(214,169,59,'+(0.12+a*0.55).toFixed(2)+')':'')+
           '" title="'+esc(k+" took "+names[i]+" out "+times(c)+
             (wipeMode?" in a single table-wide blow":
+             lateMode?" in the last turn or two of a game they went on to lose":
              finish?" while closing the game out":" without being able to follow up"))+'">'+
           (c||"\u2013")+'</span></td>';
       }).join("")+'</tr>';
@@ -1813,12 +1857,12 @@ function drawKills(gs,pcol){
     out[k]=names.reduce((a,v)=>a+cell(k,v),0);
     inn[k]=names.reduce((a,j)=>a+cell(j,k),0);
   });
-  const tot=allMode?(mid+ended+wiped):(wipeMode?wiped:(finish?ended:mid));
+  const tot=allMode?(mid+ended+wiped+latek):(wipeMode?wiped:(finish?ended:(lateMode?latek:mid)));
   const byOut=names.slice().sort((a,b)=>out[b]-out[a]);
   const byIn=names.slice().sort((a,b)=>inn[b]-inn[a]);
   const ranked=Object.keys(pairs).sort((a,b)=>pairs[b]-pairs[a]);
   const lines=[];
-  if(tot<3){
+  if(tot<3&&!lateMode){
     lines.push("Only "+tot+" kill"+(tot===1?"":"s")+" in this bucket so far \u2014 too few to read anything into.");
   } else if(allMode){
     lines.push("<b>"+byOut[0]+"</b> has the most kills to his name overall, "+out[byOut[0]]+" of "+tot+
@@ -1831,6 +1875,14 @@ function drawKills(gs,pcol){
     }
     lines.push("Most of this is wipes and finishes, which follow whoever won \u2014 the other three tabs "+
       "split it up so you can see which kills were anything else.");
+  } else if(lateMode){
+    lines.push("Every kill here landed in the closing turn or two and the killer still lost \u2014 "+
+      "removing someone at the end is not the same as winning off it.");
+    if(out[byOut[0]]>0&&tot>=3)
+      lines.push("<b>"+byOut[0]+"</b> has the most, "+out[byOut[0]]+" of "+tot+".");
+    if(inn[byIn[0]]>0)
+      lines.push("<b>"+byIn[0]+"</b> is the one removed, "+times(inn[byIn[0]])+".");
+    if(tot<12) lines.push("On "+tot+" kill"+(tot===1?"":"s")+" this is a note rather than a pattern.");
   } else if(wipeMode){
     lines.push("<b>"+byOut[0]+"</b> has wiped the table most, "+out[byOut[0]]+" of "+tot+
       " kills taken this way. A wipe removes everyone at once, so these rows move in groups of "+
@@ -1869,7 +1921,7 @@ function drawKills(gs,pcol){
         (back===0?parts[1]+" has never returned it in this bucket.":parts[1]+" has returned it "+times(back)+"."));
     }
   }
-  if(tot>=3&&tot<12) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");
+  if(tot>=3&&tot<12&&!lateMode) lines.push("This bucket holds "+tot+" kills, few enough that one session could rearrange it.");
   h+='<p class="note">'+lines.join(" ")+'</p>';
   box.innerHTML=h;
   bindKillToggle(gs,pcol);

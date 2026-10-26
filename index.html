@@ -244,6 +244,14 @@ tbody tr:last-child td{border-bottom:0}
 .matrix{border-collapse:collapse;font-family:var(--mono);font-size:12px;width:100%;table-layout:fixed}
 @media (max-width:620px){.matrix{table-layout:auto}}
 .matrix th,.matrix td{padding:9px 6px;font-size:12.5px;text-align:center;white-space:nowrap;border:0}
+.sortable{display:inline-flex;align-items:baseline;gap:6px;cursor:pointer}
+.sortable .arr{font-style:normal;font-size:8px;opacity:.45;transform:translateY(-1px)}
+.sortable.on{color:var(--ivory);border-bottom-color:var(--gold)}
+.sortable.on .arr{opacity:1;color:var(--gold);font-size:9px}
+th[data-sort]{cursor:pointer}
+th[data-sort]:hover .sortable{color:var(--ivory);border-bottom-color:var(--gold)}
+tr.unplayed td{opacity:.62}
+tr.unplayed td:first-child{opacity:1}
 .matrix thead th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
   border-bottom:1px solid var(--rule)}
 .matrix tbody th{text-align:left;font-family:var(--sans);font-size:13.5px;font-weight:400;color:var(--ivory);
@@ -412,7 +420,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
   <div class="duo solo">
     <section class="panel" aria-labelledby="h-decks">
       <div class="phead"><h2 id="h-decks">Deck records</h2><span class="n" id="n-decks"></span></div>
-      <p class="sub">Sorted by win rate, then by games played.</p>
+      <p class="sub">Every commander in the roster, whether it has been played or not. Click a column heading to sort by it, and again to reverse. Unplayed decks show a dash and are dimmed; they count towards nothing else on this page.</p>
       <div class="scroll"><table>
         <thead id="decks-head"><tr></tr></thead>
         <tbody id="decks"></tbody>
@@ -553,6 +561,7 @@ syncTheme();
 
 let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", charts={};
 let LOG_MODIFIED=null, parseError=false;
+let DECKROWS=[], DECKSORT={col:"rate",dir:-1};
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
   Object.keys(charts).forEach(k=>{ try{charts[k].destroy();}catch(e){} delete charts[k]; });
@@ -2081,29 +2090,19 @@ function render(){
   }).join("");
 
 
-  const dk=Object.entries(st.decks).sort((a,b)=>
-    pct(b[1].w,b[1].n)-pct(a[1].w,a[1].n) || b[1].n-a[1].n || a[0].localeCompare(b[0]));
-  setN("n-decks",dk.length+" commanders");
-  const dh=document.querySelector("#decks-head tr");
-  if(dh) dh.innerHTML=
-    th("Commander","Links to the card on Scryfall. Hover the name for the card image.")+
-    th("Pilot","Whose deck it is.")+
-    th("Colors","Color identity of the commander, not of the deck.")+
-    th("Mana","Mana value of the commander. A partner pair is averaged.")+
-    th("W\u2013L","Games this deck won and lost in the current selection.")+
-    th("Rate","Share of this deck's games that it won. Shaded red at 0% through gold to green at 100%; the number says the same thing.");
-  document.getElementById("decks").innerHTML=dk.map(([d,v])=>{
-    const owner=OWNERS[d]||"\u2014", r=pct(v.w,v.n);
-    const cd=cardOf(d);
-    const pips=cd&&cd.ci?["W","U","B","R","G"].filter(c=>cd.ci.indexOf(c)>=0)
-      .map(c=>'<i style="background:'+PIPHEX[c]+'"></i>').join(""):"";
-    return '<tr><td>'+cardCell(d)+'</td>'+
-      '<td style="font-family:var(--sans);font-size:13px;color:var(--dim)">'+owner+'</td>'+
-      '<td>'+(pips?'<span class="pips">'+pips+'</span>':'<span class="down">\u2013</span>')+'</td>'+
-      '<td class="down">'+(cd&&typeof cd.mv==="number"?cd.mv:"\u2013")+'</td>'+
-      '<td>'+v.w+'\u2013'+(v.n-v.w)+'</td>'+
-      '<td style="color:'+rateColor(r)+'">'+fmt(r)+'</td></tr>';
-  }).join("");
+  /* Every commander in the roster is listed, played or not. Unplayed ones
+     show a dash and are excluded from every other number on the page. */
+  DECKROWS=Object.keys(DECKS).map(k=>{
+    const v=st.decks[k]||{n:0,w:0};
+    const cd=cardOf(k);
+    return {deck:k, name:deckName(k), owner:OWNERS[k]||"", n:v.n, w:v.w,
+            rate:v.n?pct(v.w,v.n):null,
+            ci:cd&&cd.ci?cd.ci:null,
+            mv:cd&&typeof cd.mv==="number"?cd.mv:null};
+  });
+  const played=DECKROWS.filter(r=>r.n>0).length;
+  setN("n-decks",played+" of "+DECKROWS.length+" played");
+  paintDecks();
 
   const rt=Object.entries(st.routes).sort((a,b)=>b[1]-a[1]);
   setN("n-routes",st.n+" finishes");
@@ -2141,6 +2140,63 @@ function longDate(d){
   if(d instanceof Date) return d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear();
   const p=String(d).split("-");
   return p.length===3?(+p[2])+" "+MONTHS[+p[1]-1]+" "+p[0]:String(d);
+}
+const DECKCOLS=[
+  {key:"name",  label:"Commander", tip:"Links to the card on Scryfall. Hover the name for the card image.", dir:1},
+  {key:"owner", label:"Pilot",     tip:"Whose deck it is.", dir:1},
+  {key:"ci",    label:"Colors",    tip:"Color identity of the commander, not of the deck.", dir:1},
+  {key:"mv",    label:"Mana",      tip:"Mana value of the commander. A partner pair is averaged.", dir:1},
+  {key:"rec",   label:"W\u2013L", tip:"Games this deck won and lost in the current selection. A deck that hasn't been played shows 0\u20130.", dir:-1},
+  {key:"rate",  label:"Rate",      tip:"Share of this deck's games that it won. Shaded red at 0% through gold to green at 100%; the number says the same thing.", dir:-1}
+];
+function deckSortValue(r,col){
+  if(col==="name")  return r.name.toLowerCase();
+  if(col==="owner") return r.owner.toLowerCase();
+  if(col==="ci")    return r.ci===null?null:(r.ci.length*100+"WUBRG".indexOf(r.ci[0]));
+  if(col==="mv")    return r.mv;
+  if(col==="rec")   return r.n?r.w*1000+r.n:null;
+  return r.rate;
+}
+function paintDecks(){
+  const dh=document.querySelector("#decks-head tr");
+  if(dh) dh.innerHTML=DECKCOLS.map(c=>{
+    const on=DECKSORT.col===c.key;
+    return '<th data-sort="'+c.key+'" aria-sort="'+(on?(DECKSORT.dir>0?"ascending":"descending"):"none")+
+      '" title="'+esc(c.tip+" Click to sort.")+'"><span class="hint sortable'+(on?" on":"")+'">'+
+      c.label+'<i class="arr">'+(on?(DECKSORT.dir>0?"\u25b2":"\u25bc"):"\u25c6")+'</i></span></th>';
+  }).join("");
+
+  const rows=DECKROWS.slice().sort((a,b)=>{
+    const x=deckSortValue(a,DECKSORT.col), y=deckSortValue(b,DECKSORT.col);
+    /* decks with nothing to compare always sit at the bottom */
+    if(x===null&&y===null) return a.name.localeCompare(b.name);
+    if(x===null) return 1;
+    if(y===null) return -1;
+    if(x<y) return -DECKSORT.dir;
+    if(x>y) return DECKSORT.dir;
+    return a.name.localeCompare(b.name);
+  });
+
+  document.getElementById("decks").innerHTML=rows.map(r=>{
+    const pips=r.ci?["W","U","B","R","G"].filter(c=>r.ci.indexOf(c)>=0)
+      .map(c=>'<i style="background:'+PIPHEX[c]+'"></i>').join(""):"";
+    return '<tr'+(r.n?'':' class="unplayed"')+'><td>'+cardCell(r.deck)+'</td>'+
+      '<td style="font-family:var(--sans);font-size:13px;color:var(--dim)">'+(r.owner||"\u2014")+'</td>'+
+      '<td>'+(pips?'<span class="pips">'+pips+'</span>':'<span class="down">\u2013</span>')+'</td>'+
+      '<td class="down">'+(r.mv===null?"\u2013":r.mv)+'</td>'+
+      '<td>'+r.w+'\u2013'+(r.n-r.w)+'</td>'+
+      '<td'+(r.rate===null?' class="down"':' style="color:'+rateColor(r.rate)+'"')+'>'+
+      (r.rate===null?"\u2013":fmt(r.rate))+'</td></tr>';
+  }).join("");
+
+  document.querySelectorAll("#decks-head th[data-sort]").forEach(th2=>{
+    th2.onclick=()=>{
+      const k=th2.dataset.sort;
+      const def=DECKCOLS.find(c=>c.key===k).dir;
+      DECKSORT = DECKSORT.col===k ? {col:k,dir:-DECKSORT.dir} : {col:k,dir:def};
+      paintDecks();
+    };
+  });
 }
 function prettyDate(d){
   const p=d.split("-"), M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];

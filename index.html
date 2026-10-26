@@ -87,6 +87,7 @@ h1 em{font-style:italic;font-weight:400;color:var(--gold)}
 .pod.drop-btn[aria-expanded="true"] b i{transform:rotate(180deg)}
 .drop-btn[aria-expanded="true"]{border-color:var(--gold)}
 .drop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;
+  max-height:min(60vh,420px);overflow-y:auto;
   min-width:min(250px,calc(100vw - 44px));max-width:calc(100vw - 44px);
   background:var(--felt-3);border:1px solid var(--edge);border-radius:4px;padding:6px;
   box-shadow:0 10px 30px var(--shade)}
@@ -625,9 +626,34 @@ function parseLog(txt){
     });
     let w=canon(winnerRaw.replace(/\s+wins?$/i,""));
     if(seats.length<2){ errors.push("Line "+(i+1)+" needs at least two decks written as name(seat)."); return; }
+    /* a deck not in the roster would otherwise become a phantom pilot with a
+       record of its own, so the line is rejected and named instead */
+    const unknown=seats.map(s=>s.deck).filter(dk=>!OWNERS[dk]);
+    if(unknown.length){
+      errors.push("Line "+(i+1)+": \u201c"+unknown.join("\u201d and \u201c")+
+        "\u201d "+(unknown.length>1?"are not decks":"is not a deck")+" in the roster. Add it to DECKS, or fix the spelling.");
+      return;
+    }
+    const dupDeck=seats.map(s=>s.deck).filter((dk,ix,arr)=>arr.indexOf(dk)!==ix);
+    if(dupDeck.length){ errors.push("Line "+(i+1)+": \u201c"+dupDeck[0]+"\u201d is seated twice."); return; }
+    const pilots=seats.map(s=>OWNERS[s.deck]);
+    const dupPilot=pilots.filter((pl,ix,arr)=>arr.indexOf(pl)!==ix);
+    if(dupPilot.length){ errors.push("Line "+(i+1)+": "+dupPilot[0]+" is seated twice."); return; }
+    const seatNos=seats.map(s=>s.seat).sort((a,b)=>a-b);
+    if(seatNos.some((v,ix)=>v!==ix+1)){
+      errors.push("Line "+(i+1)+": seats should be 1 to "+seats.length+", not "+seatNos.join(", ")+".");
+      return;
+    }
     if(!seats.some(s=>s.deck===w)){ errors.push("Line "+(i+1)+": winner \u201c"+w+"\u201d isn't one of the decks in that game."); return; }
     const players=seats.map(s=>OWNERS[s.deck]).filter(Boolean);
     const n=parseNotes(notes,players);
+    /* a mistyped turn would quietly drag the averages and the histogram */
+    const odd=(n.turns!==null&&(n.turns<1||n.turns>60))?n.turns
+      :(n.events.filter(e=>e.turn<1||e.turn>60)[0]||{}).turn;
+    if(odd!==undefined&&odd!==null){
+      errors.push("Line "+(i+1)+": turn "+odd+" doesn\u2019t look right. Turns should be between 1 and 60.");
+      return;
+    }
     const champ=OWNERS[w];
     const deaths=[], dead={};
     n.events.slice().sort((a,b)=>a.turn-b.turn).forEach(ev=>{
@@ -951,7 +977,9 @@ function dice(a,b){
 function pack(c){
   const face=(c.card_faces&&c.card_faces[0])||c;
   const img=(c.image_uris&&c.image_uris.normal)||(face.image_uris&&face.image_uris.normal)||null;
-  return {ci:(c.color_identity||[]).join(""), mv:typeof c.cmc==="number"?c.cmc:null,
+  return {ci:(c.color_identity||[]).slice()
+            .sort((a,b)=>"WUBRG".indexOf(a)-"WUBRG".indexOf(b)).join(""),
+          mv:typeof c.cmc==="number"?c.cmc:null,
     tag:tagOf((face.oracle_text||"")+" "+(c.oracle_text||"")), img:img};
 }
 let looking=false, LOOKUP_MSG="";
@@ -2155,7 +2183,12 @@ const DECKCOLS=[
 function deckSortValue(r,col){
   if(col==="name")  return r.name.toLowerCase();
   if(col==="owner") return r.owner.toLowerCase();
-  if(col==="ci")    return r.ci===null?null:(r.ci.length*100+"WUBRG".indexOf(r.ci[0]));
+  if(col==="ci"){
+    /* count of colours first, then the identity itself in WUBRG order, so
+       every WU sits together, then every WB, and so on */
+    if(r.ci===null) return null;
+    return r.ci.length+"-"+r.ci.split("").map(c=>"WUBRG".indexOf(c)).join("");
+  }
   if(col==="mv")    return r.mv;
   if(col==="rec")   return r.n?r.w*1000+r.n:null;
   return r.rate;

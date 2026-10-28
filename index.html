@@ -513,11 +513,11 @@ const DECKS = {
 ,
 
   "gargos":       ["John","Gargos, Vicious Watcher"],
-  "torbran":      ["John","Torbran, Thane of Red Fell"],
-  "malcolm and breeches":["John","Malcolm, Keen-Eyed Navigator & Breeches, Brazen Plunderer"],
+  "feldon":       ["John","Feldon of the Third Path"],
+  "edward kenway":["John","Edward Kenway"],
   "sephara":      ["John","Sephara, Sky's Blade"],
   "betor":        ["John","Betor, Ancestor's Voice"],
-  "hazezon":      ["John","Hazezon, Shaper of Sand"],
+  "yuma":         ["John","Yuma, Proud Protector"],
 
   "bello":        ["Tim","Bello, Bard of the Brambles"]
 };
@@ -578,6 +578,9 @@ syncTheme();
 
 let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", charts={};
 let LOG_MODIFIED=null, parseError=false;
+/* The day this file was last changed. Bump it when you edit the page
+   itself; the log has its own dates in the sessions dropdown. */
+const BUILD_DATE="2026-10-28";
 let DECKROWS=[], DECKSORT={col:"rate",dir:-1};
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
@@ -2017,12 +2020,11 @@ function render(){
   if(up){
     if(LOG_MODIFIED){
       up.textContent="Last updated "+longDate(LOG_MODIFIED);
-      up.title="Taken from when "+LOG_URL+" was last changed on the server";
-    } else if(allDates.length){
-      const newest=allDates[allDates.length-1];
-      up.textContent="Last updated "+longDate(newest);
-      up.title="The most recent session in the log";
-    } else up.textContent="";
+      up.title="When "+LOG_URL+" was last changed on the server";
+    } else {
+      up.textContent="Last updated "+longDate(BUILD_DATE);
+      up.title="When this page was last edited. Session dates are in the dropdown above.";
+    }
   }
 
   document.getElementById("pods").innerHTML=allSizes.map(k=>

@@ -473,6 +473,8 @@ const DECKS = {
   "mycotyrant":   ["Ryan","The Mycotyrant"],
   "rokiric":      ["Ryan","General Ferrous Rokiric"],
   "agatha":       ["Ryan","Agatha of the Vile Cauldron"],
+  "grist":        ["Ryan","Grist, the Hunger Tide"],
+  "zurzoth":      ["Ryan","Zurzoth, Chaos Rider"],
 
   "kenrith":      ["Ricardo","Kenrith, the Returned King"],
   "pantlaza":     ["Ricardo","Pantlaza, Sun's Favored"],
@@ -486,6 +488,7 @@ const DECKS = {
   "oloro":        ["Ricardo","Oloro, Ageless Ascetic"],
   "felothar":     ["Ricardo","Felothar the Steadfast"],
   "shay cormac":  ["Ricardo","Shay Cormac"],
+  "thalia and gitrog": ["Ricardo","Thalia and The Gitrog Monster"],
 
   "camellia":     ["Rudy","Camellia, the Seedmiser"],
   "giada":        ["Rudy","Giada, Font of Hope"],
@@ -507,6 +510,16 @@ const DECKS = {
   "muckslinger gang":["Stephen","The Muckslinger Gang"],
   "aminatou":     ["Stephen","Aminatou, the Fateshifter"],
   "vial smasher and sakashima":["Stephen","Vial Smasher the Fierce & Sakashima of a Thousand Faces"]
+,
+
+  "gargos":       ["John","Gargos, Vicious Watcher"],
+  "torbran":      ["John","Torbran, Thane of Red Fell"],
+  "malcolm and breeches":["John","Malcolm, Keen-Eyed Navigator & Breeches, Brazen Plunderer"],
+  "sephara":      ["John","Sephara, Sky's Blade"],
+  "betor":        ["John","Betor, Ancestor's Voice"],
+  "hazezon":      ["John","Hazezon, Shaper of Sand"],
+
+  "bello":        ["Tim","Bello, Bard of the Brambles"]
 };
 /* alternate spellings that appear in the log */
 const ALIASES = {
@@ -839,8 +852,8 @@ function drawRing(st, size){
 /* Pod members with nothing logged yet. They get a card of their own so the
    roster stays honest about who is meant to be here. */
 const ABSENT = [
-  {name:"John", line:"Awaiting more data. He seems to be avoiding the pod."},
-  {name:"Tim",  line:"Awaiting more data. He seems to always be busy."}
+  {name:"John", line:"Awaiting more data."},
+  {name:"Tim",  line:"Awaiting more data."}
 ];
 
 const CARD_DATA = {
@@ -2184,7 +2197,7 @@ function deckSortValue(r,col){
   if(col==="name")  return r.name.toLowerCase();
   if(col==="owner") return r.owner.toLowerCase();
   if(col==="ci"){
-    /* count of colours first, then the identity itself in WUBRG order, so
+    /* count of colors first, then the identity itself in WUBRG order, so
        every WU sits together, then every WB, and so on */
     if(r.ci===null) return null;
     return r.ci.length+"-"+r.ci.split("").map(c=>"WUBRG".indexOf(c)).join("");

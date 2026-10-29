@@ -499,6 +499,16 @@ const DECKS = {
   "ultima":       ["Rudy","Ultima, Origin of Oblivion"],
   "henzie":       ["Rudy",'Henzie "Toolbox" Torre'],
   "kambal":       ["Rudy","Kambal, Profiteering Mayor"],
+  "rocco":        ["Rudy","Rocco, Street Chef"],
+  "quintorius":   ["Rudy","Quintorius, History Chaser"],
+  "esika":        ["Rudy","Esika, God of the Tree"],
+  "zimone":       ["Rudy","Zimone, Infinite Analyst"],
+  "hope estheim": ["Rudy","Hope Estheim"],
+  "doctor doom":  ["Rudy","Doctor Doom, King of Latveria"],
+  "kasla":        ["Rudy","Kasla, the Broken Halo"],
+  "fantastic four":["Rudy","The Fantastic Four"],
+  "sephiroth":    ["Rudy","Sephiroth, Fabled SOLDIER"],
+  "terra":        ["Rudy","Terra, Herald of Hope"],
 
   "sonic":        ["Stephen","Sonic the Hedgehog"],
   "toph":         ["Stephen","Toph, the First Metalbender"],
@@ -580,7 +590,7 @@ let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", chart
 let LOG_MODIFIED=null, parseError=false;
 /* The day this file was last changed. Bump it when you edit the page
    itself; the log has its own dates in the sessions dropdown. */
-const BUILD_DATE="2026-10-28";
+const BUILD_DATE="2026-10-29";
 let DECKROWS=[], DECKSORT={col:"rate",dir:-1};
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
@@ -2371,8 +2381,18 @@ if(AUTO_LOOKUP){
       if(!Object.keys(CARD_DATA).length&&sub)
         sub.textContent=base+" Color and mana detail needs a connection \u2014 press Refresh card data to try again.";
       if(Object.keys(CARD_DATA).length&&!logError&&!parseError){
-        status.className="status good";
-        status.textContent="Card data loaded. Press Save updated copy to bake it in so this never has to run again.";
+        /* name anything Scryfall didn't recognise, so a misspelling in DECKS
+           is visible rather than quietly showing a dash in the deck table */
+        const unresolved=Object.keys(DECKS).filter(k=>!CARD_DATA[k]);
+        if(unresolved.length){
+          status.className="status bad";
+          status.textContent="Card data loaded, but Scryfall had no match for "+
+            unresolved.map(k=>"\u201c"+(SEEDS[k]||k)+"\u201d").join(", ")+
+            ". Check the spelling in DECKS. Everything else is fine.";
+        } else {
+          status.className="status good";
+          status.textContent="Card data loaded. Press Save updated copy to bake it in so this never has to run again.";
+        }
       }
     });
   }

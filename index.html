@@ -255,6 +255,7 @@ tbody tr:last-child td{border-bottom:0}
 th[data-sort]{cursor:pointer}
 th[data-sort]:hover .sortable{color:var(--ivory);border-bottom-color:var(--gold)}
 tr.unplayed td{opacity:.62}
+tr.offview td:nth-child(5),tr.offview td:nth-child(6){color:var(--muted)}
 tr.unplayed td:first-child{opacity:1}
 .matrix thead th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
   border-bottom:1px solid var(--rule)}
@@ -424,7 +425,7 @@ a.card.loose{color:var(--dim);border-bottom-style:dotted}
   <div class="duo solo">
     <section class="panel" aria-labelledby="h-decks">
       <div class="phead"><h2 id="h-decks">Deck records</h2><span class="n" id="n-decks"></span></div>
-      <p class="sub">Every commander in the roster, whether it has been played or not. Click a column heading to sort by it, and again to reverse. Unplayed decks show a dash and are dimmed; they count towards nothing else on this page.</p>
+      <p class="sub">Every commander in the roster, whether it has been played or not. Click a column heading to sort by it, and again to reverse. Decks that have never been played are dimmed and count towards nothing else on this page. Records and rates follow the pod size and session filters, so a deck that has only been played in other pod sizes shows 0\u20130 here without being dimmed.</p>
       <div class="scroll"><table>
         <thead id="decks-head"><tr></tr></thead>
         <tbody id="decks"></tbody>
@@ -2171,15 +2172,17 @@ function render(){
 
   /* Every commander in the roster is listed, played or not. Unplayed ones
      show a dash and are excluded from every other number on the page. */
+  const everPlayed={};
+  GAMES.forEach(g=>g.seats.forEach(s2=>{ everPlayed[s2.deck]=(everPlayed[s2.deck]||0)+1; }));
   DECKROWS=Object.keys(DECKS).map(k=>{
     const v=st.decks[k]||{n:0,w:0};
     const cd=cardOf(k);
-    return {deck:k, name:deckName(k), owner:OWNERS[k]||"", n:v.n, w:v.w,
+    return {deck:k, name:deckName(k), owner:OWNERS[k]||"", n:v.n, w:v.w, ever:everPlayed[k]||0,
             rate:v.n?pct(v.w,v.n):null,
             ci:cd&&cd.ci?cd.ci:null,
             mv:cd&&typeof cd.mv==="number"?cd.mv:null};
   });
-  const played=DECKROWS.filter(r=>r.n>0).length;
+  const played=DECKROWS.filter(r=>r.ever>0).length;
   setN("n-decks",played+" of "+DECKROWS.length+" played");
   paintDecks();
 
@@ -2253,7 +2256,11 @@ function paintDecks(){
   const rows=DECKROWS.slice().sort((a,b)=>{
     const x=deckSortValue(a,DECKSORT.col), y=deckSortValue(b,DECKSORT.col);
     /* decks with nothing to compare always sit at the bottom */
-    if(x===null&&y===null) return a.name.localeCompare(b.name);
+    if(x===null&&y===null){
+      /* played elsewhere ranks above never played */
+      if(!!a.ever!==!!b.ever) return a.ever?-1:1;
+      return a.name.localeCompare(b.name);
+    }
     if(x===null) return 1;
     if(y===null) return -1;
     if(x<y) return -DECKSORT.dir;
@@ -2264,7 +2271,11 @@ function paintDecks(){
   document.getElementById("decks").innerHTML=rows.map(r=>{
     const pips=r.ci?["W","U","B","R","G"].filter(c=>r.ci.indexOf(c)>=0)
       .map(c=>'<i style="background:'+PIPHEX[c]+'"></i>').join(""):"";
-    return '<tr'+(r.n?'':' class="unplayed"')+'><td>'+cardCell(r.deck)+'</td>'+
+    const cls=!r.ever?' class="unplayed" title="Never played."'
+             :!r.n?' class="offview" title="'+esc("No games in the current selection. Played "+
+                 times(r.ever)+" overall \u2014 widen the pod size or session filters to see them.")+'"'
+             :'';
+    return '<tr'+cls+'><td>'+cardCell(r.deck)+'</td>'+
       '<td style="font-family:var(--sans);font-size:13px;color:var(--dim)">'+(r.owner||"\u2014")+'</td>'+
       '<td>'+(pips?'<span class="pips">'+pips+'</span>':'<span class="down">\u2013</span>')+'</td>'+
       '<td class="down">'+(r.mv===null?"\u2013":r.mv)+'</td>'+

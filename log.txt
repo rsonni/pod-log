@@ -31,3 +31,7 @@
 2026-10-10 | katilda(1) vs obeka(2) vs eshki(3) | katilda | combat damage | Rudy kills ricardo turn 7, Ryan kills rudy turn 8
 2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | kuja | burn | Rudy kills both players turn 6
 2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | purphoros | burn | Ricardo kills rudy turn 6, Ricardo kills Ryan turn 7
+2026-10-29 | agatha(2) vs thalia and gitrog(3) vs lightning(1) | thalia and gitrog | combat damage | Rudy kills Ryan turn 7, Ricardo kills rudy turn 7
+2026-10-29 | rokiric(1) vs jin sakai(2) vs aloy(3) | jin sakai | combat damage leading to 'loses the game' trigger | Ricardo kills rudy turn 7, Ricardo kills Ryan turn 8
+2026-10-29 | tidus(1) vs loot(2) vs shay cormac(3) | loot | burn and combat damage | Ryan kills both players turn 10
+2026-10-29 | aloy(1) vs ognis(2) vs felothar(3) | aloy | flying combat damage | Rudy kills Ryan turn 11, Rudy kills ricardo turn 12

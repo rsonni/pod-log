@@ -509,6 +509,7 @@ const DECKS = {
   "fantastic four":["Rudy","The Fantastic Four"],
   "sephiroth":    ["Rudy","Sephiroth, Fabled SOLDIER"],
   "terra":        ["Rudy","Terra, Herald of Hope"],
+  "lightning":    ["Rudy","Lightning, Army of One"],
 
   "sonic":        ["Stephen","Sonic the Hedgehog"],
   "toph":         ["Stephen","Toph, the First Metalbender"],
@@ -537,7 +538,9 @@ const ALIASES = {
   "vial smasher sakashima":"vial smasher and sakashima",
   "ultima oblivion":"ultima",
   "feltothar":"felothar",
-  "ferrous":"rokiric"
+  "ferrous":"rokiric",
+  "thalia gitrog":"thalia and gitrog",
+  "shay":"shay cormac"
 };
 const OWNERS={}, SEEDS={};
 Object.keys(DECKS).forEach(k=>{ OWNERS[k]=DECKS[k][0]; SEEDS[k]=DECKS[k][1]; });
@@ -574,7 +577,11 @@ const DEFAULT_LOG = `2026-06-11 | amalia(1) vs kenrith(2) vs camellia(3) | amali
 2026-10-10 | rokiric(1) vs zur(2) vs giada(3) | rokiric | brave the elements and double strike (combat damage) | Ryan kills both players turn 8
 2026-10-10 | katilda(1) vs obeka(2) vs eshki(3) | katilda | combat damage | Rudy kills ricardo turn 7, Ryan kills rudy turn 8
 2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | kuja | burn | Rudy kills both players turn 6
-2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | purphoros | burn | Ricardo kills rudy turn 6, Ricardo kills Ryan turn 7`;
+2026-10-10 | kuja(1) vs rokiric(2) vs purphoros(3) | purphoros | burn | Ricardo kills rudy turn 6, Ricardo kills Ryan turn 7
+2026-10-29 | agatha(2) vs thalia and gitrog(3) vs lightning(1) | thalia and gitrog | combat damage | Rudy kills Ryan turn 7, Ricardo kills rudy turn 7
+2026-10-29 | rokiric(1) vs jin sakai(2) vs aloy(3) | jin sakai | combat damage leading to 'loses the game' trigger | Ricardo kills rudy turn 7, Ricardo kills Ryan turn 8
+2026-10-29 | tidus(1) vs loot(2) vs shay cormac(3) | loot | burn and combat damage | Ryan kills both players turn 10
+2026-10-29 | aloy(1) vs ognis(2) vs felothar(3) | aloy | flying combat damage | Rudy kills Ryan turn 11, Rudy kills ricardo turn 12`;
 
 let PALETTE=[], SEAT_TINTS=[], GOLD, DIMC, RULE, SUNK, PANEL, INK, LAST_GS=null;
 const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -590,7 +597,7 @@ let GAMES=[], SIZES=null, DATES=null, FORMMODE="wins", KILLMODE="stalled", chart
 let LOG_MODIFIED=null, parseError=false;
 /* The day this file was last changed. Bump it when you edit the page
    itself; the log has its own dates in the sessions dropdown. */
-const BUILD_DATE="2026-10-29";
+const BUILD_DATE="2026-11-01";
 let DECKROWS=[], DECKSORT={col:"rate",dir:-1};
 const VIEW_HTML=document.getElementById("view").innerHTML;
 function teardown(){
@@ -739,6 +746,10 @@ function parseLog(txt){
 function normRoute(t){
   t=(t||"").toLowerCase();
   if(/combo|infinite|loop/.test(t)) return "Combo";
+  /* naming both is one finish, not two \u2014 it gets its own category so the
+     categories still add up to the number of games */
+  if(/combat/.test(t)&&/burn|ignition|life loss|damage to (each|all|every)|ping/.test(t))
+    return "Combat damage and burn";
   if(/combat/.test(t)) return "Combat damage";
   if(/drain/.test(t)) return "Life drain";
   if(/burn|ignition|life loss|damage to (each|all|every)|ping/.test(t)) return "Burn";
@@ -1279,9 +1290,21 @@ function summarize(name,p,sup,dst){
     if(notable) line+=" \u2014 "+(W>p.exp?"the best conversion at the table, and far enough clear to mean something: a run this good"
       :"a cold run long enough to clear the noise bar: a stretch this quiet")+
       " turns up by chance about "+Math.round(odd*100)+"% of the time.";
-    else line+=(Math.abs(W-p.exp)<0.5?", which is par to within a rounding error."
-      :W>p.exp?", a shade ahead of par, though on "+p.n+" games that gap is well inside noise."
-              :", a little under par, which over "+p.n+" games is well within normal variation.");
+    else {
+      /* Three bands rather than two, so a tiny change in probability can't
+         flip the wording from "significant" to "nothing to see". */
+      const gap=Math.abs(W-p.exp), ahead=W>p.exp;
+      if(gap<0.5)
+        line+=", which is par to within a rounding error.";
+      else if(odd<=0.15&&p.n>=12)
+        line+=" \u2014 "+(ahead?"ahead of":"under")+" par by more than luck usually accounts for, "+
+              "though not by enough to rule luck out.";
+      else if(gap<1.5)
+        line+=ahead?", a shade ahead of par, though on "+p.n+" games that gap is well inside noise."
+                   :", a little under par, which over "+p.n+" games is well within normal variation.";
+      else
+        line+=", "+(ahead?"ahead of":"under")+" par, though over "+p.n+" games that is still inside normal variation.";
+    }
     C.push(line);
   }
 
